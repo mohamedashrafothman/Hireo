@@ -1,0 +1,446 @@
+extends ./layouts/_index_layout.pug
+
+block append variables
+	- var page_name = "home 2";
+
+block content
+	//
+		Intro Banner
+		==================================================
+	.intro-banner.dark-overlay(data-background-image='images/home-background-02.jpg')
+		// Transparent Header Spacer
+		.transparent-header-spacer
+		.container
+			// Intro Headline
+			.row
+				.col-md-12
+					.banner-headline
+						h3
+							strong Hire experts freelancers for any job, any time.
+							br
+							span Huge community of designers, developers and creatives ready for your project.
+			// Search Bar
+			.row
+				.col-md-12
+					.intro-banner-search-form.margin-top-95
+						// Search Field
+						.intro-search-field.with-autocomplete
+							label.field-title.ripple-effect(for='autocomplete-input') Where?
+							.input-with-icon
+								input#autocomplete-input(type='text', placeholder='Online Job')
+								i.icon-material-outline-location-on
+						// Search Field
+						.intro-search-field
+							label.field-title.ripple-effect(for='intro-keywords') What you need done?
+							input#intro-keywords(type='text', placeholder='e.g. build me a website')
+						// Search Field
+						.intro-search-field
+							select.selectpicker.default(multiple='', data-selected-text-format='count', data-size='7', title='All Categories')
+								option Admin Support
+								option Customer Service
+								option Data Analytics
+								option Design & Creative
+								option Legal
+								option Software Developing
+								option IT & Networking
+								option Writing
+								option Translation
+								option Sales & Marketing
+						// Button
+						.intro-search-button
+							button.button.ripple-effect(onclick="window.location.href='freelancers-grid-layout-full-page.html'") Search
+			// Stats
+			.row
+				.col-md-12
+					ul.intro-stats.margin-top-45.hide-under-992px
+						li
+							strong.counter 1,586
+							span Jobs Posted
+						li
+							strong.counter 3,543
+							span Tasks Posted
+						li
+							strong.counter 1,232
+							span Freelancers
+	//
+		Content
+		==================================================
+	// Popular Job Categories
+	.section.margin-top-65.margin-bottom-30
+		.container
+			.row
+				// Section Headline
+				.col-xl-12
+					.section-headline.centered.margin-top-0.margin-bottom-45
+						h3 Popular Categories
+				.col-xl-3.col-md-6
+					// Photo Box
+					a.photo-box.small(href='jobs-list-layout-1.html', data-background-image='images/job-category-01.jpg')
+						.photo-box-content
+							h3 Web / Software Dev
+							span 612
+				.col-xl-3.col-md-6
+					// Photo Box
+					a.photo-box.small(href='jobs-list-layout-full-page-map.html', data-background-image='images/job-category-02.jpg')
+						.photo-box-content
+							h3 Data Science / Analitycs
+							span 113
+				.col-xl-3.col-md-6
+					// Photo Box
+					a.photo-box.small(href='jobs-grid-layout-full-page.html', data-background-image='images/job-category-03.jpg')
+						.photo-box-content
+							h3 Accounting / Consulting
+							span 186
+				.col-xl-3.col-md-6
+					// Photo Box
+					a.photo-box.small(href='jobs-list-layout-2.html', data-background-image='images/job-category-04.jpg')
+						.photo-box-content
+							h3 Writing & Translations
+							span 298
+				.col-xl-3.col-md-6
+					// Photo Box
+					a.photo-box.small(href='jobs-list-layout-1.html', data-background-image='images/job-category-05.jpg')
+						.photo-box-content
+							h3 Sales & Marketing
+							span 549
+				.col-xl-3.col-md-6
+					// Photo Box
+					a.photo-box.small(href='jobs-list-layout-full-page-map.html', data-background-image='images/job-category-06.jpg')
+						.photo-box-content
+							h3 Graphics & Design
+							span 873
+				.col-xl-3.col-md-6
+					// Photo Box
+					a.photo-box.small(href='jobs-grid-layout-full-page.html', data-background-image='images/job-category-07.jpg')
+						.photo-box-content
+							h3 Digital Marketing
+							span 125
+				.col-xl-3.col-md-6
+					// Photo Box
+					a.photo-box.small(href='jobs-list-layout-2.html', data-background-image='images/job-category-08.jpg')
+						.photo-box-content
+							h3 Education & Training
+							span 445
+	// Features Cities / End
+	// Features Jobs
+	.section.gray.margin-top-45.padding-top-65.padding-bottom-75
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.margin-top-0.margin-bottom-35
+						h3 Recent Tasks
+						a.headline-link(href='tasks-list-layout-1.html') Browse All Tasks
+					// Jobs Container
+					.tasks-list-container.compact-list.margin-top-35
+						// Task
+						a.task-listing(href='single-task-page.html')
+							// Job Listing Details
+							.task-listing-details
+								// Details
+								.task-listing-description
+									h3.task-listing-title Food Delviery Mobile App
+									ul.task-icons
+										li
+											i.icon-material-outline-location-on
+											|  San Francisco
+										li
+											i.icon-material-outline-access-time
+											|  2 minutes ago
+									.task-tags.margin-top-15
+										span iOS
+										span Android
+										span mobile apps
+										span design
+							.task-listing-bid
+								.task-listing-bid-inner
+									.task-offers
+										strong $1,000 - $2,500
+										span Fixed Price
+									span.button.button-sliding-icon.ripple-effect
+										| Bid Now
+										i.icon-material-outline-arrow-right-alt
+						// Task
+						a.task-listing(href='single-task-page.html')
+							// Job Listing Details
+							.task-listing-details
+								// Details
+								.task-listing-description
+									h3.task-listing-title 2000 Words English to German
+									ul.task-icons
+										li
+											i.icon-material-outline-location-off
+											|  Online Job
+										li
+											i.icon-material-outline-access-time
+											|  5 minutes ago
+									.task-tags.margin-top-15
+										span copywriting
+										span translating
+										span editing
+							.task-listing-bid
+								.task-listing-bid-inner
+									.task-offers
+										strong $75
+										span Fixed Price
+									span.button.button-sliding-icon.ripple-effect
+										| Bid Now
+										i.icon-material-outline-arrow-right-alt
+						// Task
+						a.task-listing(href='single-task-page.html')
+							// Job Listing Details
+							.task-listing-details
+								// Details
+								.task-listing-description
+									h3.task-listing-title Fix Python Selenium Code
+									ul.task-icons
+										li
+											i.icon-material-outline-location-off
+											|  Online Job
+										li
+											i.icon-material-outline-access-time
+											|  30 minutes ago
+									.task-tags.margin-top-15
+										span Python
+										span Flask
+										span API Development
+							.task-listing-bid
+								.task-listing-bid-inner
+									.task-offers
+										strong $100 - $150
+										span Hourly Rate
+									span.button.button-sliding-icon.ripple-effect
+										| Bid Now
+										i.icon-material-outline-arrow-right-alt
+						// Task
+						a.task-listing(href='single-task-page.html')
+							// Job Listing Details
+							.task-listing-details
+								// Details
+								.task-listing-description
+									h3.task-listing-title WordPress Theme Installation
+									ul.task-icons
+										li
+											i.icon-material-outline-location-off
+											|  Online Job
+										li
+											i.icon-material-outline-access-time
+											|  1 hour ago
+									.task-tags.margin-top-15
+										span WordPress
+										span Theme Installation
+							.task-listing-bid
+								.task-listing-bid-inner
+									.task-offers
+										strong $100
+										span Fixed Price
+									span.button.button-sliding-icon.ripple-effect
+										| Bid Now
+										i.icon-material-outline-arrow-right-alt
+						// Task
+						a.task-listing(href='single-task-page.html')
+							// Job Listing Details
+							.task-listing-details
+								// Details
+								.task-listing-description
+									h3.task-listing-title PHP Core Website Fixes
+									ul.task-icons
+										li
+											i.icon-material-outline-location-off
+											|  Online Job
+										li
+											i.icon-material-outline-access-time
+											|  1 hour ago
+									.task-tags.margin-top-15
+										span PHP
+										span MySQL Administration
+										span API Development
+							.task-listing-bid
+								.task-listing-bid-inner
+									.task-offers
+										strong $50 - $80
+										span Hourly Rate
+									span.button.button-sliding-icon.ripple-effect
+										| Bid Now
+										i.icon-material-outline-arrow-right-alt
+					// Jobs Container / End
+	// Featured Jobs / End
+	// Icon Boxes
+	.section.padding-top-65.padding-bottom-65
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.centered.margin-top-0.margin-bottom-5
+						h3 How It Works?
+				.col-xl-4.col-md-4
+					// Icon Box
+					.icon-box.with-line
+						// Icon
+						.icon-box-circle
+							.icon-box-circle-inner
+								i.icon-line-awesome-lock
+								.icon-box-check
+									i.icon-material-outline-check
+						h3 Create an Account
+						p
+							| Bring to the table win-win survival strategies to ensure proactive domination going forward.
+				.col-xl-4.col-md-4
+					// Icon Box
+					.icon-box.with-line
+						// Icon
+						.icon-box-circle
+							.icon-box-circle-inner
+								i.icon-line-awesome-legal
+								.icon-box-check
+									i.icon-material-outline-check
+						h3 Post a Task
+						p
+							| Efficiently unleash cross-media information without. Quickly maximize return on investment.
+				.col-xl-4.col-md-4
+					// Icon Box
+					.icon-box
+						// Icon
+						.icon-box-circle
+							.icon-box-circle-inner
+								i.icon-line-awesome-trophy
+								.icon-box-check
+									i.icon-material-outline-check
+						h3 Choose an Expert
+						p
+							| Nanotechnology immersion along the information highway will close the loop on focusing solely.
+	// Icon Boxes / End
+	// Testimonials
+	.section.gray.padding-top-65.padding-bottom-55
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.centered.margin-top-0.margin-bottom-5
+						h3 Testimonials
+		// Categories Carousel
+		.fullwidth-carousel-container.margin-top-20
+			.testimonial-carousel.testimonials
+				// Item
+				.fw-carousel-review
+					.testimonial-box
+						.testimonial-avatar
+							img(src='images/user-avatar-small-02.jpg', alt='')
+						.testimonial-author
+							h4 Sindy Forest
+							span Freelancer
+						.testimonial
+							| Efficiently unleash cross-media information without cross-media value. Quickly maximize timely deliverables for real-time schemas. Dramatically maintain clicks-and-mortar solutions without functional solutions.
+				// Item
+				.fw-carousel-review
+					.testimonial-box
+						.testimonial-avatar
+							img(src='images/user-avatar-small-01.jpg', alt='')
+						.testimonial-author
+							h4 Tom Smith
+							span Freelancer
+						.testimonial
+							| Completely synergize resource taxing relationships via premier niche markets. Professionally cultivate one-to-one customer service with robust ideas. Dynamically innovate resource-leveling customer service for state of the art.
+				// Item
+				.fw-carousel-review
+					.testimonial-box
+						.testimonial-avatar
+							img(src='images/user-avatar-placeholder.png', alt='')
+						.testimonial-author
+							h4 Sebastiano Piccio
+							span Employer
+						.testimonial
+							| Completely synergize resource taxing relationships via premier niche markets. Professionally cultivate one-to-one customer service with robust ideas. Dynamically innovate resource-leveling customer service for state of the art.
+				// Item
+				.fw-carousel-review
+					.testimonial-box
+						.testimonial-avatar
+							img(src='images/user-avatar-small-03.jpg', alt='')
+						.testimonial-author
+							h4 David Peterson
+							span Freelancer
+						.testimonial
+							| Collaboratively administrate turnkey channels whereas virtual e-tailers. Objectively seize scalable metrics whereas proactive e-services. Seamlessly empower fully researched growth strategies and interoperable sources.
+				// Item
+				.fw-carousel-review
+					.testimonial-box
+						.testimonial-avatar
+							img(src='images/user-avatar-placeholder.png', alt='')
+						.testimonial-author
+							h4 Marcin Kowalski
+							span Freelancer
+						.testimonial
+							| Efficiently unleash cross-media information without cross-media value. Quickly maximize timely deliverables for real-time schemas. Dramatically maintain clicks-and-mortar solutions without functional solutions.
+		// Categories Carousel / End
+	// Testimonials / End
+	// Counters
+	.section.padding-top-70.padding-bottom-75
+		.container
+			.row
+				.col-xl-12
+					.counters-container
+						// Counter
+						.single-counter
+							i.icon-line-awesome-suitcase
+							.counter-inner
+								h3
+									span.counter 1,586
+								span.counter-title Jobs Posted
+						// Counter
+						.single-counter
+							i.icon-line-awesome-legal
+							.counter-inner
+								h3
+									span.counter 3,543
+								span.counter-title Tasks Posted
+						// Counter
+						.single-counter
+							i.icon-line-awesome-user
+							.counter-inner
+								h3
+									span.counter 2,413
+								span.counter-title Active Members
+						// Counter
+						.single-counter
+							i.icon-line-awesome-trophy
+							.counter-inner
+								h3
+									span.counter 99
+									| %
+								span.counter-title Satisfaction Rate
+	// Counters / End
+
+block append scripts
+
+	// Snackbar // documentation: https://www.polonel.com/snackbar/
+	script.
+		// Snackbar for user status switcher
+		$('#snackbar-user-status label').click(function() {
+			Snackbar.show({
+				text: 'Your status has been changed!',
+				pos: 'bottom-center',
+				showAction: false,
+				actionText: "Dismiss",
+				duration: 3000,
+				textColor: '#fff',
+				backgroundColor: '#383838'
+			});
+		});
+	// Google Autocomplete
+	script.
+		function initAutocomplete() {
+			var options = {
+				types: ['(cities)'],
+				// componentRestrictions: {country: "us"}
+			};
+			var input = document.getElementById('autocomplete-input');
+			var autocomplete = new google.maps.places.Autocomplete(input, options);
+		}
+		// Autocomplete adjustment for homepage
+		if ($('.intro-banner-search-form')[0]) {
+			setTimeout(function(){
+				$(".pac-container").prependTo(".intro-search-field.with-autocomplete");
+			}, 300);
+		}
+	// Google API
+	script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyAgeuuDfRlweIs7D6uo4wdIHVvJ0LonQ6g&libraries=places&callback=initAutocomplete')

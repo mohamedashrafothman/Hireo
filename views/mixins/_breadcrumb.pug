@@ -1,0 +1,15 @@
+mixin breadcrumb(data=[], color="dark")
+	nav#breadcrumbs(class=color)
+		ul
+			each page, index in data
+				if (index !== data.length-1)
+					li
+						if (_.isEqual(page, ''))
+							a(href="/") Home
+						else
+							a(href=`/${page}`)= `${_.capitalize(page)}`
+				if (index == data.length-1 )
+					li(aria-current='page', data-tippy-placement="top", data-tippy="", data-original-title=data[data.length-1])
+						= `${_.capitalize(data[data.length-1].split('').slice(0, 20).join(''))}`
+						if (data[data.length-1].split('').length >= 20)
+							| ...

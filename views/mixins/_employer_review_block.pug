@@ -1,0 +1,17 @@
+mixin employer_review_block(data={}, index=0)
+	.boxed-list-item
+		// Content
+		.item-content
+			h4
+				=data.title
+				if (data.name)
+					span=data.name
+				else
+					span Anonymous
+			.item-details.margin-top-10
+				.star-rating(data-rating=`${data.rating}`)
+				.detail-item
+					i.icon-material-outline-date-range
+					|  August 2018
+			.item-description
+				p=data.message

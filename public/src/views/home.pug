@@ -1,0 +1,681 @@
+extends ./layouts/_index_layout.pug
+
+block append variables
+	- var page_name = "home";
+
+block content
+	//
+		Intro Banner
+		==================================================
+	// add class "disable-gradient" to enable consistent background overlay
+	.intro-banner(data-background-image='images/home-background.jpg')
+		.container
+			// Intro Headline
+			.row
+				.col-md-12
+					.banner-headline
+						h3
+							strong Hire experts or be hired for any job, any time.
+							br
+							span
+								| Thousands of small businesses use
+								strong.color  Hireo
+								|  to turn their ideas into reality.
+			// Search Bar
+			.row
+				.col-md-12
+					.intro-banner-search-form.margin-top-95
+						// Search Field
+						.intro-search-field.with-autocomplete
+							label.field-title.ripple-effect(for='autocomplete-input') Where?
+							.input-with-icon
+								input#autocomplete-input(type='text', placeholder='Online Job')
+								i.icon-material-outline-location-on
+						// Search Field
+						.intro-search-field
+							label.field-title.ripple-effect(for='intro-keywords') What job you want?
+							input#intro-keywords(type='text', placeholder='Job Title or Keywords')
+						// Button
+						.intro-search-button
+							button.button.ripple-effect(onclick="window.location.href='jobs-list-layout-full-page-map.html'") Search
+			// Stats
+			.row
+				.col-md-12
+					ul.intro-stats.margin-top-45.hide-under-992px
+						li
+							strong.counter 1,586
+							span Jobs Posted
+						li
+							strong.counter 3,543
+							span Tasks Posted
+						li
+							strong.counter 1,232
+							span Freelancers
+	//
+		Content
+		==================================================
+	// Category Boxes
+	.section.margin-top-65
+		.container
+			.row
+				.col-xl-12
+					.section-headline.centered.margin-bottom-15
+						h3 Popular Job Categories
+					// Category Boxes Container
+					.categories-container
+						// Category Box
+						a.category-box(href='jobs-grid-layout-full-page.html')
+							.category-box-icon
+								i.icon-line-awesome-file-code-o
+							.category-box-counter 612
+							.category-box-content
+								h3 Web & Software Dev
+								p Software Engineer, Web / Mobile Developer & More
+						// Category Box
+						a.category-box(href='jobs-list-layout-full-page-map.html')
+							.category-box-icon
+								i.icon-line-awesome-cloud-upload
+							.category-box-counter 113
+							.category-box-content
+								h3 Data Science & Analitycs
+								p Data Specialist / Scientist, Data Analyst & More
+						// Category Box
+						a.category-box(href='jobs-list-layout-full-page-map.html')
+							.category-box-icon
+								i.icon-line-awesome-suitcase
+							.category-box-counter 186
+							.category-box-content
+								h3 Accounting & Consulting
+								p Auditor, Accountant, Fnancial Analyst & More
+						// Category Box
+						a.category-box(href='jobs-list-layout-1.html')
+							.category-box-icon
+								i.icon-line-awesome-pencil
+							.category-box-counter 298
+							.category-box-content
+								h3 Writing & Translations
+								p Copywriter, Creative Writer, Translator & More
+						// Category Box
+						a.category-box(href='jobs-list-layout-2.html')
+							.category-box-icon
+								i.icon-line-awesome-pie-chart
+							.category-box-counter 549
+							.category-box-content
+								h3 Sales & Marketing
+								p Brand Manager, Marketing Coordinator & More
+						// Category Box
+						a.category-box(href='jobs-list-layout-1.html')
+							.category-box-icon
+								i.icon-line-awesome-image
+							.category-box-counter 873
+							.category-box-content
+								h3 Graphics & Design
+								p Creative Director, Web Designer & More
+						// Category Box
+						a.category-box(href='jobs-list-layout-2.html')
+							.category-box-icon
+								i.icon-line-awesome-bullhorn
+							.category-box-counter 125
+							.category-box-content
+								h3 Digital Marketing
+								p Darketing Analyst, Social Profile Admin & More
+						// Category Box
+						a.category-box(href='jobs-grid-layout-full-page.html')
+							.category-box-icon
+								i.icon-line-awesome-graduation-cap
+							.category-box-counter 445
+							.category-box-content
+								h3 Education & Training
+								p Advisor, Coach, Education Coordinator & More
+	// Category Boxes / End
+
+	// Features Jobs
+	.section.gray.margin-top-45.padding-top-65.padding-bottom-75
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.margin-top-0.margin-bottom-35
+						h3 Featured Jobs
+						a.headline-link(href='jobs-list-layout-full-page-map.html') Browse All Jobs
+					// Jobs Container
+					.listings-container.compact-list-layout.margin-top-35
+						// Job Listing
+						a.job-listing.with-apply-button(href='single-job-page.html')
+							// Job Listing Details
+							.job-listing-details
+								// Logo
+								.job-listing-company-logo
+									img(src='images/company-logo-01.png', alt='')
+								// Details
+								.job-listing-description
+									h3.job-listing-title Bilingual Event Support Specialist
+									// Job Listing Footer
+									.job-listing-footer
+										ul
+											li
+												i.icon-material-outline-business
+												|  Hexagon
+												.verified-badge(title='Verified Employer', data-tippy-placement='top')
+											li
+												i.icon-material-outline-location-on
+												|  San Francissco
+											li
+												i.icon-material-outline-business-center
+												|  Full Time
+											li
+												i.icon-material-outline-access-time
+												|  2 days ago
+								// Apply Button
+								span.list-apply-button.ripple-effect Apply Now
+						// Job Listing
+						a.job-listing.with-apply-button(href='single-job-page.html')
+							// Job Listing Details
+							.job-listing-details
+								// Logo
+								.job-listing-company-logo
+									img(src='images/company-logo-05.png', alt='')
+								// Details
+								.job-listing-description
+									h3.job-listing-title Competition Law Officer
+									// Job Listing Footer
+									.job-listing-footer
+										ul
+											li
+												i.icon-material-outline-business
+												|  Laxo
+											li
+												i.icon-material-outline-location-on
+												|  San Francissco
+											li
+												i.icon-material-outline-business-center
+												|  Full Time
+											li
+												i.icon-material-outline-access-time
+												|  2 days ago
+								// Apply Button
+								span.list-apply-button.ripple-effect Apply Now
+						// Job Listing
+						a.job-listing.with-apply-button(href='single-job-page.html')
+							// Job Listing Details
+							.job-listing-details
+								// Logo
+								.job-listing-company-logo
+									img(src='images/company-logo-02.png', alt='')
+								// Details
+								.job-listing-description
+									h3.job-listing-title Barista and Cashier
+									// Job Listing Footer
+									.job-listing-footer
+										ul
+											li
+												i.icon-material-outline-business
+												|  Coffee
+											li
+												i.icon-material-outline-location-on
+												|  San Francissco
+											li
+												i.icon-material-outline-business-center
+												|  Full Time
+											li
+												i.icon-material-outline-access-time
+												|  2 days ago
+								// Apply Button
+								span.list-apply-button.ripple-effect Apply Now
+						// Job Listing
+						a.job-listing.with-apply-button(href='single-job-page.html')
+							// Job Listing Details
+							.job-listing-details
+								// Logo
+								.job-listing-company-logo
+									img(src='images/company-logo-03.png', alt='')
+								// Details
+								.job-listing-description
+									h3.job-listing-title Restaurant General Manager
+									// Job Listing Footer
+									.job-listing-footer
+										ul
+											li
+												i.icon-material-outline-business
+												|  King
+												.verified-badge(title='Verified Employer', data-tippy-placement='top')
+											li
+												i.icon-material-outline-location-on
+												|  San Francissco
+											li
+												i.icon-material-outline-business-center
+												|  Full Time
+											li
+												i.icon-material-outline-access-time
+												|  2 days ago
+								// Apply Button
+								span.list-apply-button.ripple-effect Apply Now
+						// Job Listing
+						a.job-listing.with-apply-button(href='single-job-page.html')
+							// Job Listing Details
+							.job-listing-details
+								// Logo
+								.job-listing-company-logo
+									img(src='images/company-logo-05.png', alt='')
+								// Details
+								.job-listing-description
+									h3.job-listing-title International Marketing Coordinator
+									// Job Listing Footer
+									.job-listing-footer
+										ul
+											li
+												i.icon-material-outline-business
+												|  Skyist
+											li
+												i.icon-material-outline-location-on
+												|  San Francissco
+											li
+												i.icon-material-outline-business-center
+												|  Full Time
+											li
+												i.icon-material-outline-access-time
+												|  2 days ago
+								// Apply Button
+								span.list-apply-button.ripple-effect Apply Now
+					// Jobs Container / End
+	// Featured Jobs / End
+	// Features Cities
+	.section.margin-top-65.margin-bottom-65
+		.container
+			.row
+				// Section Headline
+				.col-xl-12
+					.section-headline.centered.margin-top-0.margin-bottom-45
+						h3 Featured Cities
+				.col-xl-3.col-md-6
+					// Photo Box
+					a.photo-box(href='jobs-list-layout-1.html', data-background-image='images/featured-city-01.jpg')
+						.photo-box-content
+							h3 San Francisco
+							span 376 Jobs
+				.col-xl-3.col-md-6
+					// Photo Box
+					a.photo-box(href='jobs-list-layout-full-page-map.html', data-background-image='images/featured-city-02.jpg')
+						.photo-box-content
+							h3 New York
+							span 645 Jobs
+				.col-xl-3.col-md-6
+					// Photo Box
+					a.photo-box(href='jobs-grid-layout-full-page.html', data-background-image='images/featured-city-03.jpg')
+						.photo-box-content
+							h3 Los Angeles
+							span 832 Jobs
+				.col-xl-3.col-md-6
+					// Photo Box
+					a.photo-box(href='jobs-list-layout-2.html', data-background-image='images/featured-city-04.jpg')
+						.photo-box-content
+							h3 Miami
+							span 513 Jobs
+	// Features Cities / End
+	// Highest Rated Freelancers
+	.section.gray.padding-top-65.padding-bottom-70.full-width-carousel-fix
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.margin-top-0.margin-bottom-25
+						h3 Highest Rated Freelancers
+						a.headline-link(href='freelancers-grid-layout.html') Browse All Freelancers
+				.col-xl-12
+					.default-slick-carousel.freelancers-container.freelancers-grid-layout
+						// Freelancer
+						.freelancer
+							// Overview
+							.freelancer-overview
+								.freelancer-overview-inner
+									// Bookmark Icon
+									span.bookmark-icon
+									// Avatar
+									.freelancer-avatar
+										.verified-badge
+										a(href='single-freelancer-profile.html')
+											img(src='images/user-avatar-big-01.jpg', alt='')
+									// Name
+									.freelancer-name
+										h4
+											a(href='single-freelancer-profile.html')
+												| Tom Smith
+												img.flag(src='images/flags/gb.svg', alt='', title='United Kingdom', data-tippy-placement='top')
+										span UI/UX Designer
+									// Rating
+									.freelancer-rating
+										.star-rating(data-rating='5.0')
+							// Details
+							.freelancer-details
+								.freelancer-details-list
+									ul
+										li
+											| Location
+											strong
+												i.icon-material-outline-location-on
+												|  London
+										li
+											| Rate
+											strong $60 / hr
+										li
+											| Job Success
+											strong 95%
+								a.button.button-sliding-icon.ripple-effect(href='single-freelancer-profile.html')
+									| View Profile
+									i.icon-material-outline-arrow-right-alt
+						// Freelancer / End
+						// Freelancer
+						.freelancer
+							// Overview
+							.freelancer-overview
+								.freelancer-overview-inner
+									// Bookmark Icon
+									span.bookmark-icon
+									// Avatar
+									.freelancer-avatar
+										.verified-badge
+										a(href='single-freelancer-profile.html')
+											img(src='images/user-avatar-big-02.jpg', alt='')
+									// Name
+									.freelancer-name
+										h4
+											a(href='#')
+												| David Peterson
+												img.flag(src='images/flags/de.svg', alt='', title='Germany', data-tippy-placement='top')
+										span iOS Expert + Node Dev
+									// Rating
+									.freelancer-rating
+										.star-rating(data-rating='5.0')
+							// Details
+							.freelancer-details
+								.freelancer-details-list
+									ul
+										li
+											| Location
+											strong
+												i.icon-material-outline-location-on
+												|  Berlin
+										li
+											| Rate
+											strong $40 / hr
+										li
+											| Job Success
+											strong 88%
+								a.button.button-sliding-icon.ripple-effect(href='single-freelancer-profile.html')
+									| View Profile
+									i.icon-material-outline-arrow-right-alt
+						// Freelancer / End
+						// Freelancer
+						.freelancer
+							// Overview
+							.freelancer-overview
+								.freelancer-overview-inner
+									// Bookmark Icon
+									span.bookmark-icon
+									// Avatar
+									.freelancer-avatar
+										a(href='single-freelancer-profile.html')
+											img(src='images/user-avatar-placeholder.png', alt='')
+									// Name
+									.freelancer-name
+										h4
+											a(href='#')
+												| Marcin Kowalski
+												img.flag(src='images/flags/pl.svg', alt='', title='Poland', data-tippy-placement='top')
+										span Front-End Developer
+									// Rating
+									.freelancer-rating
+										.star-rating(data-rating='4.9')
+							// Details
+							.freelancer-details
+								.freelancer-details-list
+									ul
+										li
+											| Location
+											strong
+												i.icon-material-outline-location-on
+												|  Warsaw
+										li
+											| Rate
+											strong $50 / hr
+										li
+											| Job Success
+											strong 100%
+								a.button.button-sliding-icon.ripple-effect(href='single-freelancer-profile.html')
+									| View Profile
+									i.icon-material-outline-arrow-right-alt
+						// Freelancer / End
+						// Freelancer
+						.freelancer
+							// Overview
+							.freelancer-overview
+								.freelancer-overview-inner
+									// Bookmark Icon
+									span.bookmark-icon
+									// Avatar
+									.freelancer-avatar
+										.verified-badge
+										a(href='single-freelancer-profile.html')
+											img(src='images/user-avatar-big-03.jpg', alt='')
+									// Name
+									.freelancer-name
+										h4
+											a(href='#')
+												| Sindy Forest
+												img.flag(src='images/flags/au.svg', alt='', title='Australia', data-tippy-placement='top')
+										span Magento Certified Developer
+									// Rating
+									.freelancer-rating
+										.star-rating(data-rating='5.0')
+							// Details
+							.freelancer-details
+								.freelancer-details-list
+									ul
+										li
+											| Location
+											strong
+												i.icon-material-outline-location-on
+												|  Brisbane
+										li
+											| Rate
+											strong $70 / hr
+										li
+											| Job Success
+											strong 100%
+								a.button.button-sliding-icon.ripple-effect(href='single-freelancer-profile.html')
+									| View Profile
+									i.icon-material-outline-arrow-right-alt
+						// Freelancer / End
+						// Freelancer
+						.freelancer
+							// Overview
+							.freelancer-overview
+								.freelancer-overview-inner
+									// Bookmark Icon
+									span.bookmark-icon
+									// Avatar
+									.freelancer-avatar
+										a(href='single-freelancer-profile.html')
+											img(src='images/user-avatar-placeholder.png', alt='')
+									// Name
+									.freelancer-name
+										h4
+											a(href='#')
+												| Sebastiano Piccio
+												img.flag(src='images/flags/it.svg', alt='', title='Italy', data-tippy-placement='top')
+										span Laravel Dev
+									// Rating
+									.freelancer-rating
+										.star-rating(data-rating='4.5')
+							// Details
+							.freelancer-details
+								.freelancer-details-list
+									ul
+										li
+											| Location
+											strong
+												i.icon-material-outline-location-on
+												|  Milan
+										li
+											| Rate
+											strong $80 / hr
+										li
+											| Job Success
+											strong 89%
+								a.button.button-sliding-icon.ripple-effect(href='single-freelancer-profile.html')
+									| View Profile
+									i.icon-material-outline-arrow-right-alt
+						// Freelancer / End
+						// Freelancer
+						.freelancer
+							// Overview
+							.freelancer-overview
+								.freelancer-overview-inner
+									// Bookmark Icon
+									span.bookmark-icon
+									// Avatar
+									.freelancer-avatar
+										a(href='single-freelancer-profile.html')
+											img(src='images/user-avatar-placeholder.png', alt='')
+									// Name
+									.freelancer-name
+										h4
+											a(href='#')
+												| Gabriel Lagueux
+												img.flag(src='images/flags/fr.svg', alt='', title='France', data-tippy-placement='top')
+										span WordPress Expert
+									// Rating
+									.freelancer-rating
+										.star-rating(data-rating='5.0')
+							// Details
+							.freelancer-details
+								.freelancer-details-list
+									ul
+										li
+											| Location
+											strong
+												i.icon-material-outline-location-on
+												|  Paris
+										li
+											| Rate
+											strong $50 / hr
+										li
+											| Job Success
+											strong 100%
+								a.button.button-sliding-icon.ripple-effect(href='single-freelancer-profile.html')
+									| View Profile
+									i.icon-material-outline-arrow-right-alt
+						// Freelancer / End
+	// Highest Rated Freelancers / End
+	// Membership Plans
+	.section.padding-top-60.padding-bottom-75
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.centered.margin-top-0.margin-bottom-35
+						h3 Membership Plans
+				.col-xl-12
+					// Billing Cycle
+					.billing-cycle-radios.margin-bottom-70
+						.radio.billed-monthly-radio
+							input#radio-5(name='radio-payment-type', type='radio', checked='')
+							label(for='radio-5')
+								span.radio-label
+								|  Billed Monthly
+						.radio.billed-yearly-radio
+							input#radio-6(name='radio-payment-type', type='radio')
+							label(for='radio-6')
+								span.radio-label
+								|  Billed Yearly
+								span.small-label Save 10%
+					// Pricing Plans Container
+					.pricing-plans-container
+						// Plan
+						.pricing-plan
+							h3 Basic Plan
+							p.margin-top-10 One time fee for one listing or task highlighted in search results.
+							.pricing-plan-label.billed-monthly-label
+								strong $19
+								| / monthly
+							.pricing-plan-label.billed-yearly-label
+								strong $205
+								| / yearly
+							.pricing-plan-features
+								strong Features of Basic Plan
+								ul
+									li 1 Listing
+									li 30 Days Visibility
+									li Highlighted in Search Results
+							a.button.full-width.margin-top-20(href='pages-checkout-page.html') Buy Now
+						// Plan
+						.pricing-plan.recommended
+							.recommended-badge Recommended
+							h3 Standard Plan
+							p.margin-top-10 One time fee for one listing or task highlighted in search results.
+							.pricing-plan-label.billed-monthly-label
+								strong $49
+								| / monthly
+							.pricing-plan-label.billed-yearly-label
+								strong $529
+								| / yearly
+							.pricing-plan-features
+								strong Features of Standard Plan
+								ul
+									li 5 Listings
+									li 60 Days Visibility
+									li Highlighted in Search Results
+							a.button.full-width.margin-top-20(href='pages-checkout-page.html') Buy Now
+						// Plan
+						.pricing-plan
+							h3 Extended Plan
+							p.margin-top-10 One time fee for one listing or task highlighted in search results.
+							.pricing-plan-label.billed-monthly-label
+								strong $99
+								| / monthly
+							.pricing-plan-label.billed-yearly-label
+								strong $1069
+								| / yearly
+							.pricing-plan-features
+								strong Features of Extended Plan
+								ul
+									li Unlimited Listings Listing
+									li 90 Days Visibility
+									li Highlighted in Search Results
+							a.button.full-width.margin-top-20(href='pages-checkout-page.html') Buy Now
+	// Membership Plans / End
+
+block append scripts
+
+	// Snackbar // documentation: https://www.polonel.com/snackbar/
+	script.
+		// Snackbar for user status switcher
+		$('#snackbar-user-status label').click(function() {
+			Snackbar.show({
+				text: 'Your status has been changed!',
+				pos: 'bottom-center',
+				showAction: false,
+				actionText: "Dismiss",
+				duration: 3000,
+				textColor: '#fff',
+				backgroundColor: '#383838'
+			});
+		});
+	// Google Autocomplete
+	script.
+		function initAutocomplete() {
+			var options = {
+				types: ['(cities)'],
+				// componentRestrictions: {country: "us"}
+			};
+			var input = document.getElementById('autocomplete-input');
+			var autocomplete = new google.maps.places.Autocomplete(input, options);
+		}
+		// Autocomplete adjustment for homepage
+		if ($('.intro-banner-search-form')[0]) {
+			setTimeout(function(){
+				$(".pac-container").prependTo(".intro-search-field.with-autocomplete");
+			}, 300);
+		}
+	// Google API
+	script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyAgeuuDfRlweIs7D6uo4wdIHVvJ0LonQ6g&libraries=places&callback=initAutocomplete')

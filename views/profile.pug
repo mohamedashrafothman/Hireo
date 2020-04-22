@@ -1,0 +1,421 @@
+extends ./layouts/_index_layout.pug
+include ./mixins/_freelancer_review_block.pug
+include ./mixins/_job_position.pug
+include ./mixins/_pagination.pug
+include ./mixins/_employer_review_block.pug
+include ./mixins/_attachment_box.pug
+
+block content
+
+	include ./sections/_profile_header.pug
+
+	// Page Container
+	.container.margin-bottom-15
+		.row
+			// Content
+			.col-xl-8.col-lg-8.content-right-offset
+				// Page Content
+				.single-page-section
+					h3.margin-bottom-25=_.isEqual(data.user.role, "freelancer") ? "About Me" : "About Company"
+					if data.user.profile.description
+						p=data.user.profile.description
+					else
+						p No provided description yet.
+				if _.isEqual(data.user.role, "employer")
+					if (data.user.jobs && data.user.jobs.length > 0)
+						// Boxed List
+						.boxed-list.margin-bottom-60
+							.boxed-list-headline
+								h3
+									i.icon-material-outline-business-center
+									|  Open Positions
+							.listings-container.compact-list-layout
+								each job, i in data.user.jobs
+									+job_position(job, i)
+						// Boxed List / End
+				// Boxed List
+				.boxed-list.margin-bottom-60
+					.boxed-list-headline
+						h3
+							i.icon-material-outline-thumb-up
+							=_.isEqual(data.user.role, "freelancer") ? "Work History and Feedback" : "Reviews"
+					//- if (data.user.reviews_on_me && data.user.reviews_on_me.length)
+					ul.boxed-list-ul
+						//- each review, i in data.user.reviews_on_me
+						if _.isEqual(data.user.role, "employer")
+							li
+								+employer_review_block(review, i)
+							li
+								+employer_review_block(review, i)
+							li
+								+employer_review_block(review, i)
+							li
+								+employer_review_block(review, i)
+						else
+							li
+								+freelancer_review_block(review, i)
+							li
+								+freelancer_review_block(review, i)
+							li
+								+freelancer_review_block(review, i)
+							li
+								+freelancer_review_block(review, i)
+					//- if (reviewsTotal && reviewsTotal > reviewsPerPage)
+					// Pagination
+					.pagination-container.margin-top-40.margin-bottom-10
+						+pagination(`/profile/${data.user.slug}/reviews`, 1, 10, {})
+					.clearfix
+					// Pagination / End
+					//- else
+						ul.boxed-list-ul
+							li
+								.boxed-list-item
+									.item-content(style="width: 100%;text-align:center;")
+										h4 No Reviews added yet
+					.clearfix
+					if (_.isEqual(data.user.role, "employer") && !_.isEqual(data.user._id.toString(), user._id.toString()))
+						.centered-button.margin-top-35
+							a(href="#small-dialog-add-review" class=`popup-with-zoom-anim button button-sliding-icon ${(data && data.old) ? "popup-open-by-default" : ""}`)
+								| Leave a Review
+								i.icon-material-outline-arrow-right-alt
+				// Boxed List / End
+
+
+
+				if _.isEqual(data.user.role, "freelancer")
+					// Boxed List
+					.boxed-list.margin-bottom-60
+						.boxed-list-headline
+							h3
+								i.icon-material-outline-business
+								|  Employment History
+						ul.boxed-list-ul
+							li
+								.boxed-list-item
+									// Avatar
+									.item-image
+										img(src="/images/browse-companies-03.png", alt="")
+									// Content
+									.item-content
+										h4 Development Team Leader
+										.item-details.margin-top-7
+											.detail-item
+												a(href="#")
+													i.icon-material-outline-business
+													|  Acodia
+											.detail-item
+												i.icon-material-outline-date-range
+												|  May 2018 - Present
+										.item-description
+											p
+												| Focus the team on the tasks at hand or the internal and external customer requirements.
+							li
+								.boxed-list-item
+									// Avatar
+									.item-image
+										img(src="/images/browse-companies-04.png", alt="")
+									// Content
+									.item-content
+										h4
+											a(href="#") Lead UX/UI Designer
+										.item-details.margin-top-7
+											.detail-item
+												a(href="#")
+													i.icon-material-outline-business
+													|  Acorta
+											.detail-item
+												i.icon-material-outline-date-range
+												|  April 2014 - May 2018
+										.item-description
+											p
+												| I designed and implemented 10+ custom web-based CRMs, workflow systems, payment solutions and mobile apps.
+					// Boxed List / End
+			// Content / End
+
+
+			// Sidebar
+			.col-xl-4.col-lg-4
+				.sidebar-container
+					if _.isEqual(data.user.role, "employer")
+						// Location
+						.sidebar-widget
+							h3 Location
+							#single-job-map-container
+								#singleListingMap(data-latitude="52.520007", data-longitude="13.404954", data-map-icon="im im-icon-Hamburger")
+								a#streetView(href="#") Street View
+					if _.isEqual(data.user.role, "freelancer")
+						if (!user)
+							.sidebar-widget
+								.notification.info
+									span Please login to your account to access all data
+								a.button.ripple-effect.button-sliding-icon.full-width.big(href="/auth/login")
+									| login
+									i.icon-material-outline-arrow-right-alt
+						else
+							// Profile Overview
+							.sidebar-widget
+								.profile-overview
+									.overview-item
+										strong= `$${data.user.profile.hourly_rate}`
+										span Hourly Rate
+									.overview-item
+										strong 53
+										span Tasks Done
+									.overview-item
+										strong 22
+										span Rehired
+						if user
+							if (!_.isEqual(user.role, "freelancer"))
+								// Button
+								a.apply-now-button.popup-with-zoom-anim.margin-bottom-50(href="#small-dialog-add-offer")
+									| Make an Offer
+									i.icon-material-outline-arrow-right-alt
+							// Freelancer Indicators
+							.sidebar-widget
+								.freelancer-indicators
+									// Indicator
+									.indicator
+										strong 88%
+										.indicator-bar(data-indicator-percentage="88")
+											span
+										span Task Success
+									// Indicator
+									.indicator
+										strong 100%
+										.indicator-bar(data-indicator-percentage="100")
+											span
+										span Recommendation
+									// Indicator
+									.indicator
+										strong 90%
+										.indicator-bar(data-indicator-percentage="90")
+											span
+										span On Time
+									// Indicator
+									.indicator
+										strong 80%
+										.indicator-bar(data-indicator-percentage="80")
+											span
+										span On Budget
+					if (user && (data.user.profile.social_accounts.dribbble || data.user.profile.social_accounts.twitter || data.user.profile.social_accounts.behance || data.user.profile.social_accounts.github))
+						// Widget
+						.sidebar-widget
+							h3 Social Profiles
+							.freelancer-socials.margin-top-25
+								ul
+									if data.user.profile.social_accounts.dribbble
+										li
+											a(href=data.user.profile.social_accounts.dribbble, title="Dribbble", data-tippy, data-tippy-placement="top")
+												i.icon-brand-dribbble
+									if data.user.profile.social_accounts.twitter
+										li
+											a(href=data.user.profile.social_accounts.twitter, title="Twitter", data-tippy, data-tippy-placement="top")
+												i.icon-brand-twitter
+									if data.user.profile.social_accounts.behance
+										li
+											a(href=data.user.profile.social_accounts.behance, title="Behance", data-tippy, data-tippy-placement="top")
+												i.icon-brand-behance
+									if data.user.profile.social_accounts.github
+										li
+											a(href=data.user.profile.social_accounts.github, title="GitHub", data-tippy, data-tippy-placement="top")
+												i.icon-brand-github
+					if (_.isEqual(data.user.role, "freelancer") && data.user.profile.skills.length)
+						// Widget
+						.sidebar-widget
+							h3 Skills
+							.task-tags
+								each skill in data.user.profile.skills
+									a(href=`/browse/freelancers?skills[]=${skill._id}`)
+										span=(lang === "en") ? skill.name.en : skill.name.ar
+					if _.isEqual(data.user.role, "freelancer")
+						if (data.user.profile.attachments && data.user.profile.attachments.length)
+							// Widget
+							.sidebar-widget
+								h3 Attachments
+								.attachments-container
+									each attachment, index in data.user.profile.attachments
+										+attachment_box({attachment: attachment, user: data.user}, index)
+					// Sidebar Widget
+					.sidebar-widget
+						h3=(user && !_.isEqual(data.user._id, user._id)) ? "Bookmark or Share" : "Share"
+						// Bookmark Button
+						if (user && !_.isEqual(data.user._id, user._id))
+							form.bookmark(action=`/dashboard/bookmark/${data.user.role}/${data.user._id}`, method="PUT")
+								- const bookmarked = [`user.bookmarked.${data.user.role}`].map((obj)=> obj.toString())
+								- const bookmarkClass = bookmarked.includes(data.user._id.toString()) ? 'bookmarked' : ''
+								button(type="submit", class=`${bookmarkClass} bookmark-button margin-bottom-25`)
+									span.bookmark-icon
+									span.bookmark-text Bookmark
+									span.bookmarked-text Bookmarked
+						// Copy URL
+						.copy-url
+							input#copy-url.with-border(type="text", value="")
+							button.copy-url-button.ripple-effect(data-clipboard-target="#copy-url", data-tippy, title="Copy to Clipboard", data-tippy-placement="top")
+								i.icon-material-outline-file-copy
+						// Share Buttons
+						.share-buttons.margin-top-25
+							.share-buttons-trigger
+								i.icon-feather-share-2
+							.share-buttons-content
+								span
+									| Interesting?
+									strong Share It!
+								ul.share-buttons-icons
+									li
+										a(href="#", data-button-color="#3b5998", title="Share on Facebook", data-tippy, data-tippy-placement="top")
+											i.icon-brand-facebook-f
+									li
+										a(href="#", data-button-color="#1da1f2", title="Share on Twitter", data-tippy, data-tippy-placement="top")
+											i.icon-brand-twitter
+									li
+										a(href="#", data-button-color="#0077b5", title="Share on LinkedIn", data-tippy, data-tippy-placement="top")
+											i.icon-brand-linkedin-in
+
+	// Page Container / End
+block append modals
+	if (_.isEqual(data.user.role, "employer"))
+		#small-dialog-add-review.zoom-anim-dialog.mfp-hide.dialog-with-tabs
+			// Tabs
+			.sign-in-form
+				ul.popup-tabs-nav
+					li
+						a(href="#tab") Leave a Review
+				.popup-tabs-container
+					// Tab
+					#tab.popup-tab-content
+						// Welcome Text
+						.welcome-text.margin-bottom-0
+							h3=`What is it like to work at ${_.capitalize(data.user.account.username)}?`
+							// Form
+							form#leave-company-review-form(method="post", action=`/profile/${data.user._id}/review/add`)
+								include ./partials/_csrf.pug
+								.row
+									.col-12
+										.leave-rating-container
+											.leave-rating.margin-bottom-25
+												input#rating-5(type="radio", name="rating", value="5", required, checked=(data.old && _.isEqual(data.old["rating"], "5")) ? 'checked' : undefined)
+												label.icon-material-outline-star(for="rating-5")
+												input#rating-4(type="radio", name="rating", value="4", required, checked=(data.old && _.isEqual(data.old["rating"], "4")) ? 'checked' : undefined)
+												label.icon-material-outline-star(for="rating-4")
+												input#rating-3(type="radio", name="rating", value="3", required, checked=(data.old && _.isEqual(data.old["rating"], "3")) ? 'checked' : undefined)
+												label.icon-material-outline-star(for="rating-3")
+												input#rating-2(type="radio", name="rating", value="2", required, checked=(data.old && _.isEqual(data.old["rating"], "2")) ? 'checked' : undefined)
+												label.icon-material-outline-star(for="rating-2")
+												input#rating-1(type="radio", name="rating", value="1", required, checked=(data.old && _.isEqual(data.old["rating"], "1")) ? 'checked' : undefined)
+												label.icon-material-outline-star(for="rating-1")
+									.col-12
+										.input-with-icon-left(title="Leave blank to add review anonymously", data-tippy, data-tippy-placement="bottom")
+											i.icon-material-outline-account-circle.icon-left
+											input#name.input-text.with-border(type="text", name="name", value=`${(data && data.old && data.old["name"]) ? data.old["name"] : ''}`,  placeholder="First and Last Name")
+									.col-12
+										.input-with-icon-left
+											i.icon-material-outline-rate-review.icon-left
+											input#reviewtitle.input-text.with-border(type="text", name="title", value=`${(data && data.old && data.old["title"]) ? data.old["title"] : ''}`,  placeholder="Review Title", required)
+									.col-12
+										textarea#message.with-border(placeholder="Review", name="message", cols="7", required)
+											=`${(data && data.old && data.old["message"]) ? data.old["message"] : ''}`
+									.col-12
+										// Button
+										button.button.margin-top-35.full-width.button-sliding-icon.ripple-effect(type="submit", form="leave-company-review-form")
+											| Leave a Review
+											i.icon-material-outline-arrow-right-alt
+		// Leave a Review Popup / End
+
+
+	if (_.isEqual(data.user.role, "freelancer") && user && !_.isEqual(user.role, "freelancer"))
+		//
+			Make an Offer Popup
+			==================================================
+		#small-dialog-add-offer.zoom-anim-dialog.mfp-hide.dialog-with-tabs
+			// Tabs
+			.sign-in-form
+				ul.popup-tabs-nav
+					li
+						a(href="#tab") Make an Offer
+				.popup-tabs-container
+					// Tab
+					#tab.popup-tab-content
+						// Welcome Text
+						.welcome-text
+							h3 Discuss your project with David
+						// Form
+						form(method="post")
+							.input-with-icon-left
+								i.icon-material-outline-account-circle
+								input#name.input-text.with-border(type="text", name="name", placeholder="First and Last Name")
+							.input-with-icon-left
+								i.icon-material-baseline-mail-outline
+								input#emailaddress.input-text.with-border(type="text", name="emailaddress", placeholder="Email Address")
+							textarea.with-border(name="textarea", cols="10", placeholder="Message")
+							.uploadButton.margin-top-25
+								input#upload.uploadButton-input(type="file", accept="image/*, application/pdf", multiple="")
+								label.uploadButton-button.ripple-effect(for="upload") Add Attachments
+								span.uploadButton-file-name
+									| Allowed file types: zip, pdf, png, jpg
+									br
+									|  Max. files size: 50 MB.
+						// Button
+						button.button.margin-top-35.full-width.button-sliding-icon.ripple-effect(type="submit")
+							| Make an Offer
+							i.icon-material-outline-arrow-right-alt
+					// Login
+					#loginn.popup-tab-content
+						// Welcome Text
+						.welcome-text
+							h3 Discuss Your Project With Tom
+						// Form
+						form#make-an-offer-form(method="post")
+							.input-with-icon-left
+								i.icon-material-outline-account-circle
+								input#name2.input-text.with-border(type="text", name="name2", placeholder="First and Last Name", required="")
+							.input-with-icon-left
+								i.icon-material-baseline-mail-outline
+								input#emailaddress2.input-text.with-border(type="text", name="emailaddress2", placeholder="Email Address", required="")
+							textarea.with-border(name="textarea", cols="10", placeholder="Message")
+							.uploadButton.margin-top-25
+								input#upload-cv.uploadButton-input(type="file", accept="image/*, application/pdf", multiple="")
+								label.uploadButton-button(for="upload-cv") Add Attachments
+								span.uploadButton-file-name
+									| Allowed file types: zip, pdf, png, jpg
+									br
+									|  Max. files size: 50 MB.
+						// Button
+						button.button.full-width.button-sliding-icon.ripple-effect(type="submit", form="make-an-offer-form")
+							| Make an Offer
+							i.icon-material-outline-arrow-right-alt
+		// Make an Offer Popup / End
+
+block append scripts
+	if _.isEqual(data.user.role, "freelancer")
+		script.
+			// Snackbar for "place a bid" button
+			$('#snackbar-place-bid').click(function () {
+				Snackbar.show({
+					text: 'Your bid has been placed!',
+				});
+			});
+			// Snackbar for copy to clipboard button
+			$('.copy-url-button').click(function () {
+				Snackbar.show({
+					text: 'Copied to clipboard!',
+				});
+			});
+
+	if _.isEqual(data.user.role, "employer")
+		script.
+			// Snackbar for "place a bid" button
+			$('#snackbar-place-bid').click(function () {
+				Snackbar.show({
+					text: 'Your bid has been placed!',
+				});
+			});
+			// Snackbar for copy to clipboard button
+			$('.copy-url-button').click(function () {
+				Snackbar.show({
+					text: 'Copied to clipboard!',
+				});
+			});
+		// Google API & Maps
+		script(src="/scripts/libs/infobox.min.js")
+		script(src="/scripts/libs/markerclusterer.js")
+		script(src="/scripts/libs/maps.js")

@@ -1,0 +1,101 @@
+//
+	Dashboard Sidebar
+	==================================================
+.dashboard-sidebar
+	.dashboard-sidebar-inner(data-simplebar)
+		.dashboard-nav-container
+			// Responsive Navigation Trigger
+			a.dashboard-responsive-nav-trigger(href='#')
+				span.hamburger.hamburger--collapse
+					span.hamburger-box
+						span.hamburger-inner
+				span.trigger-title Dashboard Navigation
+			// Navigation
+			.dashboard-nav
+				.dashboard-nav-inner
+					ul(data-submenu-title='Start')
+						li(class=(_.lowerCase(page_title) === 'dashboard') ? "active" : "")
+							a(href='/dashboard')
+								i.icon-material-outline-dashboard
+								|  Dashboard
+						li
+							a(href='dashboard-messages.html')
+								i.icon-material-outline-question-answer
+								|  Messages
+								span.nav-tag 2
+						li(class=(_.lowerCase(page_title) === 'bookmarks') ? "active" : "")
+							a(href='/dashboard/bookmarks')
+								i.icon-material-outline-star-border
+								|  Bookmarks
+						li
+							a(href='dashboard-reviews.html')
+								i.icon-material-outline-rate-review
+								|  Reviews
+					ul(data-submenu-title='Organize and Manage')
+						if (user && !_.isEqual(user.role, "employer"))
+							- var applications_pages_title = ["Manage All Applications"];
+							li(class=(applications_pages_title.includes(page_title)) ? "active-submenu" : "")
+								a(href='#')
+									i.icon-material-outline-assignment
+									|  Applications
+								ul
+									li(class=(page_title === "Manage All Applications") ? "active" : "")
+										a(href='/dashboard/applications/list')
+											| Manage All Applications
+						if (user && !_.isEqual(user.role, "freelancer"))
+							- var jobs_pages_title = ["Manage All Jobs", "Post a Job", "Edit a Job", "Manage Candidates"];
+							li(class=(jobs_pages_title.includes(page_title) || (user.role === "employer" && unSeenApplicationsCount >= 1)) ? "active-submenu" : "")
+								a(href='#')
+									i.icon-material-outline-business-center
+									|  Jobs
+								ul
+									li(class=(page_title === "Manage All Jobs" || page_title === "Manage Candidates") ? "active" : "")
+										a(href='/dashboard/jobs/list')
+											| Manage Jobs
+											if (unSeenApplicationsCount >= 1)
+												span.nav-tag=unSeenApplicationsCount
+									li(class=(page_title === "Post a Job" || page_title === "Edit a Job") ? "active" : "")
+										a(href='/dashboard/jobs/add') Post a Job
+						if (user && _.isEqual(user.role, "admin"))
+							- var categories_pages_title = ["Manage All Categories", "Edit a Category", "Add a Category"];
+							li(class=(categories_pages_title.includes(page_title)) ? "active-submenu" : "")
+								a(href='#')
+									i.icon-material-outline-folder
+									|  Categories
+								ul
+									li(class=(page_title === "Manage All Categories" || page_title === "Edit a Category") ? "active" : "")
+										a(href='/dashboard/categories/list')
+											| Manage All Categories
+									li(class=(page_title === "Add a Category") ? "active" : "")
+										a(href='/dashboard/categories/add') Add a Category
+							- var skills_pages_title = ["Manage All Skills", "Edit a Skill", "Add a Skill"];
+							li(class=(skills_pages_title.includes(page_title)) ? "active-submenu" : "")
+								a(href='#')
+									i.icon-material-outline-school
+									|  Skills
+								ul
+									li(class=(page_title === "Manage All Skills" || page_title === "Edit a Skill") ? "active" : "")
+										a(href='/dashboard/skills/list')
+											| Manage All Skills
+									li(class=(page_title === "Add a Skill") ? "active" : "")
+										a(href='/dashboard/skills/add') Add a Skill
+							- var users_pages_title = ["Manage All Users"];
+							li(class=(users_pages_title.includes(page_title)) ? "active-submenu" : "")
+								a(href='#')
+									i.icon-feather-users
+									|  Users
+								ul
+									li(class=(page_title === "Manage All Users") ? "active" : "")
+										a(href="/dashboard/users/list")
+											| Manage All Users
+					ul(data-submenu-title='Account')
+						li(class=(page_title === 'Settings') ? "active" : "")
+							a(href='/dashboard/settings')
+								i.icon-material-outline-settings
+								|  Settings
+						li
+							a(href='/auth/logout')
+								i.icon-material-outline-power-settings-new
+								|  Logout
+			// Navigation / End
+// Dashboard Sidebar / End

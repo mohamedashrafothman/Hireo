@@ -1,0 +1,176 @@
+extends ./layouts/_index_layout.pug
+include ./mixins/_pagination.pug
+
+block content
+	//
+		Page Content
+		==================================================
+	.full-page-container.with-map
+		// Full Page Sidebar
+		.full-page-sidebar.hidden-sidebar
+			.full-page-sidebar-inner(data-simplebar='')
+				form#jobs-list-form.sidebar-container(method="GET")
+					// Location
+					.sidebar-widget
+						h3.margin-bottom-20 Location
+						.input-with-icon-right
+							#autocomplete-container
+								input#job-location-address.autocomplete-input.with-border(name="address", type='text', value=(query && query.address) ? query.address : "", placeholder='Type Address')
+								input#job-location-long.autocomplete-input-long.with-border(name="long", type="hidden", value=(query && query.long) ? query.long : "")
+								input#job-location-lat.autocomplete-input-lat.with-border(name="lat", type="hidden", value=(query && query.lat) ? query.lat : "")
+							i.icon-material-outline-location-on.icon-right(data-target="#job-location-address")
+					// Keywords
+					.sidebar-widget
+						h3.margin-bottom-20 Keywords or Name
+						.tags-container
+							.tags-list
+								if (query && query.keywords)
+									each keyword, i in query.keywords
+										if (keyword !== "")
+											.tag
+												input(id=`tag-0-${i}`, type='checkbox', name=`keywords[${i}]`, value=keyword, checked="checked")
+												label(for=`tag-0-${i}`)=keyword
+							.clearfix
+							.tags-input-container
+								input.tags-input.with-border(data-name="keywords", type='text', placeholder='Add Keywords or Name')
+								button.tags-input-button.ripple-effect(type="button")
+									i.icon-material-outline-add
+						.clearfix
+					// Category
+					.sidebar-widget
+						h3.margin-bottom-20 Categories
+						select.selectpicker.default.with-border(multiple, name="categories[]", data-selected-text-format='count', data-size='7', title='All Categories')
+							each category, i in categories
+								optgroup(label=category.name.en, data-icon=`icon-${category.icon.type}-${category.icon.name}`,)
+									each child, i in category.childs
+										option(value=child._id, selected=(query && query.categories && (query.categories.includes(child._id.toString()) || query.categories.includes(category._id.toString()))) ? "selected" : undefined)=child.name.en
+
+					// Job Types
+					.sidebar-widget
+						h3.margin-bottom-20 Job Type
+						.switches-list
+							each job_type, i in data.jobTypes
+								.switch-container
+									label.switch
+										input(type='checkbox', name=`job_types[${i}]`, value=job_type._id, checked=(query && query.job_types && query.job_types.includes(job_type._id.toString())) ? "checked" : undefined)
+										span.switch-button
+										=job_type.name
+					// Salary
+					.sidebar-widget
+						h3.margin-bottom-20 Salary
+						.margin-top-55
+						// Range Slider
+						input.range-slider(type='text', name="salary", data-slider-currency='$', data-slider-min=data.min_price, data-slider-max=data.max_price, data-slider-step='10', data-slider-value=(query && query.salary) ? query.salary.split(",").map((n) => Number(n)) : `[${data.min_price},${data.max_price}]`)
+					// Tags
+					if (data && data.tags.length)
+						.sidebar-widget
+							h3.margin-bottom-20 Tags
+							.tags-container.tags-inner(data-simplebar='', data-inner-height="250")
+								.tags-list.margin-bottom-20.tags-container
+									each tag, i in data.tags
+										.tag
+											input(id=`tag-1-${i}`, type='checkbox', name=`tags[${i}]`, value=tag.name, checked=(query && query.tags && query.tags.includes(tag)) ? "selected" : undefined)
+											label(for=`tag-1-${i}`)=tag.name
+							.clearfix
+						.clearfix
+				// Sidebar Container / End
+				// Search Button
+				.sidebar-search-button-container
+					button.button.ripple-effect(type="submit", form="jobs-list-form", style="display: block; width: 100%;") Search
+				// Search Button / End
+		// Full Page Sidebar / End
+
+		// Full Page Content
+		.full-page-content-container(data-simplebar='')
+			.full-page-content-inner
+				h3.page-title.d-flex.justify-content-between.align-items-center
+					span Search Results
+					a(href="/browse/jobs" style="font-size: 1rem;") Reset Search
+				.notify-box.margin-top-15
+					.switch-container
+						label.switch
+							input(type='checkbox')
+							span.switch-button
+							span.switch-text Turn on email alerts for this search
+					.sort-by.align-items-center
+						span Sort by:
+						select.selectpicker.hide-tick(data-selected-text-format='count', data-size='4', onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value)")
+							option(selected=((_.isEmpty(query) || !Boolean(query.sort) || !Boolean(query.sort.created_at)) || (!_.isEmpty(query) && Boolean(query.sort) && Boolean(query.sort.created_at) && query.sort.created_at === "desc")) ? "selected" : undefined, value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "desc" }) ))}`) Newest
+							option(selected=((!_.isEmpty(query) && Boolean(query.sort) && Boolean(query.sort.created_at) && query.sort.created_at === "asc") ? "selected" : undefined), value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "asc" }) ))}`) Oldest
+				.listings-container.compact-list-layout.margin-top-35.margin-bottom-25
+					each job, i in data.jobs
+						// Job Listing
+						a.job-listing(href=`/job/${job.slug}`)
+							// Job Listing Details
+							.job-listing-details
+								// Logo
+								.job-listing-company-logo
+									if (job.created_by.account.picture || job.created_by.account.picture_md)
+										img(src=`/${(!job.created_by.account.picture_md) ? job.created_by.account.picture.path : job.created_by.account.picture_md.path}`)
+									else
+										img(src=`${job.created_by.gravatar(50)}`)
+								// Details
+								.job-listing-description
+									h3.job-listing-title
+										= job.title
+										case job.status
+											when 1
+												span.dashboard-status-button.orange Running
+											when 2
+												span.dashboard-status-button.green Completed
+											when 3
+												span.dashboard-status-button.yellow Expiring
+											when 4
+												span.dashboard-status-button.red Expired
+									// Job Listing Footer
+									.job-listing-footer
+										ul
+											li
+												i.icon-material-outline-business
+												=job.created_by.account.name
+												if job.created_by.is_verified
+													.verified-badge(title='Verified Employer', data-tippy, data-tippy-placement='top')
+											li
+												i.icon-material-outline-location-on
+												=job.location.address
+											li
+												i.icon-material-outline-business-center
+												=job.type.name
+											li
+												i.icon-material-outline-access-time
+												=`${moment(job.created_at).format("ll")}`
+								if (user && !_.isEqual(_.toString(user._id), _.toString(job.created_by._id)))
+									// Bookmark Icon
+									form.bookmark(action=`/dashboard/bookmark/job/${job._id}`, method="PUT")
+										- const bookmarked = user.bookmarked.job.map((obj)=> obj.toString())
+										- const bookmarkClass = bookmarked.includes(job._id.toString()) ? 'bookmark-icon bookmarked' : 'bookmark-icon'
+										button(type="submit", class=bookmarkClass)
+				// Pagination
+				.clearfix
+				if (hasNextPage || hasPrevPage)
+					.row
+						.col-md-12
+							.pagination-container.margin-top-20.margin-bottom-20
+								+pagination("/browse/jobs", page, pages, query)
+				.clearfix
+				// Pagination / End
+		// Full Page Content / End
+
+		// Full Page Map
+		.full-page-map-container
+			// Enable Filters Button
+			.filter-button-container
+				button.enable-filters-button
+					i.enable-filters-button-icon
+					span.show-text Show Filters
+					span.hide-text Hide Filters
+				.filter-button-tooltip Click to expand sidebar with filters!
+			// Map
+			#map(data-map-zoom='6', data-map-scroll='true', data-map-pointers=data.jobs.map((job, i) => ({jobUrl: `/job/${job.slug}`, companyLogo: `${(job.created_by.account.picture || job.created_by.account.picture_md) ? `${(!job.created_by.account.picture_md) ? job.created_by.account.picture : job.created_by.account.picture_md}` : job.created_by.gravatar(50)}`, companyName: job.created_by.account.name, jobTitle: job.title, verifiedBadge: `${(job.created_by.is_verified) ? "verified" : "not-verified"}`, jobLat: Number(job.location.coordinates[1]), jobLong: Number(job.location.coordinates[0]), currentInfobox: i+1, markerIcon: ""})))
+		// Full Page Map / End
+block append modals
+block append scripts
+	// Google API & Maps
+	script(src="/scripts/libs/infobox.min.js")
+	script(src="/scripts/libs/markerclusterer.js")
+	script(src="/scripts/libs/maps.js")

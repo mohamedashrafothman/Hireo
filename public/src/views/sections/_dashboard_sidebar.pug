@@ -1,0 +1,75 @@
+//
+	Dashboard Sidebar
+	==================================================
+.dashboard-sidebar
+	.dashboard-sidebar-inner(data-simplebar='')
+		.dashboard-nav-container
+			// Responsive Navigation Trigger
+			a.dashboard-responsive-nav-trigger(href='#')
+				span.hamburger.hamburger--collapse
+					span.hamburger-box
+						span.hamburger-inner
+				span.trigger-title Dashboard Navigation
+			// Navigation
+			.dashboard-nav
+				.dashboard-nav-inner
+					ul(data-submenu-title='Start')
+						li.active
+							a(href='dashboard.html')
+								i.icon-material-outline-dashboard
+								|  Dashboard
+						li
+							a(href='dashboard-messages.html')
+								i.icon-material-outline-question-answer
+								|  Messages
+								span.nav-tag 2
+						li
+							a(href='dashboard-bookmarks.html')
+								i.icon-material-outline-star-border
+								|  Bookmarks
+						li
+							a(href='dashboard-reviews.html')
+								i.icon-material-outline-rate-review
+								|  Reviews
+					ul(data-submenu-title='Organize and Manage')
+						li
+							a(href='#')
+								i.icon-material-outline-business-center
+								|  Jobs
+							ul
+								li
+									a(href='dashboard-manage-jobs.html')
+										| Manage Jobs
+										span.nav-tag 3
+								li
+									a(href='dashboard-manage-candidates.html') Manage Candidates
+								li
+									a(href='dashboard-post-a-job.html') Post a Job
+						li
+							a(href='#')
+								i.icon-material-outline-assignment
+								|  Tasks
+							ul
+								li
+									a(href='dashboard-manage-tasks.html')
+										| Manage Tasks
+										span.nav-tag 2
+								li
+									a(href='dashboard-manage-bidders.html') Manage Bidders
+								li
+									a(href='dashboard-my-active-bids.html')
+										| My Active Bids
+										span.nav-tag 4
+								li
+									a(href='dashboard-post-a-task.html') Post a Task
+					ul(data-submenu-title='Account')
+						li
+							a(href='dashboard-settings.html')
+								i.icon-material-outline-settings
+								|  Settings
+						li
+							a(href='index-logged-out.html')
+								i.icon-material-outline-power-settings-new
+								|  Logout
+			// Navigation / End
+// Dashboard Sidebar / End

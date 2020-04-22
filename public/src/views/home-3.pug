@@ -1,0 +1,336 @@
+extends ./layouts/_index_layout.pug
+
+block append variables
+	- var page_name = "home 3";
+
+block content
+	//
+		Intro Banner
+		==================================================
+	.intro-banner.dark-overlay.big-padding
+		// Transparent Header Spacer
+		.transparent-header-spacer
+		.container
+			// Intro Headline
+			.row
+				.col-md-12
+					.banner-headline-alt
+						h3 Don't Just Dream, Do
+						span Find the best jobs in the digital industry
+			// Search Bar
+			.row
+				.col-md-12
+					.intro-banner-search-form.margin-top-95
+						// Search Field
+						.intro-search-field.with-autocomplete
+							label.field-title.ripple-effect(for='autocomplete-input') Where?
+							.input-with-icon
+								input#autocomplete-input(type='text', placeholder='Online Job')
+								i.icon-material-outline-location-on
+						// Search Field
+						.intro-search-field
+							label.field-title.ripple-effect(for='intro-keywords') What job you want?
+							input#intro-keywords(type='text', placeholder='Job Title or Keywords')
+						// Button
+						.intro-search-button
+							button.button.ripple-effect(onclick="window.location.href='jobs-list-layout-1.html'") Search
+			// Stats
+			.row
+				.col-md-12
+					ul.intro-stats.margin-top-45.hide-under-992px
+						li
+							strong.counter 1,586
+							span Jobs Posted
+						li
+							strong.counter 3,543
+							span Tasks Posted
+						li
+							strong.counter 1,232
+							span Freelancers
+		// Video Container
+		.video-container(data-background-image='images/home-video-background-poster.jpg')
+			video(loop='', autoplay='', muted='')
+				source(src='images/home-video-background.mp4', type='video/mp4')
+	//
+		Content
+		==================================================
+	// Features Jobs
+	.section.padding-top-65.padding-bottom-75
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.margin-top-0.margin-bottom-35
+						h3 Recent Jobs
+						a.headline-link(href='jobs-list-layout-full-page-map.html') Browse All Jobs
+					// Jobs Container
+					.listings-container.compact-list-layout.margin-top-35
+						// Job Listing
+						a.job-listing.with-apply-button(href='single-job-page.html')
+							// Job Listing Details
+							.job-listing-details
+								// Logo
+								.job-listing-company-logo
+									img(src='images/company-logo-01.png', alt='')
+								// Details
+								.job-listing-description
+									h3.job-listing-title Bilingual Event Support Specialist
+									// Job Listing Footer
+									.job-listing-footer
+										ul
+											li
+												i.icon-material-outline-business
+												|  Hexagon
+												.verified-badge(title='Verified Employer', data-tippy-placement='top')
+											li
+												i.icon-material-outline-location-on
+												|  San Francissco
+											li
+												i.icon-material-outline-business-center
+												|  Full Time
+											li
+												i.icon-material-outline-access-time
+												|  2 days ago
+								// Apply Button
+								span.list-apply-button.ripple-effect Apply Now
+						// Job Listing
+						a.job-listing.with-apply-button(href='single-job-page.html')
+							// Job Listing Details
+							.job-listing-details
+								// Logo
+								.job-listing-company-logo
+									img(src='images/company-logo-05.png', alt='')
+								// Details
+								.job-listing-description
+									h3.job-listing-title Competition Law Officer
+									// Job Listing Footer
+									.job-listing-footer
+										ul
+											li
+												i.icon-material-outline-business
+												|  Laxo
+											li
+												i.icon-material-outline-location-on
+												|  San Francissco
+											li
+												i.icon-material-outline-business-center
+												|  Full Time
+											li
+												i.icon-material-outline-access-time
+												|  2 days ago
+								// Apply Button
+								span.list-apply-button.ripple-effect Apply Now
+						// Job Listing
+						a.job-listing.with-apply-button(href='single-job-page.html')
+							// Job Listing Details
+							.job-listing-details
+								// Logo
+								.job-listing-company-logo
+									img(src='images/company-logo-02.png', alt='')
+								// Details
+								.job-listing-description
+									h3.job-listing-title Barista and Cashier
+									// Job Listing Footer
+									.job-listing-footer
+										ul
+											li
+												i.icon-material-outline-business
+												|  Coffee
+											li
+												i.icon-material-outline-location-on
+												|  San Francissco
+											li
+												i.icon-material-outline-business-center
+												|  Full Time
+											li
+												i.icon-material-outline-access-time
+												|  2 days ago
+								// Apply Button
+								span.list-apply-button.ripple-effect Apply Now
+						// Job Listing
+						a.job-listing.with-apply-button(href='single-job-page.html')
+							// Job Listing Details
+							.job-listing-details
+								// Logo
+								.job-listing-company-logo
+									img(src='images/company-logo-03.png', alt='')
+								// Details
+								.job-listing-description
+									h3.job-listing-title Restaurant General Manager
+									// Job Listing Footer
+									.job-listing-footer
+										ul
+											li
+												i.icon-material-outline-business
+												|  King
+												.verified-badge(title='Verified Employer', data-tippy-placement='top')
+											li
+												i.icon-material-outline-location-on
+												|  San Francissco
+											li
+												i.icon-material-outline-business-center
+												|  Full Time
+											li
+												i.icon-material-outline-access-time
+												|  2 days ago
+								// Apply Button
+								span.list-apply-button.ripple-effect Apply Now
+						// Job Listing
+						a.job-listing.with-apply-button(href='single-job-page.html')
+							// Job Listing Details
+							.job-listing-details
+								// Logo
+								.job-listing-company-logo
+									img(src='images/company-logo-05.png', alt='')
+								// Details
+								.job-listing-description
+									h3.job-listing-title International Marketing Coordinator
+									// Job Listing Footer
+									.job-listing-footer
+										ul
+											li
+												i.icon-material-outline-business
+												|  Skyist
+											li
+												i.icon-material-outline-location-on
+												|  San Francissco
+											li
+												i.icon-material-outline-business-center
+												|  Full Time
+											li
+												i.icon-material-outline-access-time
+												|  2 days ago
+								// Apply Button
+								span.list-apply-button.ripple-effect Apply Now
+					// Jobs Container / End
+	// Featured Jobs / End
+	// Photo Section
+	.photo-section(data-background-image='images/section-background.jpg')
+		// Infobox
+		.text-content.white-font
+			.container
+				.row
+					.col-lg-6.col-md-8.col-sm-12
+						h2
+							| Hire experts or be hired.
+							br
+							|  For any job, any time.
+						p
+							| Bring to the table win-win survival strategies to ensure proactive domination. At the end of the day, going forward, a new normal that has evolved from generation is on the runway towards.
+						a.button.button-sliding-icon.ripple-effect.big.margin-top-20(href='pages-pricing-plans.html')
+							| Get Started
+							i.icon-material-outline-arrow-right-alt
+		// Infobox / End
+	// Photo Section / End
+	// Recent Blog Posts
+	.section.padding-top-65.padding-bottom-50
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.margin-top-0.margin-bottom-45
+						h3 From The Blog
+						a.headline-link(href='pages-blog.html') View Blog
+					.row
+						// Blog Post Item
+						.col-xl-4
+							a.blog-compact-item-container(href='pages-blog-post.html')
+								.blog-compact-item
+									img(src='images/blog-01a.jpg', alt='')
+									span.blog-item-tag Tips
+									.blog-compact-item-content
+										ul.blog-post-tags
+											li 22 July 2018
+										h3 16 Ridiculously Easy Ways to Find & Keep a Remote Job
+										p
+											| Distinctively reengineer revolutionary meta-services and premium architectures intuitive opportunities.
+						// Blog post Item / End
+						// Blog Post Item
+						.col-xl-4
+							a.blog-compact-item-container(href='pages-blog-post.html')
+								.blog-compact-item
+									img(src='images/blog-02a.jpg', alt='')
+									span.blog-item-tag Recruiting
+									.blog-compact-item-content
+										ul.blog-post-tags
+											li 29 June 2018
+										h3 How to "Woo" a Recruiter and Land Your Dream Job
+										p
+											| Appropriately empower dynamic leadership skills after business portals. Globally myocardinate interactive.
+						// Blog post Item / End
+						// Blog Post Item
+						.col-xl-4
+							a.blog-compact-item-container(href='pages-blog-post.html')
+								.blog-compact-item
+									img(src='images/blog-03a.jpg', alt='')
+									span.blog-item-tag Marketing
+									.blog-compact-item-content
+										ul.blog-post-tags
+											li 10 June 2018
+										h3 11 Tips to Help You Get New Clients Through Cold Calling
+										p
+											| Compellingly embrace empowered e-business after user friendly intellectual capital. Interactively front-end.
+						// Blog post Item / End
+	// Recent Blog Posts / End
+	.section.border-top.padding-top-45.padding-bottom-45
+		// Logo Carousel
+		.container
+			.row
+				.col-xl-12
+					// Carousel
+					.col-md-12
+						.logo-carousel
+							.carousel-item
+								a(href='http://acmelogos.com/', target='_blank', title='http://acmelogos.com/')
+									img(src='images/logo-carousel-01.png', alt='')
+							.carousel-item
+								a(href='http://acmelogos.com/', target='_blank', title='http://acmelogos.com/')
+									img(src='images/logo-carousel-02.png', alt='')
+							.carousel-item
+								a(href='http://acmelogos.com/', target='_blank', title='http://acmelogos.com/')
+									img(src='images/logo-carousel-03.png', alt='')
+							.carousel-item
+								a(href='http://acmelogos.com/', target='_blank', title='http://acmelogos.com/')
+									img(src='images/logo-carousel-04.png', alt='')
+							.carousel-item
+								a(href='http://acmelogos.com/', target='_blank', title='http://acmelogos.com/')
+									img(src='images/logo-carousel-05.png', alt='')
+							.carousel-item
+								a(href='http://acmelogos.com/', target='_blank', title='http://acmelogos.com/')
+									img(src='images/logo-carousel-06.png', alt='')
+					// Carousel / End
+
+block append scripts
+
+	// Snackbar // documentation: https://www.polonel.com/snackbar/
+	script.
+		// Snackbar for user status switcher
+		$('#snackbar-user-status label').click(function() {
+			Snackbar.show({
+				text: 'Your status has been changed!',
+				pos: 'bottom-center',
+				showAction: false,
+				actionText: "Dismiss",
+				duration: 3000,
+				textColor: '#fff',
+				backgroundColor: '#383838'
+			});
+		});
+	// Google Autocomplete
+	script.
+		function initAutocomplete() {
+			var options = {
+				types: ['(cities)'],
+				// componentRestrictions: {country: "us"}
+			};
+			var input = document.getElementById('autocomplete-input');
+			var autocomplete = new google.maps.places.Autocomplete(input, options);
+		}
+		// Autocomplete adjustment for homepage
+		if ($('.intro-banner-search-form')[0]) {
+			setTimeout(function(){
+				$(".pac-container").prependTo(".intro-search-field.with-autocomplete");
+			}, 300);
+		}
+	// Google API
+	script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyAgeuuDfRlweIs7D6uo4wdIHVvJ0LonQ6g&libraries=places&callback=initAutocomplete')

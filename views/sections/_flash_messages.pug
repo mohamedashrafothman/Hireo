@@ -1,0 +1,11 @@
+// Flash messages Wrapper
+if flashes
+	//- TODO: auto remove notifications after amount of time using javascript setTimeout function.
+	.alerts-wrapper
+		- const categories = Object.keys(flashes)
+		each category in categories
+			each message, i in flashes[category]
+				div(class=`notification closeable ${category}`)
+					p !{(message.msg) ? message.msg : message}
+					a.close
+// Flash messages Wrapper / End

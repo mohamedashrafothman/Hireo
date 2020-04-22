@@ -1,0 +1,36 @@
+include ../mixins/_breadcrumb.pug
+
+.single-page-header(data-background-image='/images/single-job.jpg')
+	.container
+		.row
+			.col-md-12
+				.single-page-header-inner
+					.left-side
+						.header-image
+							a(href=`/profile/${data.job.created_by.slug}`)
+								if (data.job.created_by.account.picture || data.job.created_by.account.picture_md)
+									img(src=(!data.job.created_by.account.picture) ? `/${data.job.created_by.account.picture_md.path}` : `/${data.job.created_by.account.picture.path}`, alt='')
+								else
+									img(src=data.job.created_by.gravatar(140), alt='')
+						.header-details
+							h3= data.job.title
+							h5 About the Employer
+							ul
+								li
+									a(href=`/profile/${data.job.created_by.slug}`)
+										i.icon-material-outline-business
+										= data.job.created_by.account.name
+								li
+									.star-rating(data-rating="4")
+								if (data.job.created_by.profile.nationality && data.job.created_by.profile.nationality.code)
+									li
+										img.flag(src=`/images/flags/${data.job.created_by.profile.nationality.code}.svg`, alt='')
+										=data.job.created_by.profile.nationality.name
+								if (user && data.job.created_by.is_verified)
+									li
+										.verified-badge-with-title
+											= `Verified`
+					.right-side
+						.salary-box
+							.salary-type Annual Salary
+							.salary-amount= `$${h.nFormatter(data.job.salary.min)} - $${h.nFormatter(data.job.salary.max)}`

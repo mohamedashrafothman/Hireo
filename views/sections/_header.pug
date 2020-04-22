@@ -1,0 +1,208 @@
+// Header
+#header
+	.container
+		// Left Side Content
+		.left-side
+			// Logo
+			#logo
+				a(href='/')
+					img(src='/images/logo.png', data-sticky-logo='/images/logo.png', data-transparent-logo='/images/logo2.png', alt='')
+			// Main Navigation
+			nav#navigation
+				ul#responsive
+					li
+						a(href='/' class=_.isEqual(page_title, "Home") ? "current" : "") Home
+					if (categories)
+						li
+							a(href='#') Categories
+							ul.dropdown-nav.dropdown-nav-large
+								each category,index in categories
+									li
+										if (!_.isEmpty(category.childs))
+											a(href=`/browse/jobs?categories[]=${category._id}`)=category.name.en
+											ul.dropdown-nav.dropdown-nav-large
+												each sub_category, index_2 in category.childs
+													li
+														a(href=`/browse/jobs?categories[]=${sub_category._id}`)=sub_category.name.en
+										else
+											a(href=`/browse/jobs?categories[]=${category._id}`)=category.name.en
+					li
+						- const for_freelancers_pages = ["Browse Companies", "Browse Jobs"];
+						a(href='#', class=(for_freelancers_pages.includes(page_title)) ? "current" : "") Find Work
+						ul.dropdown-nav
+							li
+								a(href='/browse/companies') Browse Companies
+							li
+								a(href='/browse/jobs') Browse Jobs
+					li
+						- const for_employers_pages = ["Find a Freelancer"];
+						a(href='#', class=(for_employers_pages.includes(page_title)) ? "current" : "") For Employers
+						ul.dropdown-nav
+							li
+								a(href='/browse/freelancers') Find a Freelancer
+							if (user && !_.isEqual(user.role, "freelancer"))
+								li
+									a(href='/dashboard/jobs/add') Post a Job
+					li
+						a(href='#') Blog
+					li
+						a(href='#') Contact us
+			.clearfix
+			// Main Navigation / End
+		// Left Side Content / End
+		// Right Side Content / End
+		.right-side
+			if(user)
+				// User Notifications
+				.header-widget.hide-on-mobile
+					// Notifications
+					.header-notifications
+						// Trigger
+						.header-notifications-trigger
+							a(href='#')
+								i.icon-feather-bell
+								span 4
+						// Dropdown
+						.header-notifications-dropdown
+							.header-notifications-headline
+								h4 Notifications
+								button.mark-as-read.ripple-effect-dark(title='Mark all as read', data-tippy-placement='left')
+									i.icon-feather-check-square
+							.header-notifications-content
+								.header-notifications-scroll(data-simplebar='')
+									ul
+										// Notification
+										li.notifications-not-read
+											a(href='dashboard-manage-candidates.html')
+												span.notification-icon
+													i.icon-material-outline-group
+												span.notification-text
+													strong Michael Shannah
+													span.color Full Stack Software Engineer
+										// Notification
+										li
+											a(href='dashboard-manage-bidders.html')
+												span.notification-icon
+													i.icon-material-outline-gavel
+												span.notification-text
+													strong Gilbert Allanis
+													span.color iOS App Development
+										// Notification
+										li
+											a(href='dashboard-manage-jobs.html')
+												span.notification-icon
+													i.icon-material-outline-autorenew
+												span.notification-text
+													span.color Full Stack PHP Developer
+										// Notification
+										li
+											a(href='dashboard-manage-candidates.html')
+												span.notification-icon
+													i.icon-material-outline-group
+												span.notification-text
+													strong Sindy Forrest
+													span.color Full Stack Software Engineer
+					// Messages
+					.header-notifications
+						.header-notifications-trigger
+							a(href='#')
+								i.icon-feather-mail
+								span 3
+						// Dropdown
+						.header-notifications-dropdown
+							.header-notifications-headline
+								h4 Messages
+								button.mark-as-read.ripple-effect-dark(title='Mark all as read', data-tippy-placement='left')
+									i.icon-feather-check-square
+							.header-notifications-content
+								.header-notifications-scroll(data-simplebar='')
+									ul
+										// Notification
+										li.notifications-not-read
+											a(href='dashboard-messages.html')
+												span.notification-avatar.status-online
+													img(src='/images/user-avatar-small-03.jpg')
+												.notification-text
+													strong David Peterson
+													p.notification-msg-text Thanks for reaching out. I&apos;m quite busy right now on many...
+													span.color 4 hours ago
+										// Notification
+										li.notifications-not-read
+											a(href='dashboard-messages.html')
+												span.notification-avatar.status-offline
+													img(src='/images/user-avatar-small-02.jpg')
+												.notification-text
+													strong Sindy Forest
+													p.notification-msg-text Hi Tom! Hate to break it to you, but I&apos;m actually on vacation until...
+													span.color Yesterday
+										// Notification
+										li.notifications-not-read
+											a(href='dashboard-messages.html')
+												span.notification-avatar.status-online
+													img(src='/images/user-avatar-placeholder.png', alt='')
+												.notification-text
+													strong Marcin Kowalski
+													p.notification-msg-text I received payment. Thanks for cooperation!
+													span.color Yesterday
+							a.header-notifications-button.ripple-effect.button-sliding-icon(href='dashboard-messages.html')
+								i.icon-material-outline-arrow-right-alt
+				// User Notifications / End
+				// User Menu
+				.header-widget
+					// Messages
+					.header-notifications.user-menu
+						.header-notifications-trigger
+							a(href='#')
+								div(class=`user-avatar ${(user.is_active) ? 'status-online' : ''}`)
+									if (user.account.picture || user.account.picture_md)
+										img.profile-pic(src=(!user.account.picture) ? `/${user.account.picture_md.path}` : `/${user.account.picture.path}`, alt='')
+									else
+										img.profile-pic(src=user.gravatar(50), alt='')
+						// Dropdown
+						.header-notifications-dropdown
+							// User Status
+							.user-status
+								// User Name / Avatar
+								.user-details
+									div(class=`user-avatar ${(user.is_active) ? 'status-online' : ''}`)
+										if (user.account.picture || user.account.picture_sm)
+											img.profile-pic(src=(!user.account.picture) ? `/${user.account.picture_sm.path}` : `/${user.account.picture.path}`, alt='')
+										else
+											img.profile-pic(src=user.gravatar(50), alt='')
+									.user-name
+										= `${user.account.name}`
+										span= `${user.role}`
+								// User Status Switcher
+								form#snackbar-user-status.status-switch(action=`/auth/status`, method="PUT")
+									label(class=`user-online ${(user.is_active) ? "current-status" : ""}`) Online
+									label(class=`user-invisible ${(!user.is_active) ? "current-status" : ""}`) Invisible
+									// Status Indicator
+									span(class=`status-indicator ${(!user.is_active) ? "right" : ""}` aria-hidden='true')
+							ul.user-menu-small-nav
+								li
+									a(href='/dashboard')
+										i.icon-material-outline-dashboard
+										| Dashboard
+								li
+									a(href='/dashboard/settings')
+										i.icon-material-outline-settings
+										| Settings
+								li
+									a(href='/auth/logout')
+										i.icon-material-outline-power-settings-new
+										| Logout
+				// User Menu / End
+			else
+				// Login & Register
+				.header-widget
+					a.log-in-button(href="/auth/login" class="")
+						i.icon-feather-log-in
+						span Log In / Register
+				// Login & Register / End
+			// Mobile Navigation Button
+			span.mmenu-trigger
+				button.hamburger.hamburger--collapse(type='button')
+					span.hamburger-box
+						span.hamburger-inner
+		// Right Side Content / End
+// Header / End

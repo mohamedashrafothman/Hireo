@@ -1,0 +1,36 @@
+[{
+		"_id": "5da74f650ebd07b550424146",
+		"name": "Full Time",
+		"slug": "full-time",
+		"created_at": "2019-09-25T03:23:36.739Z",
+		"updated_at": "2019-09-25T03:27:39.553Z"
+	},
+	{
+		"_id": "5da74fba0ebd07b55042419c",
+		"name": "Freelance",
+		"slug": "freelance",
+		"created_at": "2019-09-25T03:23:36.739Z",
+		"updated_at": "2019-09-25T03:27:39.553Z"
+	},
+	{
+		"_id": "5da7501e0ebd07b5504241ec",
+		"name": "Part Time",
+		"slug": "part-time",
+		"created_at": "2019-09-25T03:23:36.739Z",
+		"updated_at": "2019-09-25T03:27:39.553Z"
+	},
+	{
+		"_id": "5da750500ebd07b55042421a",
+		"name": "Internship",
+		"slug": "internship",
+		"created_at": "2019-09-25T03:23:36.739Z",
+		"updated_at": "2019-09-25T03:27:39.553Z"
+	},
+	{
+		"_id": "5da7506f0ebd07b55042423d",
+		"name": "Temporary",
+		"slug": "temporary",
+		"created_at": "2019-09-25T03:23:36.739Z",
+		"updated_at": "2019-09-25T03:27:39.553Z"
+	}
+]

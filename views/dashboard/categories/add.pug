@@ -1,0 +1,80 @@
+extends ../../layouts/_dashboard_layout.pug
+include ../../mixins/_breadcrumb.pug
+
+
+block content
+	// Dashboard Headline
+	.dashboard-headline
+		h3=page_title
+		// Breadcrumbs
+		+breadcrumb(urlSegment)
+	// Row
+	.row
+		// Dashboard Box
+		.col-xl-12
+			.dashboard-box.margin-top-0
+				// Headline
+				.headline
+					h3
+						i.icon-feather-folder-plus.margin-right-10
+						| Categories Submition form
+				form#categories-add-form.content.with-padding.padding-bottom-0(action=`/dashboard/categories/add?_csrf=${csrfToken}`, method="POST", enctype="multipart/form-data")
+					.row
+						.col-md-4
+							.submit-field
+								h5 Category Name
+								input.with-border(type='text', name="name.en", value=(data && data.old && data.old["name.en"]) ? data.old["name.en"] : "", required)
+						.col-md-4
+							.submit-field
+								h5
+									|Category Name
+									span.margin-left-5 (in Arabic)
+								input.with-border(type='text', name="name.ar", value=(data && data.old && data.old["name.ar"]) ? data.old["name.ar"] : "", required)
+						.col-md-4
+							.submit-field
+								h5
+									|Parent Category
+									span.margin-left-5 (optional)
+								select.selectpicker.with-border(name="parent", value=(data && data.old && data.old["parent"]) ? data.old["parent"] : "", data-size='4', title='Select Parent Category', data-live-search='true')
+									if (data && data.categories)
+										each category, i in data.categories
+											option(value=category._id, selected=(data && data.old && data.old["parent"] && _.isEqual(category._id.toString(), data.old["parent"].toString())) ? "selected" : undefined)=category.name.en
+						.col-md-6
+							.submit-field
+								h5 Category Description
+								textarea.with-border(name="description.en", cols='30', rows='3', required)
+									=(data && data.old && data.old["description.en"]) ? data.old["description.en"] : ""
+						.col-md-6
+							.submit-field
+								h5
+									|Category Description
+									span.margin-left-5 (in Arabic)
+								textarea.with-border(name="description.ar", cols='30', rows='3', required)
+									=(data && data.old && data.old["description.ar"]) ? data.old["description.ar"] : ""
+						.col-md-6
+							.submit-field
+								h5
+									|Category Icon
+									span.margin-left-5 (optional)
+								select.selectpicker.with-border(name="icon", value=(data && data.old && data.old["icon"]) ? data.old["icon"] : "", data-size='4', title='Select Category Icon', data-live-search='true', data-selected-text-format="count > 1")
+									if (data && data.icons)
+										each icon, i in data.icons
+											option(value=icon._id, data-icon=`icon-${icon.type}-${icon.name}`, selected=(data && data.old && data.old["icon"] && _.isEqual(icon._id.toString(), data.old["icon"].toString())) ? "selected" : undefined)=`icon-${icon.type}-${icon.name}`
+						.col-md-6
+							.submit-field
+								h5 Attach Photo
+								// Upload Button
+								.uploadButton.margin-top-0
+									input#upload.uploadButton-input(type='file', name="picture", accept='image/*')
+									label.uploadButton-button.ripple-effect(for='upload') Upload Photo
+									span.uploadButton-file-name=`1 Attachment with maximum size: ${process.env.ATTATCHMENT_MAX_SIZE_IN_MB} MB`
+
+		.col-xl-12
+			button.button.ripple-effect.big.margin-top-30(type="submit" form="categories-add-form")
+				i.icon-feather-plus
+				|Add a Category
+
+
+
+block append modals
+block append scripts

@@ -1,0 +1,44 @@
+extends ../layouts/_index_layout.pug
+include ../mixins/_breadcrumb.pug
+
+block content
+
+	//
+		Titlebar
+		==================================================
+	#titlebar.gradient
+		.container
+			.row
+				.col-md-12
+					h2= `${_.capitalize(page_title)}`
+					// Breadcrumbs
+					+breadcrumb([urlSegment[0], urlSegment[2]])
+	//
+		Page Content
+		==================================================
+	.container
+		.row
+			.col-xl-6.offset-xl-3
+				.login-register-page
+					// Welcome Text
+					.welcome-text
+						h3(style='font-size: 26px;') We are sorry for you!
+						span
+							| Already remembered your password?
+							a(href='/auth/login')  Log In!
+					// Form
+					form#login-form(action=`${urlSegment.join('/')}` method='post')
+						include ../partials/_csrf.pug
+						.input-with-icon-left
+							i.icon-material-baseline-mail-outline.icon-left
+							input#emailaddress.input-text.with-border(name='email', type='text', placeholder='Email Address', value=`${(data && data.old["email"]) ? data.old["email"] : ''}`, required='')
+					// Button
+					button.button.full-width.button-sliding-icon.ripple-effect.margin-bottom-10.margin-top-10(type='submit', form='login-form')
+						| Reset Password
+						i.icon-material-outline-arrow-right-alt
+	// Spacer
+	.margin-top-70
+	// Spacer / End
+
+
+block append scripts

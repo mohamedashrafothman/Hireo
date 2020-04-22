@@ -1,0 +1,16 @@
+
+/* ---------------------------------- */
+/* Marks
+------------------------------------- */
+
+mark {
+  background: lighten($yelow-color, 40%) !important;
+color: darken($yelow-color, 10%) !important;
+  padding: 1px 5px;
+  &.color {
+    // border-radius: $global-border-radius;
+    border-radius: 0;
+	background: lighten($primary-color, 40%) !important;
+	color: $primary-color !important;
+  }
+}

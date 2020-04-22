@@ -1,0 +1,8 @@
+mixin header(type="")
+	//
+		Header Container
+		==================================================
+	header(id="header-container" class=`fullwidth ${(type === 'home') ? 'transparent' : ''} ${(type === 'dashboard') ? 'dashboard-header not-sticky' : ''}`)
+		include ../sections/_header.pug
+		.clearfix
+	// Header Container / End

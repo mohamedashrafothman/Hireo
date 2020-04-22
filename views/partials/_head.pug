@@ -1,0 +1,15 @@
+head
+	meta(charset="utf-8")
+	meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
+	meta(name="Job posting & tasks marketplace" content="")
+	meta(name='csrf-token', content=`${csrfToken}`)
+	meta(name=`${_.capitalize(title)}` content="")
+	meta(http-equiv="X-UA-Compatible", content="ie=edge")
+	link(type='image/png', href='/images/favicon.ico', rel='icon', sizes='32x32')
+
+	title= `${_.capitalize(siteName)} | ${_.capitalize(page_title)} page`
+
+	link(href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css", rel="stylesheet")
+	link(href="https://use.fontawesome.com/releases/v5.0.9/css/all.css", rel="stylesheet", integrity="sha384-5SOiIsAziJl6AWe0HWRKTXlfcSHKmYV4RBF18PPJ173Kzn7jzMyFuTtk8JA7QQG1" crossorigin="anonymous")
+
+	link(type="text/css" href=`/styles/style${(lang !== 'en') ? '-rtl' : ''}.min.css`, rel="stylesheet")

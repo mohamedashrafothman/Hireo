@@ -1,0 +1,16 @@
+block variables
+	- var pages_name = ["home 2", "home 3"];
+doctype html
+html(lang=`${locals.lang}` dir=`${(locals.lang === "en") ? "ltr" : "rtl"}`)
+	include ../partials/_head.pug
+	body
+		div(id="wrapper" class=(pages_name.includes(page_name) ? "wrapper-with-transparent-header" : ""))
+			//- include ../sections/_preloader.pug
+			if (pages_name.includes(page_name))
+				include ../sections/_header_transparent.pug
+			else
+				include ../sections/_header.pug
+			block content
+			include ../sections/_footer.pug
+		include ../partials/_foot.pug
+		block scripts

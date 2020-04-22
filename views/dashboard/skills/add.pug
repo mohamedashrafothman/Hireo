@@ -1,0 +1,55 @@
+extends ../../layouts/_dashboard_layout.pug
+include ../../mixins/_breadcrumb.pug
+
+
+block content
+
+	// Dashboard Headline
+	.dashboard-headline
+		h3=page_title
+		// Breadcrumbs
+		+breadcrumb(urlSegment)
+	// Row
+	.row
+		// Dashboard Box
+		.col-xl-12
+			.dashboard-box.margin-top-0
+				// Headline
+				.headline
+					h3
+						i.icon-feather-folder-plus.margin-right-10
+						| Skills Submition Form
+				form#skills-add-form.content.with-padding.padding-bottom-0(action="/dashboard/skills/add", method="POST")
+					include ../../partials/_csrf.pug
+					.row
+						.col-md-6
+							.submit-field
+								h5 Skill Name
+								input.with-border(type='text', name="name.en", value=(data && data.old["name.en"]) ? data.old["name.en"] : "", required)
+						.col-md-6
+							.submit-field
+								h5
+									|Skill Name
+									span.margin-left-5 (in Arabic)
+								input.with-border(type='text', name="name.ar", value=(data && data.old["name.ar"]) ? data.old["name.ar"] : "", required)
+						.col-md-6
+							.submit-field
+								h5 Skill Description
+								textarea.with-border(name="description.en", cols='30', rows='3', required)
+									=(data && data.old["description.en"]) ? data.old["description.en"] : ""
+						.col-md-6
+							.submit-field
+								h5
+									|Skill Description
+									span.margin-left-5 (in Arabic)
+								textarea.with-border(name="description.ar", cols='30', rows='3', required)
+									=(data && data.old["description.ar"]) ? data.old["description.ar"] : ""
+		.col-xl-12
+			button.button.ripple-effect.big.margin-top-30(type="submit" form="skills-add-form")
+				i.icon-feather-plus
+				|Add a Skill
+
+
+
+block append modals
+block append scripts

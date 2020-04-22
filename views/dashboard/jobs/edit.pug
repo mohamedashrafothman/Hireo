@@ -1,0 +1,148 @@
+extends ../../layouts/_dashboard_layout.pug
+include ../../mixins/_breadcrumb.pug
+
+block content
+
+	// Dashboard Headline
+	.dashboard-headline
+		h3=page_title
+		// Breadcrumbs
+		+breadcrumb(urlSegment)
+	// Row
+	.row
+		// Dashboard Box
+		.col-xl-12
+			.dashboard-box.margin-top-0
+				// Headline
+				.headline
+					h3
+						i.icon-feather-folder-plus.margin-right-10
+						| Job Edit Form
+				form#jobs-edit-form.content.with-padding.padding-bottom-10(action=`/dashboard/jobs/edit/${data.job.slug}?_csrf=${csrfToken}`, method="POST", enctype="multipart/form-data")
+					.row
+						.col-xl-4
+							.submit-field
+								h5 Job Title
+								input.with-border(type='text', name="title", value=(data.job && data.job.title) ? data.job.title : "", placeholder="e.g. Restaurant General Manager", required)
+						.col-xl-4
+							.submit-field
+								h5 Job Type
+								select.selectpicker.with-border(name="type", data-size='7', title='Select Job Type', required)
+									each type, i in data.jobTypes
+										option(value=type._id, selected=(data.job && data.job.type && _.isEqual(type._id.toString(), data.job.type.toString())) ? "selected" : undefined)=type.name
+						.col-xl-4
+							.submit-field
+								h5 Job Category
+								select.selectpicker.with-border(name="category", data-size='7', title='Select Category', data-live-search='true', required)
+									each category, i in data.categories
+										optgroup(label=category.name.en, data-icon=`icon-${category.icon.type}-${category.icon.name}`,)
+											each child, i in category.childs
+												option(value=child._id, selected=(data.job && data.job.category && _.isEqual(child._id.toString(), data.job.category.toString())) ? "selected" : undefined)=child.name.en
+						.col-xl-4
+							.submit-field
+								h5 Location
+								.input-with-icon-right
+									#autocomplete-container
+										input#job-location-address.autocomplete-input.with-border(name="location.address", type='text', value=(data.job && data.job.location.address) ? data.job.location.address : "" placeholder='Type Address', required)
+										input#job-location-long.autocomplete-input-long.with-border(name="location.coordinates[0]", type="hidden" value=(data.job && data.job.location.coordinates[0]) ? data.job.location.coordinates[0] : "")
+										input#job-location-lat.autocomplete-input-lat.with-border(name="location.coordinates[1]", type="hidden" value=(data.job && data.job.location.coordinates[1]) ? data.job.location.coordinates[1] : "")
+									i.icon-material-outline-location-on.icon-right(data-target="#job-location-address")
+						.col-xl-4
+							.submit-field
+								h5 Salary
+								.row
+									.col-xl-6
+										.input-with-icon-right
+											input#job-salary-min.with-border(type='number', name="salary.min", value=(data.job && data.job.salary.min) ? data.job.salary.min : "",  placeholder="Min", min="0", required)
+											i.currency.icon-right(data-target="#job-salary-min") USD
+									.col-xl-6
+										.input-with-icon-right
+											input#job-salary-max.with-border(type='number', name="salary.max", value=(data.job && data.job.salary.max) ? data.job.salary.max : "",  placeholder="Max", min="0", required)
+											i.currency.icon-right(data-target="#job-salary-max") USD
+						.col-xl-4
+							.submit-field
+								h5
+									|Tags
+									span.margin-left-5.margin-right-10 (optional)
+									i.help-icon(data-tippy, data-tippy-placement='right', title='Maximum of 10 tags')
+								.tags-container
+									.tags-input-container
+										input.tags-input.with-border(type='text', data-name="tags", data-last-index=`${(data.job && data.job.tags) ? data.job.tags.length : 0}` placeholder='e.g. Job title, responsibilities')
+										button.tags-input-button.ripple-effect(type="button")
+											i.icon-material-outline-add
+										.clearfix
+									.tags-list
+										if (data.job && data.job.tags)
+											each tag, i in data.job.tags.filter(Boolean)
+												.tag
+													input(id=`tag-0-${i}`, type='checkbox', name=`tags[${i}]`, value=tag, checked="checked")
+													label(for=`tag-0-${i}`)=tag
+									.clearfix
+						.col-xl-12
+							.submit-field
+								h5 Job Description
+								textarea.with-border(name="description", cols='30', rows='3', required)
+									=(data.job && data.job.description) ? data.job.description : ""
+						.col-xl-6
+							.submit-field
+								.row
+									.col-12
+										h5
+											|Attachments
+											span.margin-left-5.margin-right-10 (optional)
+											i.help-icon(data-tippy, data-tippy-placement='right', title=`Maximum of 2 files, ${process.env.ATTATCHMENT_MAX_SIZE_IN_MB}MB each`)
+									.col-12
+										.uploadButton
+											input#upload.uploadButton-input(name="attachments", type='file', accept='image/*, application/*', multiple)
+											label.uploadButton-button.ripple-effect(for='upload') Upload Files
+											span.uploadButton-file-name Images or documents that might be helpful in describing your job
+						if (_.isEqual(user.role, "admin"))
+							.col-xl-3
+								.submit-field
+									.row
+										.col-12
+											h5
+												|Published
+												i.help-icon.margin-left-10(data-tippy, data-tippy-placement="top", title="If no, It won't appear in search nor can be applied to.")
+										.col-12
+											.radio
+												input#is_published-input-true(name='is_published', type='radio', value="1", checked=(data.job && _.isEqual(data.job.is_published, true)) ? 'checked' : undefined)
+												label(for='is_published-input-true')
+													span.radio-label
+													| Yes
+											br
+											.radio
+												input#is_published-input-false(name='is_published', type='radio', value="0", checked=(data.job && _.isEqual(data.job.is_published, false)) ? 'checked' : undefined)
+												label(for='is_published-input-false')
+													span.radio-label
+													| No
+
+							.col-xl-3
+								.submit-field
+									.row
+										.col-12
+											h5
+												|Active
+												i.help-icon.margin-left-10(data-tippy, data-tippy-placement="top", title="If no, It will appear in search but it can’t be applied to.")
+										.col-12
+											.radio
+												input#is_active-input-true(name='is_active', type='radio', value="1", checked=(data.job && _.isEqual(data.job.is_active, true)) ? 'checked' : undefined)
+												label(for='is_active-input-true')
+													span.radio-label
+													| Yes
+											br
+											.radio
+												input#is_active-input-false(name='is_active', type='radio', value="0", checked=(data.job && _.isEqual(data.job.is_active, false)) ? 'checked' : undefined)
+												label(for='is_active-input-false')
+													span.radio-label
+													| No
+
+		.col-xl-12
+			button.button.ripple-effect.big.margin-top-30(type="submit", form="jobs-edit-form")
+				i.icon-feather-plus.margin-right-10
+				|Update a Job
+	// Row / End
+
+
+block append modals
+block append scripts

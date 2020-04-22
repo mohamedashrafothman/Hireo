@@ -1,0 +1,178 @@
+extends ../layouts/_dashboard_layout.pug
+include ../mixins/_breadcrumb.pug
+
+block content
+	// Dashboard Headline
+	.dashboard-headline
+		h3= `${page_title}`
+		// Breadcrumbs
+		+breadcrumb(urlSegment)
+	// Row
+	.row
+		// Dashboard Box
+		.col-xl-12
+			.dashboard-box.margin-top-0
+				// Headline
+				.headline
+					h3.d-flex.align-items-center.justify-content-between
+						div
+							i.icon-material-outline-business-center
+							|  Bookmarked Jobs
+						a.button.ripple-effect.padding-bottom-5.padding-top-5(href=`/browse/jobs`, style=`font-size: 14px;${(data.bookmarked.job.length) ? "" : "display: none;"}`)
+							| Browse More Jobs
+				.content
+					ul.dashboard-box-list
+						li.no-data(style=`text-align:center;${(data.bookmarked.job.length) ? "display: none;" : ""}`)
+							// Overview
+							.freelancer-overview(style="justify-content:center;")
+								h4 No Jobs Bookmarked Yet
+							//  Buttons
+							.buttons-to-right.always-visible
+								a.button.ripple-effect(href=`/browse/jobs`)
+									i.icon-feather-search.margin-right-10
+									| Browse Jobs
+						if (data.bookmarked.job.length)
+							each job, i in data.bookmarked.job
+								li
+									// Job Listing
+									.job-listing
+										// Job Listing Details
+										.job-listing-details
+											// Logo
+											a.job-listing-company-logo(href=`/profile/${job.created_by.slug}`)
+												if (job.created_by.account.picture || job.created_by.account.picture_md)
+													img(src=`${(!job.created_by.account.picture_md) ? job.created_by.account.picture : job.created_by.account.picture_md}`)
+												else
+													img(src=`${job.created_by.gravatar(50)}`)
+											// Details
+											.job-listing-description
+												h3.job-listing-title
+													a(href=`/job/${job.slug}`)=job.title
+												// Job Listing Footer
+												.job-listing-footer
+													ul
+														li
+															i.icon-material-outline-business
+															=job.created_by.account.name
+														li
+															i.icon-material-outline-location-on
+															=job.location.address
+														li
+															i.icon-material-outline-business-center
+															=job.type.name
+														li
+															i.icon-material-outline-access-time
+															=`${moment(job.created_at).format("ll")}`
+									// Buttons
+									.buttons-to-right
+										form(action=`/dashboard/bookmark/job/${job._id}` method="PUT")
+											button.button.red.ripple-effect.ico.bookmark-delete.bookmarked(type="submit", title='Remove', data-tippy, data-tippy-placement='left')
+												i.icon-feather-trash-2
+		// Dashboard Box
+		.col-xl-12
+			.dashboard-box
+				// Headline
+				.headline
+					h3.d-flex.align-items-center.justify-content-between
+						div
+							i.icon-material-outline-business-center
+							|  Bookmarked Freelancers
+						a.button.ripple-effect.padding-bottom-5.padding-top-5(href=`/browse/freelancers`, style=`font-size: 14px;${(data.bookmarked.freelancer.length) ? "" : "display: none;"}`)
+							| Browse More Freelancers
+				.content
+					ul.dashboard-box-list
+						li.no-data(style=`text-align:center;${(data.bookmarked.freelancer.length) ? "display: none;" : ""}`)
+							// Overview
+							.freelancer-overview(style="justify-content:center;")
+								h4 No Freelancers Bookmarked Yet
+							//  Buttons
+							.buttons-to-right.always-visible
+								a.button.ripple-effect(href=`/browse/freelancers`)
+									i.icon-feather-search.margin-right-10
+									| Browse Freelancers
+						if (data.bookmarked.freelancer.length)
+							each freelancer, i in data.bookmarked.freelancer
+								li
+									// Overview
+									.freelancer-overview
+										.freelancer-overview-inner
+											// Avatar
+											.freelancer-avatar
+												if (freelancer.is_verified)
+													.verified-badge
+												a(href=`/profile/${freelancer.slug}`)
+													if (freelancer.account.picture || freelancer.account.picture_md)
+														img(src=`${(!freelancer.account.picture_md) ? freelancer.account.picture : freelancer.account.picture_md}`)
+													else
+														img(src=`${freelancer.gravatar(50)}`)
+											// Name
+											.freelancer-name
+												h4
+													a(href=`/profile/${freelancer.slug}`)
+														=freelancer.account.name
+														if (freelancer.profile.nationality && freelancer.profile.nationality.code)
+															img.flag(src=`/images/flags/${freelancer.profile.nationality.code}.svg`, title=freelancer.profile.nationality.name, data-tippy, data-tippy-placement='top')
+												span= freelancer.profile.tagline
+												// Rating
+												.freelancer-rating
+													.star-rating(data-rating="4")
+									// Buttons
+									.buttons-to-right
+										form(action=`/dashboard/bookmark/freelancer/${freelancer._id}` method="PUT")
+											button.button.red.ripple-effect.ico.bookmark-delete.bookmarked(type="submit", title='Remove', data-tippy, data-tippy-placement='left')
+												i.icon-feather-trash-2
+		// Dashboard Box
+		.col-xl-12
+			.dashboard-box
+				// Headline
+				.headline
+					h3.d-flex.align-items-center.justify-content-between
+						div
+							i.icon-material-outline-business-center
+							|  Bookmarked Companies
+						a.button.ripple-effect.padding-bottom-5.padding-top-5(href=`/browse/companies`, style=`font-size: 14px;${(data.bookmarked.employer.length) ? "" : "display: none;"}`)
+							| Browse More Companies
+				.content
+					ul.dashboard-box-list
+						li.no-data(style=`text-align:center;${(data.bookmarked.employer.length) ? "display: none;" : ""}`)
+							// Overview
+							.freelancer-overview(style="justify-content:center;")
+								h4 No Companies Bookmarked Yet
+							//  Buttons
+							.buttons-to-right.always-visible
+								a.button.ripple-effect(href=`/browse/companies`)
+									i.icon-feather-search.margin-right-10
+									| Browse Companies
+						if (data.bookmarked.employer.length)
+							each employer, i in data.bookmarked.employer
+								li
+									// Overview
+									.freelancer-overview
+										.freelancer-overview-inner
+											// Avatar
+											.freelancer-avatar
+												if (employer.is_verified)
+													.verified-badge
+												a(href=`/profile/${employer.slug}`)
+													if (employer.account.picture || employer.account.picture_md)
+														img(src=`${(!employer.account.picture_md) ? employer.account.picture : employer.account.picture_md}`)
+													else
+														img(src=`${employer.gravatar(50)}`)
+											// Name
+											.freelancer-name
+												h4
+													a(href=`/profile/${employer.slug}`)
+														=employer.account.name
+														if (employer.profile.nationality && employer.profile.nationality.code)
+															img.flag(src=`/images/flags/${employer.profile.nationality.code}.svg`, title=employer.profile.nationality.name, data-tippy, data-tippy-placement='top')
+												span= employer.profile.tagline
+												// Rating
+												.freelancer-rating
+													.star-rating(data-rating="4")
+									// Buttons
+									.buttons-to-right
+										form(action=`/dashboard/bookmark/employer/${employer._id}` method="PUT")
+											button.button.red.ripple-effect.ico.bookmark-delete.bookmarked(type="submit", title='Remove', data-tippy, data-tippy-placement='left')
+												i.icon-feather-trash-2
+block append modals
+block append scripts

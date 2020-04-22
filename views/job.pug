@@ -1,0 +1,199 @@
+extends ./layouts/_index_layout.pug
+
+block content
+
+	include ./sections/_single_job_header.pug
+
+	// Page Content
+	.container
+		.row
+			// Content
+			.col-xl-8.col-lg-8.content-right-offset
+				.single-page-section
+					h3.margin-bottom-25 Job Description
+					p= data.job.description
+				.single-page-section
+					h3.margin-bottom-30 Location
+					#single-job-map-container
+						#singleListingMap(data-latitude=data.job.location.coordinates[1], data-longitude=data.job.location.coordinates[0], data-map-icon='im im-icon-Hamburger')
+						a#streetView(href='#') Street View
+				if (data.relatedJobs.length)
+					.single-page-section
+						h3.margin-bottom-25 Similar Jobs
+						// Listings Container
+						.listings-container.grid-layout
+							each job, index in data.relatedJobs
+								a.job-listing(href=`/job/${job.slug}`)
+									// Job Listing Details
+									.job-listing-details
+										// Logo
+										.job-listing-company-logo
+											if (job.created_by.account.picture || job.created_by.account.picture_md)
+												img(src=(!job.created_by.account.picture) ? `/${job.created_by.account.picture_md.path}` : `/${job.created_by.account.picture.path}`, alt='')
+											else
+												img(src=`${job.created_by.gravatar(50)}`)
+										// Details
+										.job-listing-description
+											h4.job-listing-company
+												=job.created_by.account.name
+												if job.created_by.is_verified
+													.verified-badge(title='Verified Employer', data-tippy, data-tippy-placement='top')
+											h3.job-listing-title= job.title
+									// Job Listing Footer
+									.job-listing-footer
+										ul
+											li(data-tippy, data-tippy-placement='top', title=`${job.location.address}`)
+												i.icon-material-outline-location-on
+												=job.location.address.split(",")[0]
+											li
+												i.icon-material-outline-business-center
+												=job.type.name
+											li
+												i.icon-material-outline-account-balance-wallet
+												= `$${h.nFormatter(data.job.salary.min)} - $${h.nFormatter(data.job.salary.max)}`
+											li
+												i.icon-material-outline-access-time
+												=`${moment(job.created_at).fromNow()}`
+						// Listings Container / End
+			// Sidebar
+			.col-xl-4.col-lg-4
+				.sidebar-container
+					if (user && ["admin", "freelancer"].includes(user.role))
+						if (user  && !user.jobs.includes(data.job._id.toString()) && data.job.is_active)
+							if !data.job.applications.map(app => app.created_by).includes(user._id.toString())
+								if (data.job.status !== 2 && data.job.status !== 4)
+									a(href='#small-dialog', class=`apply-now-button popup-with-zoom-anim ${(data && data.old) ? "popup-open-by-default" : ""}`)
+										| Apply Now
+										i.icon-material-outline-arrow-right-alt
+								else
+									.notification.info
+										h4.margin-bottom-5
+											strong Note
+										p This job it may be Completed or Expired
+							else
+								.notification.info
+									h4.margin-bottom-5
+										strong Note
+									p You applied to this job before.
+									p
+										|Find out which jobs you applied for from
+										a.margin-left-5(href="/dashboard/applications/list")
+											strong Here
+										|.
+					else
+						.notification.info
+							p
+								|Please
+								strong.margin-right-5.margin-left-5
+									a(href="/auth/login") Login
+								|as a freelancer to apply for this job
+
+					// Sidebar Widget
+					.sidebar-widget
+						.job-overview
+							.job-overview-headline Job Summary
+							.job-overview-inner
+								ul
+									li
+										i.icon-material-outline-location-on
+										span Location
+										h5= data.job.location.address
+									li
+										i.icon-material-outline-business-center
+										span Job Type
+										h5= data.job.type.name
+									li
+										i.icon-material-outline-local-atm
+										span Salary
+										h5= `$${h.nFormatter(data.job.salary.min)} - $${h.nFormatter(data.job.salary.max)}`
+									li
+										i.icon-material-outline-access-time
+										span Date Posted
+										h5= moment(data.job.created_at).calendar()
+					// Sidebar Widget
+					.sidebar-widget
+						h3=(user && !_.isEqual(data.job.created_by._id, user._id)) ? "Bookmark or Share" : "Share"
+						if (user && !_.isEqual(data.job.created_by._id, user._id))
+							// Bookmark Button
+							form.bookmark(action=`/dashboard/bookmark/job/${data.job._id}`, method="PUT")
+									- const bookmarked = user.bookmarked.job.map((singleJob)=> singleJob.toString());
+									- const bookmarkClass = bookmarked.includes(data.job._id.toString()) ? 'bookmarked' : '';
+									button(type="submit", class=`${bookmarkClass} bookmark-button margin-bottom-25`)
+										span.bookmark-icon
+										span.bookmark-text Bookmark
+										span.bookmarked-text Bookmarked
+						// Copy URL
+						.copy-url
+							input#copy-url.with-border(type='text', value='')
+							button.copy-url-button.ripple-effect(data-clipboard-target='#copy-url', title='Copy to Clipboard', data-tippy-placement='top')
+								i.icon-material-outline-file-copy
+						// Share Buttons
+						.share-buttons.margin-top-25
+							.share-buttons-trigger
+								i.icon-feather-share-2
+							.share-buttons-content
+								span
+									| Interesting?
+									strong Share It!
+								ul.share-buttons-icons
+									li
+										a(href="#", data-button-color="#3b5998", title="Share on Facebook", data-tippy, data-tippy-placement="top")
+											i.icon-brand-facebook-f
+									li
+										a(href="#", data-button-color="#1da1f2", title="Share on Twitter", data-tippy, data-tippy-placement="top")
+											i.icon-brand-twitter
+									li
+										a(href="#", data-button-color="#0077b5", title="Share on LinkedIn", data-tippy, data-tippy-placement="top")
+											i.icon-brand-linkedin-in
+
+block append modals
+	if data.job.is_active
+		if (user && (_.isEqual(user.role, "freelancer") || _.isEqual(user.role, "admin")) && !data.job.applications.map(app => app.created_by).includes(user._id.toString()))
+			//
+				Apply for a job popup
+				==================================================
+			#small-dialog.zoom-anim-dialog.mfp-hide.dialog-with-tabs
+				// Tabs
+				.sign-in-form
+					ul.popup-tabs-nav
+						li
+							a(href='#tab') Apply Now
+					.popup-tabs-container
+						// Tab
+						#tab.popup-tab-content
+							// Welcome Text
+							.welcome-text
+								h3 Attach File With CV
+							// Form
+							form#apply-now-form(method='POST', action=`/job/${data.job._id}/application/add?_csrf=${csrfToken}`, enctype="multipart/form-data")
+								.input-with-icon-left
+									i.icon-material-outline-account-circle.icon-left
+									input#name.input-text.with-border(name='name', type="text", placeholder='First and Last Name', value=`${(data && data.old && data.old["name"]) ? data.old["name"] : ''}`, required)
+								.input-with-icon-left
+									i.icon-material-baseline-mail-outline.icon-left
+									input#emailaddress.input-text.with-border(name='email', type='email', placeholder='Email Address', value=`${(data && data.old && data.old["email"]) ? data.old["email"] : ''}`, required)
+								.uploadButton
+									input#upload-cv.uploadButton-input(type='file', name="attachments" accept='image/*, application/*')
+									label.uploadButton-button.ripple-effect(for='upload-cv') Select File
+									span.uploadButton-file-name
+										| Upload your CV / resume relevant file.
+										br
+										= `Max file size: ${process.env.ATTATCHMENT_MAX_SIZE_IN_MB} MB.`
+							// Button
+							button.button.margin-top-35.full-width.button-sliding-icon.ripple-effect(type='submit', form='apply-now-form')
+								| Apply Now
+								i.icon-material-outline-arrow-right-alt
+			// Apply for a job popup / End
+
+block append scripts
+	script.
+		// Snackbar for copy to clipboard button
+		$('.copy-url-button').click(function () {
+			Snackbar.show({
+				text: 'Copied to clipboard!',
+			});
+		});
+	// Google API & Maps
+	script(src="/scripts/libs/infobox.min.js")
+	script(src="/scripts/libs/markerclusterer.js")
+	script(src="/scripts/libs/maps.js")

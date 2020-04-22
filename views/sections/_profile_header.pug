@@ -1,0 +1,33 @@
+include ../mixins/_breadcrumb.pug
+
+div(class=`single-page-header ${_.isEqual(data.user.role, "freelancer") ? "freelancer-header" : ''}` data-background-image=_.isEqual(data.user.role, "freelancer") ? '/images/single-freelancer.jpg' : '/images/single-company.jpg')
+	.container
+		.row
+			.col-md-12
+				.single-page-header-inner
+					.left-side
+						div(class=`header-image ${_.isEqual(data.user.role, "freelancer") ? "freelancer-avatar" : ''}`)
+							if (data.user.account.picture || data.user.account.picture_md)
+								img(src=(!data.user.account.picture) ? `/${data.user.account.picture_md.path}` : `/${data.user.account.picture.path}`, alt='')
+							else
+								img(src=data.user.gravatar(50), alt='')
+						.header-details
+							h3
+								=data.user.account.name
+								if data.user.profile.tagline
+									span=data.user.profile.tagline
+							ul
+								li
+									.star-rating(data-rating="4")
+								if (data.user.profile.nationality && data.user.profile.nationality.code)
+									li
+										img.flag(src=`/images/flags/${data.user.profile.nationality.code}.svg`, alt='')
+										=data.user.profile.nationality.name
+								if (user && data.user.is_verified)
+									li
+										.verified-badge-with-title
+											= `Verified ${_.isEqual(data.user.role, "freelancer") ? 'Freelancer' : 'Company'}`
+					if _.isEqual(data.user.role, "employer")
+						.right-side
+							// Breadcrumbs
+							+breadcrumb(urlSegment, "white")

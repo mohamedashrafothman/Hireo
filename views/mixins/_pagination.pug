@@ -1,0 +1,21 @@
+mixin pagination(baseUrl, page, pages, query)
+	nav.pagination
+		ul
+			if (Number(page) > 1)
+				li.pagination-arrow
+					a.ripple-effect(href=`${baseUrl}?${qs.stringify(_.assignIn(query, qs.parse({page: Number(page)-1})))}`)
+						i.icon-material-outline-keyboard-arrow-left
+			-var i = (Number(page) > 5 ? Number(page) - 4 : 1);
+			if (i !== 1)
+				li
+					a.ripple-effect(href=`${baseUrl}?${qs.stringify(_.assignIn(query, qs.parse({page: 1})))}`)  ...
+			- for(; i <= (Number(page) + 4) && i <= pages; i++)
+				li
+					a(class=`ripple-effect ${(i === Number(page)) ? 'current-page' : ''}` href=`${baseUrl}?${qs.stringify(_.assignIn(query, qs.parse({page: i})))}`)=i
+				if (i == Number(page) + 4 && i < pages)
+					li
+						a.ripple-effect(href=`${baseUrl}?${qs.stringify(_.assignIn(query, qs.parse({page: Number(page)})))}`) ...
+			if (Number(page) < pages)
+				li.pagination-arrow
+					a.ripple-effect(href=`${baseUrl}?${qs.stringify(_.assignIn(query, qs.parse({page: Number(page)+1})))}`)
+						i.icon-material-outline-keyboard-arrow-right

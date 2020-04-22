@@ -1,0 +1,47 @@
+extends ./layouts/_index_layout.pug
+include ./mixins/_breadcrumb.pug
+include ./mixins/_pagination.pug
+
+block content
+	//
+		Titlebar
+		==================================================
+	#titlebar.gradient
+		.container
+			.row
+				.col-md-12
+					h2 Browse Companies
+					//  Breadcrumbs
+					+breadcrumb([urlSegment[0], "Browse Companies"])
+	//
+		Page Content
+		==================================================
+	.container
+		.row
+			.col-xl-12
+				.letters-list
+					each letter in ("ABCDEFGHIJKLMNOPQRSTUVWXYZ").split("")
+						a(href=`/browse/companies?letter=${letter.toLowerCase()}` class=(letter.toLowerCase() === query.letter) ? 'current' : '')=letter
+			.col-xl-12.margin-bottom-50.margin-top-50
+				.companies-list(style=_.isEqual(total, 0) ? "align-items:center;flex-direction:column" : "")
+					if _.isEqual(total, 0)
+						h1 We are sorry
+						p No companies found begin with this letter
+					else
+						each company in data.companies
+							a.company(href=`/profile/${company.slug}`)
+								.company-inner-alignment
+									span.company-logo
+										if (company.account.picture || company.account.picture_md)
+											img(src=(!company.account.picture) ? `/${company.account.picture_md.path}` : `/${company.account.picture.path}`, alt=`${company.account.name} account picture`)
+										else
+											img(src=`${company.gravatar(120)}`, alt=`${company.account.name} account picture`)
+									h4= company.account.name
+									.star-rating(data-rating="3.5")
+			if (hasNextPage || hasPrevPage)
+				.col-xl-12.margin-bottom-50.margin-top-10
+					.pagination-container.margin-top-20.margin-bottom-20
+						+pagination("/browse/companies", page, pages, query)
+
+block append modals
+block append scripts

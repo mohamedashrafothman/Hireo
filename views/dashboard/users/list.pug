@@ -1,0 +1,142 @@
+extends ../../layouts/_dashboard_layout.pug
+include ../../mixins/_breadcrumb.pug
+include ../../mixins/_pagination.pug
+
+
+block content
+	// Dashboard Headline
+	.dashboard-headline
+		h3=page_title
+		// Breadcrumbs
+		+breadcrumb(urlSegment)
+	// Row
+	.row
+		// Dashboard Box
+		.col-xl-12
+			.dashboard-box.margin-top-0
+				// Headline
+				.headline
+					.container.padding-right-0.padding-left-0
+						.row.margin-right-0.margin-left-0(style="width: 100%")
+							.col-5.padding-left-0
+								h3
+									i.icon-material-outline-supervisor-account
+									=`${total} Users`
+							.col-3
+								.sort-by
+									span Sort By:
+									select.selectpicker.hide-tick(data-selected-text-format='count', data-size='4',onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value)")
+										option(selected=((_.isEmpty(query) || _.isEmpty(query.sort) || _.isEmpty(query.sort.created_at)) || (query && query.sort && query.sort.created_at === "desc") ? "selected" : undefined), value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "desc" }) ))}`) Newest
+										option(selected=((query && query.sort && query.sort.created_at === "asc") ? "selected" : undefined), value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "asc" }) ))}`) Oldest
+							.col-4.padding-right-0
+								.search-input
+									.input-flat-with-icon-left
+										i.icon-material-outline-search.icon-right
+										input.input-text.autocomplete(name='q', type='text', placeholder='Search')
+				.content
+					ul.dashboard-box-list
+						if data.users
+							each single_user, index in data.users
+								li
+									// Overview
+									.freelancer-overview.manage-candidates
+										.freelancer-overview-inner
+											// Avatar
+											.freelancer-avatar
+												if single_user.is_verified
+													.verified-badge(data-tippy, data-tippy-placement="bottom", title="Verified User")
+												a(href=`/profile/${single_user.slug}`)
+													if (single_user.account.picture || single_user.account.picture_md)
+														img.profile-pic(src=(!single_user.account.picture) ? `/${single_user.account.picture_md.path}` : `/${single_user.account.picture.path}`, alt='')
+													else
+														img.profile-pic(src=single_user.gravatar(50), alt='')
+											// Name
+											.freelancer-name
+												h4
+													a(href=`/profile/${single_user.slug}`)
+														=single_user.account.name
+														if (single_user.profile.nationality && single_user.profile.nationality.code)
+															img.flag.margin-left-10(src=`/images/flags/${single_user.profile.nationality.code}.svg`, alt='', title=single_user.profile.nationality.name, data-tippy, data-tippy-placement='top')
+												// Rating
+												.freelancer-rating
+													.star-rating(data-rating="4")
+												// Details
+												.job-listing-footer
+													ul.padding-left-0
+														li.freelancer-detail-item
+															a(href=`mailto:${single_user.email}`)
+																i.icon-feather-mail
+																=`${single_user.email}`
+														li.freelancer-detail-item
+															i(class=`icon-material-outline-${(single_user.role === "freelancer") ? "account-circle" : "business-center"}`)
+															=`${single_user.role}`
+												// Buttons
+												.buttons-to-right.always-visible.margin-top-25.margin-bottom-5
+													a.button.ripple-effect(href=`/profile/${single_user.slug}`)
+														i.icon-feather-user.margin-right-5
+														| View Profile
+													a(href=`/auth/verification/${single_user._id}`, class=`button ripple-effect ${(single_user.is_verified) ? "red" : "green"}`)
+														i(class=`icon-feather-${(single_user.is_verified) ? "x" : "check"}-square margin-right-5`)
+														=`${(single_user.is_verified) ? "Mark Unverified" : "Mark Verified"}`
+													a.popup-with-zoom-anim.button.dark.ripple-effect(href=`#small-dialog-message-${index + 1}`)
+														i.icon-feather-mail.margin-right-5
+														|  Send Message
+													a.popup-with-zoom-anim.button.gray.ripple-effect.ico(href=`#small-dialog-delete-${index + 1}`, title='Delete Entirely', data-tippy, data-tippy-placement='top')
+														i.icon-feather-trash-2
+		if (hasNextPage || hasPrevPage)
+			.col-md-12
+				.pagination-container.margin-top-20.margin-bottom-20
+					+pagination("/dashboard/users/list", page, pages, query)
+
+
+block append modals
+	if data.users
+		each single_user_modal, index_2 in data.users
+			//
+				Send Direct Message Popup
+				==================================================
+			.zoom-anim-dialog.mfp-hide.dialog-with-tabs(id=`small-dialog-message-${index_2 + 1}`)
+				// Tabs
+				.sign-in-form
+					ul.popup-tabs-nav
+						li
+							a(href=`#tab-${index_2 + 1}`) Send Message
+					.popup-tabs-container
+						// Tab
+						.popup-tab-content(id=`tab-${index_2 + 1}`)
+							// Welcome Text
+							.welcome-text
+								h3=`Direct Message To ${single_user_modal.account.name}`
+							// Form
+							form(method='post' id=`send-pm-${index_2 + 1}`)
+								include ../../partials/_csrf.pug
+								textarea.with-border(name='textarea', cols='10', placeholder='Message', required='')
+							// Button
+							button.button.full-width.button-sliding-icon.ripple-effect(type='submit', form=`send-pm-${index_2 + 1}`)
+								| Send
+								i.icon-material-outline-arrow-right-alt
+			// Send Direct Message Popup / End
+
+			//
+				Delete My Account Dialog
+				==================================================
+			.zoom-anim-dialog.dialog-with-tabs.mfp-hide(id=`small-dialog-delete-${index_2 + 1}`)
+				// Tabs
+				.sign-in-form
+					ul.popup-tabs-nav
+						li
+							a(href=`#tab-${index_2 + 1}`)=`Delete Account`
+					.popup-tabs-container
+						// Tab
+						.popup-tab-content(id=`tab-${index_2 + 1}`)
+							// Welcome Text
+							.welcome-text
+								h3=`Are You sure you want to delete ${single_user_modal.account.name}'s account entirely`
+							// Form
+							form(id=`delete-account-form-${index_2 + 1}`, method="GET" action=`/auth/delete/${single_user_modal._id}`)
+								include ../../partials/_csrf.pug
+							// Button
+							button.button.red.margin-top-35.full-width.ripple-effect(type="submit" form=`delete-account-form-${index_2 + 1}`)
+								| Delete Now!
+			// Delete My Account Modal / End
+block append scripts

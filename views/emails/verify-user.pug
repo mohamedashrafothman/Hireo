@@ -1,0 +1,13 @@
+extends ../layouts/_email_layout.pug
+block content
+	h2= `${subject}`
+		p Thanks for Sign Up!
+		p Your account has been created, you can login with the following credentials after you activated your account by visiting the URL below.
+		p ------------------------------
+		p= `Email: ${to.email}`
+		p= `username: ${to.account.username}`
+		p ------------------------------
+		p
+			| Please click the link to activate your account
+			br
+			a(href=`${validateURL}` target="_blank")= ` ${validateURL}`

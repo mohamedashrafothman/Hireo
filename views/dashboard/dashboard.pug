@@ -1,0 +1,12 @@
+extends ../layouts/_dashboard_layout.pug
+include ../mixins/_breadcrumb.pug
+
+block content
+	// Dashboard Headline
+	.dashboard-headline
+		h3= `Howdy, ${user.account.name}`
+		span We are glad to see you again!
+		// Breadcrumbs
+		+breadcrumb(urlSegment)
+block append modals
+block append scripts

@@ -1,0 +1,133 @@
+
+/* ---------------------------------- */
+/* Clickable Tags
+------------------------------------- */
+
+.tags-container {
+	margin-bottom: -15px;
+  display: block;
+  input[type="checkbox"] {
+    display: none;
+    + label {
+      transition: 0.3s;
+      font-size: 14.7px;
+      cursor: pointer;
+      border-radius: $global-border-radius;
+      background-color: #eee;
+      color: #777;
+      display: inline-block;
+      padding: 6px 15px;
+      margin: 0;
+      line-height: 24px;
+      &:hover {
+        background-color: #e8e8e8;
+      }
+    }
+    &:checked {
+      + label {
+        background-color: $primary-color;
+        color: #fff;
+        transition: 0.3s;
+      }
+      + label:before {
+        max-width: 30px;
+        opacity: 1;
+        transform: scale(1);
+        margin: 0 5px 0 -2px;
+      }
+    }
+    + label:before {
+      font-family: "Feather-Icons";
+      content: "\e92b";
+      font-size: 18px;
+      transition: all 0.35s cubic-bezier(0.5, -0.41, 0.19, 2), max-width 0.3s, margin 0.3s;
+      max-width: 0;
+      display: inline-block;
+      position: relative;
+      top: 3px;
+      margin: 0;
+      opacity: 0;
+      color: #fff;
+      line-height: 0;
+      transform: scale(0.5);
+    }
+  }
+  .tags-list {
+	  display: block;
+	  float: left;
+	//   height: 0;
+  }
+  .tag {
+    display: inline-block;
+    float: left;
+    margin: 0 7px 7px 0;
+    overflow: hidden;
+	animation: TagIn 0.3s ease-in-out;
+	animation-fill-mode: both;
+	transition: 0.4s;
+	&-text {
+		padding-right: 12px;
+	}
+  }
+}
+
+
+/* ---------------------------------- */
+/* Keywords Input
+------------------------------------- */
+@keyframes TagIn {
+	0% {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+
+@keyframes TagOut {
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 0;
+		margin-top: -35px;
+	}
+}
+.tags-input-container {
+	position: relative;
+
+	.tags-input-button {
+		position: absolute;
+		top: 0;
+		right: 0;
+		height: 36px;
+		width: 36px;
+		padding: 0;
+		color: #fff;
+		background-color: $primary-color;
+		border-radius: $global-border-radius;
+		margin: 6px;
+		font-size: 19px;
+		text-align: center;
+		line-height: 36px;
+
+		i {
+			color: #fff;
+			position: relative;
+			top: 2px;
+		}
+	}
+}
+
+input.tags-input {
+	margin: 0 0 15px 0;
+}

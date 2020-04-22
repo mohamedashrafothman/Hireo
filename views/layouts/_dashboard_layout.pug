@@ -1,0 +1,17 @@
+doctype html
+html(lang=`${locals.lang}` dir=`${(locals.lang === "en") ? "ltr" : "rtl"}`)
+	include ../partials/_head.pug
+	body.gray
+		div#wrapper
+			include ../mixins/_header.pug
+			include ../sections/_flash_messages.pug
+			+header("dashboard")
+			.dashboard-container
+				include ../sections/_sidebar_menu.pug
+				.dashboard-content-container(data-simplebar)
+					.dashboard-content-inner
+						block content
+						include ../sections/_footer_sm.pug
+		block modals
+		include ../partials/_foot.pug
+		block scripts

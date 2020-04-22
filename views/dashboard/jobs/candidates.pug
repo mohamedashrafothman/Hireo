@@ -1,0 +1,187 @@
+extends ../../layouts/_dashboard_layout.pug
+include ../../mixins/_breadcrumb.pug
+include ../../mixins/_pagination.pug
+
+block content
+	// Dashboard Headline
+	.dashboard-headline
+		h3=page_title
+		span.margin-top-7
+			| Job Applications for
+			a.margin-left-5(href=`/job/${data.job.slug}`)=data.job.title
+		// Breadcrumbs
+		+breadcrumb([urlSegment[0], urlSegment[1], page_title])
+	// Row
+	.row
+		// Dashboard Box
+		.col-xl-12
+			.dashboard-box.margin-top-0
+				// Headline
+				.headline
+					h3
+						i.margin-right-5.icon-material-outline-supervisor-account
+						=`${total} Candidates`
+					if data.applications.length
+						.sort-by
+							span Sort By:
+							select.selectpicker.hide-tick(data-selected-text-format='count', data-size='4', onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value)")
+								option(selected=((_.isEmpty(query) || !Boolean(query.sort) || !Boolean(query.sort.created_at)) || (!_.isEmpty(query) && Boolean(query.sort) && Boolean(query.sort.created_at) && query.sort.created_at === "desc")) ? "selected" : undefined, value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "desc" }) ))}`) Newest
+								option(selected=((!_.isEmpty(query) && Boolean(query.sort) && Boolean(query.sort.created_at) && query.sort.created_at === "asc") ? "selected" : undefined), value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "asc" }) ))}`) Oldest
+				.content
+					ul.dashboard-box-list
+						if (!data.applications.length)
+							li(style=`text-align:center;`)
+								// Overview
+								.job-listing.padding-top-15.padding-bottom-15(style="justify-content:center;")
+									h4 No candidates applied yet
+						else
+							each application, i in data.applications
+								li
+									// Overview
+									.freelancer-overview.manage-candidates
+										.freelancer-overview-inner
+											// Avatar
+											.freelancer-avatar
+												if application.created_by.is_verified
+													.verified-badge(data-tippy, data-tippy-placement="bottom", title="Verified User")
+												a(href=`/profile/${application.created_by.slug}`)
+													if (application.created_by.account.picture || application.created_by.account.picture_md)
+														img(src=(!application.created_by.account.picture) ? `/${application.created_by.account.picture_md.path}` : `/${application.created_by.account.picture.path}`, alt='')
+													else
+														img(src=`${application.created_by.gravatar(50)}`)
+											// Name
+											.freelancer-name
+												case application.status
+													when 1
+														span.status.yellow(data-tippy, data-tippy-placement="top", title="Application Status: Waiting")
+															|Waiting
+													when 2
+														span.status.orange(data-tippy, data-tippy-placement="top", title="Application Status: Withdrawn")
+															|Withdrawn
+													when 3
+														span.status.red(data-tippy, data-tippy-placement="top", title="Application Status: Rejected")
+															|Rejected
+													when 4
+														span.status.green(data-tippy, data-tippy-placement="top", title="Application Status: Accepted")
+															|Accepted
+												h4
+													a(href=`/profile/${application.created_by.slug}`)
+														=application.name
+														if (application.created_by.profile.nationality && application.created_by.profile.nationality.code)
+															img.flag.margin-left-5(src=`/images/flags/${application.created_by.profile.nationality.code}.svg`, title=`${application.created_by.profile.nationality.name}`, data-tippy, data-tippy-placement='top')
+												// Details
+												span.freelancer-detail-item
+													a(href=`mailto:${application.email}`)
+														i.icon-feather-mail
+														=`${application.email}`
+												span.freelancer-detail-item
+													i.icon-feather-phone
+													|  (+61) 123-456-789
+												// Rating
+												.freelancer-rating
+													.star-rating(data-rating='5.0')
+												// Buttons
+												.buttons-to-right.always-visible.margin-top-25.margin-bottom-5
+													if (application.attachment)
+														a.button.ripple-effect.margin-right-5(href=`/dashboard/jobs/${data.job._id}/applications/${application._id}/attachment/${application.attachment._id}/download`)
+															i.icon-feather-file-text.margin-right-5
+															|Download CV
+													a.popup-with-zoom-anim.button.dark.ripple-effect.margin-right-5(href=`#small-dialog-${i}`)
+														i.icon-feather-mail.margin-right-5
+														|Send Message
+													if (data.job.status === 1 || data.job.status === 3)
+														if (application.status !== 3)
+															a.popup-with-zoom-anim.button.red.ripple-effect.ico.margin-right-5(href=`#small-dialog-reject-${i}`, title='Reject Candidate', data-tippy, data-tippy-placement='top')
+																i.icon-feather-x-square.margin-right-5
+														if (application.status !== 4)
+															a.popup-with-zoom-anim.button.green.ripple-effect.ico.margin-right-5(href=`#small-dialog-accept-${i}`, title='Accept Candidate', data-tippy, data-tippy-placement='top')
+																i.icon-feather-check-square.margin-right-5
+	// Row / End
+
+	if (hasNextPage || hasPrevPage)
+		// Row
+		.row
+			.col-md-12
+				// Pagination
+				.pagination-container.margin-top-45.margin-bottom-45
+					+pagination(`/dashboard/jobs/${data.job.slug}/applications`, page, pages, query)
+				// Pagination / End
+		// Row / End
+
+
+block append modals
+	if (data.applications.length)
+		each application, i in data.applications
+			//
+				Send Direct Message Popup
+				==================================================
+			.zoom-anim-dialog.mfp-hide.dialog-with-tabs(id=`small-dialog-${i}`)
+				// Tabs
+				.sign-in-form
+					ul.popup-tabs-nav
+						li
+							a(href=`#tab-message-${i}`) Send Message
+					.popup-tabs-container
+						// Tab
+						.popup-tab-content(id=`tab-message-${i}`)
+							// Welcome Text
+							.welcome-text
+								h3 Direct Message To Sindy
+							// Form
+							form(id=`send-candidate-message-${i}`, method='post', action="#")
+								include ../../partials/_csrf.pug
+								textarea.with-border(name='textarea', cols='10', placeholder='Message', required='')
+							// Button
+							button.button.full-width.button-sliding-icon.ripple-effect(type='submit', form=`send-candidate-message-${i}`)
+								| Send
+								i.icon-material-outline-arrow-right-alt
+			// Send Direct Message Popup / End
+
+			//
+				Reject Candidate Dialog
+				==================================================
+			.zoom-anim-dialog.dialog-with-tabs.mfp-hide(id=`small-dialog-reject-${i}`)
+				// Tabs
+				.sign-in-form
+					ul.popup-tabs-nav
+						li
+							a(href=`#tab-reject-${i}`)=`Reject ${application.name}'s application`
+					.popup-tabs-container
+						// Tab
+						.popup-tab-content(id=`tab-reject-${i}`)
+							// Welcome Text
+							.welcome-text
+								h3=`Are You sure you want to reject ${application.name}'s Application?`
+							// Form
+							form(id=`reject-candidate-form-${i}`, method="GET" action=`/dashboard/jobs/${data.job._id}/applications/${application._id}/change-status/3`)
+								include ../../partials/_csrf.pug
+							// Button
+							button.button.red.margin-top-35.full-width.ripple-effect(type="submit" form=`reject-candidate-form-${i}`)
+								| Recject!
+			// Reject Candidate Dialog / End
+
+			//
+				 Accept Candidate Dialog
+				==================================================
+			.zoom-anim-dialog.dialog-with-tabs.mfp-hide(id=`small-dialog-accept-${i}`)
+				// Tabs
+				.sign-in-form
+					ul.popup-tabs-nav
+						li
+							a(href=`#tab-accept-${i}`)=`Accept ${application.name}'s application`
+					.popup-tabs-container
+						// Tab
+						.popup-tab-content(id=`tab-accept-${i}`)
+							// Welcome Text
+							.welcome-text
+								h3=`Are You sure you want to accept ${application.name}'s Application?`
+								.notification.error.margin-top-20(style="text-align:left;line-height:1.5;")
+									p By accepting this application, all other application applied to this job will be rejected.
+							// Form
+							form(id=`accept-candidate-form-${i}`, method="GET" action=`/dashboard/jobs/${data.job._id}/applications/${application._id}/change-status/4`)
+								include ../../partials/_csrf.pug
+							// Button
+							button.button.red.margin-top-35.full-width.ripple-effect(type="submit" form=`accept-candidate-form-${i}`)
+								| Accept!
+			// Accept Candidate Dialog / End
+block append scripts

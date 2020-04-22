@@ -1,0 +1,168 @@
+[{
+        "_id": "5d665bfaf2a07e0ef8d38ae1",
+        "account": {
+            "name": "System Admin",
+            "username": "Hireo System Admin",
+            "gender": "male"
+        },
+        "profile": {
+            "skills": [],
+            "hourly_rate": 5
+        },
+        "is_active": true,
+        "is_verified": true,
+		"bookmarked": {
+			"freelancer": [],
+			"employer": [],
+			"job": []
+		},
+        "tokens": [],
+        "role": "admin",
+        "email": "admin@admin.com",
+        "password": "$2a$12$exAqltRjHLbUKzkEmBRdf.9MVVtfLZtxUtOEMSJMmcxlgWsVvKrdm",
+        "created_at": "2019-08-28T10:48:26.731Z",
+        "updated_at": "2019-09-25T03:21:38.923Z",
+        "hash": null,
+        "slug": "hireo-system-admin"
+    },
+    {
+        "_id": "5d8adb4e11ab3f15e0c0ffa1",
+        "account": {
+            "name": "David Peterson",
+            "username": "DP",
+            "gender": "male"
+        },
+        "profile": {
+            "skills": [
+                "5d8add7211ab3f15e0c0ffc5",
+                "5d8add8311ab3f15e0c0ffc9",
+                "5d8add9311ab3f15e0c0ffcd",
+                "5d8adda011ab3f15e0c0ffd1",
+                "5d8addad11ab3f15e0c0ffd5",
+                "5d8addb811ab3f15e0c0ffd9",
+                "5d8addc211ab3f15e0c0ffdd",
+                "5d8addd411ab3f15e0c0ffe1"
+            ],
+            "hourly_rate": 35,
+            "attachments": [],
+            "description": "Leverage agile frameworks to provide a robust synopsis for high level overviews. Iterative approaches to corporate strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world view of disruptive innovation via workplace diversity and empowerment.",
+            "nationality": "5d6662b9d3881e1c70203dda",
+            "social_accounts": {
+                "behance": "behance.com",
+                "dribbble": "dribbble.com",
+                "github": "github.com",
+                "twitter": "twitter.com"
+            },
+            "tagline": "iOS Expert + Node Dev"
+        },
+        "is_active": false,
+        "is_verified": true,
+		"bookmarked": {
+			"freelancer": ["5d8ae2a211ab3f15e0c1003f"],
+			"employer": ["5da71708e91eac1968173b39"],
+			"job": []
+		},
+        "tokens": [],
+        "role": "freelancer",
+        "email": "david-peterson@freelancer.com",
+        "password": "$2a$12$CcQmk/F6K3ru6l1HVaU0bePd5zZysjuJSInEmO58IETYywpdPVXCy",
+        "created_at": "2019-09-25T03:13:18.348Z",
+        "updated_at": "2019-09-25T03:31:38.769Z",
+        "hash": null,
+		"rating": {
+			"count": 0,
+			"value": 0
+		},
+        "slug": "david-peterson"
+    },
+    {
+        "_id": "5d8ae2a211ab3f15e0c1003f",
+        "account": {
+            "name": "Sindy Forest",
+            "username": "Sindy-Forest",
+            "gender": "female",
+            "website": ""
+        },
+        "profile": {
+            "skills": [
+                "5d8addc211ab3f15e0c0ffdd",
+                "5d8addd411ab3f15e0c0ffe1",
+                "5d8ae0b911ab3f15e0c10012",
+                "5d8ae0f711ab3f15e0c1001a",
+                "5d8ae11311ab3f15e0c10022",
+                "5d8ae2ea11ab3f15e0c1004a"
+            ],
+            "hourly_rate": 74,
+            "attachments": [],
+            "description": "Leverage agile frameworks to provide a robust synopsis for high level overviews. Iterative approaches to corporate strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world view of disruptive innovation via workplace diversity and empowerment.",
+            "nationality": "5d6662b8d3881e1c70203d97",
+            "social_accounts": {
+                "behance": "",
+                "dribbble": "",
+                "github": "github.com",
+                "twitter": ""
+            },
+            "tagline": "Magento Certified Developer"
+        },
+        "is_active": false,
+        "is_verified": true,
+		"bookmarked": {
+			"freelancer": ["5d8adb4e11ab3f15e0c0ffa1"],
+			"employer": ["5da71708e91eac1968173b39"],
+			"job": []
+		},
+        "tokens": [],
+        "role": "freelancer",
+        "email": "sindy-forest@freelancer.com",
+        "password": "$2a$12$Z6Y9rbsTIsXJ5j0iFvH0OOc/XeTKLyTfVTVqRsyNMEfN2uXhouMBi",
+        "created_at": "2019-09-25T03:44:34.676Z",
+        "updated_at": "2019-09-25T03:47:03.275Z",
+        "hash": null,
+		"rating": {
+			"count": 0,
+			"value": 0
+		},
+        "slug": "sindy-forest"
+    },
+    {
+        "_id": "5da71708e91eac1968173b39",
+        "account": {
+            "name": "Burger King",
+            "username": "burger king",
+            "website": "https://www.bk.com/"
+        },
+        "profile": {
+            "skills": [],
+            "hourly_rate": 5,
+            "attachments": [],
+            "description": "Burger King (BK) is an American multinational chain of hamburger fast food restaurants. Headquartered in the unincorporated area of Miami-Dade County, Florida, the company was founded in 1953 as Insta-Burger King, a Jacksonville, Florida–based restaurant chain. After Insta-Burger King ran into financial difficulties in 1954, its two Miami-based franchisees David Edgerton and James McLamore purchased the company and renamed it \"Burger King\". Over the next half-century.",
+            "nationality": "5d6662b9d3881e1c70203e6f",
+            "social_accounts": {
+                "behance": "",
+                "dribbble": "",
+                "github": "",
+                "twitter": ""
+            },
+            "tagline": "Hamburger Fast Food Restaurants"
+        },
+        "is_active": true,
+        "is_verified": true,
+        "bookmarked": {
+			"freelancer": ["5d8adb4e11ab3f15e0c0ffa1", "5d8ae2a211ab3f15e0c1003f"],
+			"employer": [],
+			"job": []
+		},
+        "tokens": [],
+        "role": "employer",
+        "email": "burger-king@employer.com",
+        "password": "$2a$12$Nk1EqUk2YtAO/74ZPub/cOcwgr0mikcx2sGcxaoCZdyvGTuI668DO",
+        "created_at": "2019-10-16T13:11:36.951Z",
+        "updated_at": "2019-10-16T13:20:14.325Z",
+        "hash": null,
+		"rating": {
+			"count": 0,
+			"value": 0
+		},
+        "slug": "burger-king"
+    }
+]

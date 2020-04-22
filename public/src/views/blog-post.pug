@@ -1,0 +1,281 @@
+extends ./layouts/_index_layout.pug
+
+block append variables
+	- var page_name = "blog post";
+
+block content
+
+	//
+		Content
+		==================================================
+	#titlebar.gradient
+		.container
+			.row
+				.col-md-12
+					h2 Blog
+					span Blog Post Page
+					// Breadcrumbs
+					nav#breadcrumbs.dark
+						ul
+							li
+								a(href='#') Home
+							li
+								a(href='#') Blog
+							li Blog Post
+	// Post Content
+	.container
+		.row
+			// Inner Content
+			.col-xl-8.col-lg-8
+				// Blog Post
+				.blog-post.single-post
+					// Blog Post Thumbnail
+					.blog-post-thumbnail
+						.blog-post-thumbnail-inner
+							span.blog-item-tag Tips
+							img(src='images/blog-04.jpg', alt='')
+					// Blog Post Content
+					.blog-post-content
+						h3.margin-bottom-10 5 Myths That Prevent Job Seekers from Overcoming Failure
+						.blog-post-info-list.margin-bottom-20
+							a.blog-post-info(href='#') 22 July 2018
+							a.blog-post-info(href='#') 5 Comments
+						p Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates expedita voluptate nihil doloribus aperiam ratione similique nesciunt at, amet possimus autem ab cumque dolorum laborum sapiente voluptatum adipisci praesentium dignissimos quaerat quam suscipit repellat odio? Cum possimus nam recusandae dignissimos, commodi blanditiis omnis adipisci, ex minima debitis accusantium ut aperiam?
+						blockquote.margin-top-20.margin-bottom-20 Lorem, ipsum dolor.
+						p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quis nihil labore velit necessitatibus ducimus illo pariatur odit mollitia natus voluptates culpa iure, maxime exercitationem saepe eum ipsum perferendis? Labore, velit. Accusantium iure voluptatem veniam cum velit quibusdam blanditiis eveniet, veritatis dolorem error nostrum delectus aliquid, labore adipisci consequatur ut est? Tenetur omnis quasi vitae laborum in animi consequatur? Nam ea fugiat id ut iure reprehenderit cum nobis sit, voluptates, veniam inventore quam. Aliquid unde nemo esse aperiam molestias a optio, architecto veritatis cumque fuga doloremque, dolor assumenda sint odio. Quas quaerat sunt voluptas exercitationem enim provident dignissimos explicabo eos repudiandae.
+						p Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsam dolore eum reiciendis cum officia cumque tempora, quas deleniti porro quia voluptatem error asperiores ut quos.
+						// Share Buttons
+						.share-buttons.margin-top-25
+							.share-buttons-trigger
+								i.icon-feather-share-2
+							.share-buttons-content
+								span
+									strong Share It!
+								ul.share-buttons-icons
+									li
+										a(href='#', data-button-color='#3b5998', title='Share on Facebook', data-tippy-placement='top')
+											i.icon-brand-facebook-f
+									li
+										a(href='#', data-button-color='#1da1f2', title='Share on Twitter', data-tippy-placement='top')
+											i.icon-brand-twitter
+									li
+										a(href='#', data-button-color='#dd4b39', title='Share on Google Plus', data-tippy-placement='top')
+											i.icon-brand-google-plus-g
+									li
+										a(href='#', data-button-color='#0077b5', title='Share on LinkedIn', data-tippy-placement='top')
+											i.icon-brand-linkedin-in
+				// Blog Post Content / End
+				// Blog Nav
+				ul#posts-nav.margin-top-0.margin-bottom-40
+					li.next-post
+						a(href='#')
+							span Next Post
+							strong 16 Ridiculously Easy Ways to Find &amp; Keep a Remote Job
+					li.prev-post
+						a(href='#')
+							span Previous Post
+							strong 11 Tips to Help You Get New Clients Through Cold Calling
+				// Related Posts
+				.row
+					// Headline
+					.col-xl-12
+						h3.margin-top-40.margin-bottom-35 Related Posts
+					// Blog Post Item
+					.col-xl-6
+						a.blog-compact-item-container(href='pages-blog-post.html')
+							.blog-compact-item
+								img(src='images/blog-02a.jpg', alt='')
+								span.blog-item-tag Recruiting
+								.blog-compact-item-content
+									ul.blog-post-tags
+										li 29 June 2018
+									h3 How to &quot;Woo&quot; a Recruiter and Land Your Dream Job
+									p
+					// Blog post Item / End
+					// Blog Post Item
+					.col-xl-6
+						a.blog-compact-item-container(href='pages-blog-post.html')
+							.blog-compact-item
+								img(src='images/blog-03a.jpg', alt='')
+								span.blog-item-tag Marketing
+								.blog-compact-item-content
+									ul.blog-post-tags
+										li 10 June 2018
+									h3 11 Tips to Help You Get New Clients Through Cold Calling
+									p
+					// Blog post Item / End
+				// Related Posts / End
+				// Comments
+				.row
+					.col-xl-12
+						section.comments
+							h3.margin-top-45.margin-bottom-0
+								span.comments-amount (5)
+							ul
+								li
+									.avatar
+										img(src='images/user-avatar-placeholder.png', alt='')
+									.comment-content
+										.arrow-comment
+										.comment-by
+											span.date 12th, June 2018
+											a.reply(href='#')
+												| Reply
+												i.fa.fa-reply
+										p Morbi velit eros, sagittis in facilisis non, rhoncus et erat. Nam posuere tristique sem, eu ultricies tortor imperdiet vitae. Curabitur lacinia neque non metus
+									ul
+										li
+											.avatar
+												img(src='images/user-avatar-placeholder.png', alt='')
+											.comment-content
+												.arrow-comment
+												.comment-by
+													span.date 12th, June 2018
+													a.reply(href='#')
+														| Reply
+														i.fa.fa-reply
+												p Morbi velit eros, sagittis in facilisis non, rhoncus et erat. Nam posuere tristique sem, eu ultricies tortor imperdiet vitae. Curabitur lacinia neque non metus
+										li
+											.avatar
+												img(src='images/user-avatar-placeholder.png', alt='')
+											.comment-content
+												.arrow-comment
+												.comment-by
+													span.date 12th, June 2018
+													a.reply(href='#')
+														| Reply
+														i.fa.fa-reply
+												p Nam posuere tristiq Morbi velit eros, sagittis in facilisis non, rhoncus et erat. Nam posuere tristique sem, eu ultricies tortor imperdiet vitae. Curabitur lacinia neque non metusue sem, eu ultricies tortor.
+											ul
+												li
+													.avatar
+														img(src='images/user-avatar-placeholder.png', alt='')
+													.comment-content
+														.arrow-comment
+														.comment-by
+															span.date 12th, June 2018
+															a.reply(href='#')
+																| Reply
+																i.fa.fa-reply
+														p Great template! Morbi velit eros, sagittis in facilisis non, rhoncus et erat. Nam posuere tristique sem, eu ultricies tortor imperdiet vitae. Curabitur lacinia neque non metus
+								li
+									.avatar
+										img(src='images/user-avatar-placeholder.png', alt='')
+									.comment-content
+										.arrow-comment
+										.comment-by
+											span.date 15th, May 2015
+											a.reply(href='#')
+												| Reply
+												i.fa.fa-reply
+										p Morbi velit eros, sagittis in facilisis non, rhoncus et erat. Nam posuere tristique sem, eu ultricies tortor imperdiet vitae. Curabitur lacinia neque non metus
+				// Comments / End
+				// Leava a Comment
+				.row
+					.col-xl-12
+						h3.margin-top-35.margin-bottom-30 Add Comment
+						// Form
+						form#add-comment(method='post')
+							.row
+								.col-xl-6
+									.input-with-icon-left.no-border
+										i.icon-material-outline-account-circle
+										input#namecomment.input-text(type='text', name='commentname', placeholder='Name', required='')
+								.col-xl-6
+									.input-with-icon-left.no-border
+										i.icon-material-baseline-mail-outline
+										input#emailaddress.input-text(type='text', name='emailaddress', placeholder='Email Address', required='')
+							textarea(name='comment-content', cols='30', rows='5', placeholder='Comment')
+						// Button
+						button.button.button-sliding-icon.ripple-effect.margin-bottom-40(type='submit', form='add-comment')
+							| Add Comment
+							i.icon-material-outline-arrow-right-alt
+				// Leava a Comment / End
+			// Inner Content / End
+			.col-xl-4.col-lg-4.content-left-offset
+				.sidebar-container
+					// Location
+					.sidebar-widget.margin-bottom-40
+						.input-with-icon
+							input#autocomplete-input(type='text', placeholder='Search')
+							i.icon-material-outline-search
+					// Widget
+					.sidebar-widget
+						h3 Trending Posts
+						ul.widget-tabs
+							// Post #1
+							li
+								a.widget-content.active(href='#')
+									img(src='images/blog-02a.jpg', alt='')
+									.widget-text
+										h5 How to &quot;Woo&quot; a Recruiter and Land Your Dream Job
+										span 29 June 2018
+							// Post #2
+							li
+								a.widget-content(href='#')
+									img(src='images/blog-07a.jpg', alt='')
+									.widget-text
+										h5 What It Really Takes to Make $100k Before You Turn 30
+										span 3 June 2018
+							// Post #3
+							li
+								a.widget-content(href='#')
+									img(src='images/blog-04a.jpg', alt='')
+									.widget-text
+										h5 5 Myths That Prevent Job Seekers from Overcoming Failure
+										span 5 June 2018
+					// Widget / End
+					// Widget
+					.sidebar-widget
+						h3 Social Profiles
+						.freelancer-socials.margin-top-25
+							ul
+								li
+									a(href='#', title='Dribbble', data-tippy-placement='top')
+										i.icon-brand-dribbble
+								li
+									a(href='#', title='Twitter', data-tippy-placement='top')
+										i.icon-brand-twitter
+								li
+									a(href='#', title='Behance', data-tippy-placement='top')
+										i.icon-brand-behance
+								li
+									a(href='#', title='GitHub', data-tippy-placement='top')
+										i.icon-brand-github
+					// Widget
+					.sidebar-widget
+						h3 Tags
+						.task-tags
+							a(href='#')
+								span employer
+							a(href='#')
+								span recruiting
+							a(href='#')
+								span work
+							a(href='#')
+								span salary
+							a(href='#')
+								span tips
+							a(href='#')
+								span income
+							a(href='#')
+								span application
+	// Spacer
+	.padding-top-40
+	// Spacer
+block append scripts
+
+	// Snackbar // documentation: https://www.polonel.com/snackbar/
+	script.
+		// Snackbar for user status switcher
+		$('#snackbar-user-status label').click(function() {
+			Snackbar.show({
+				text: 'Your status has been changed!',
+				pos: 'bottom-center',
+				showAction: false,
+				actionText: "Dismiss",
+				duration: 3000,
+				textColor: '#fff',
+				backgroundColor: '#383838'
+			});
+		});

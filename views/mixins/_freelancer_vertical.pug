@@ -1,0 +1,49 @@
+mixin freelancer_vertical(data={}, index=0)
+	// Freelancer
+	.freelancer
+		// Overview
+		.freelancer-overview
+			.freelancer-overview-inner
+				if (user && !_.isEqual(data._id, user._id))
+					// Bookmark Icon
+					form.bookmark(action=`/dashboard/bookmark/freelancer/${data._id}`, method="PUT")
+						- const bookmarked = user.bookmarked.freelancer.map((obj)=> obj.toString())
+						- const bookmarkClass = bookmarked.includes(data._id.toString()) ? 'bookmark-icon bookmarked' : 'bookmark-icon'
+						button(type="submit", class=bookmarkClass)
+				// Avatar
+				.freelancer-avatar
+					if data.is_verified
+						.verified-badge
+					a(href=`/profile/${data.slug}`)
+						if (data.account.picture || data.account.picture_md)
+							img(src=`${(!data.account.picture_md) ? data.account.picture : data.account.picture_md}`)
+						else
+							img(src=`${data.gravatar(50)}`)
+				// Name
+				.freelancer-name
+					h4
+						a(href=`/profile/${data.slug}`)
+							=data.account.name
+							if (data.profile.nationality && data.profile.nationality.code)
+								img.flag(src=`/images/flags/${data.profile.nationality.code}.svg`, alt='', title=`${data.profile.nationality.name}`, data-tippy, data-tippy-placement='top')
+					span=data.profile.tagline
+				// Rating
+				.freelancer-rating
+					.star-rating(data-rating="4")
+		// Details
+		.freelancer-details
+			.freelancer-details-list
+				ul
+					li
+						| Hourly Rate
+						strong=`$${data.profile.hourly_rate} / hr`
+					li
+						| Rehired
+						strong 22
+					li
+						| Jobs Done
+						strong 53
+			a.button.button-sliding-icon.ripple-effect(href=`/profile/${data.slug}`)
+				| View Profile
+				i.icon-material-outline-arrow-right-alt
+	// Freelancer / End

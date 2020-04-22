@@ -1,0 +1,84 @@
+extends ./layouts/_index_layout.pug
+include ./mixins/_pagination.pug
+include ./mixins/_freelancer_vertical.pug
+include ./mixins/_freelancer_horizontal.pug
+
+block content
+	//
+		Page Content
+		==================================================
+	.container.margin-top-90.margin-bottom-90
+		.row
+			.col-xl-3.col-lg-4
+				form.sidebar-container(method="GET")
+					include ./partials/_csrf.pug
+					// Keywords
+					.sidebar-widget
+						h3.margin-bottom-20 Keywords or Name
+						.tags-container
+							.tags-list
+								if (query && query.keywords)
+									each keyword, i in query.keywords
+										if (keyword !== "")
+											.tag
+												input(id=`tag-0-${i}`, type='checkbox', name=`keywords[${i}]`, value=keyword, checked="checked")
+												label(for=`tag-0-${i}`)=keyword
+							.clearfix
+							.tags-input-container
+								input.tags-input(data-name="keywords", type='text', placeholder='Press enter to add')
+								button.tags-input-button.ripple-effect(type="button")
+									i.icon-material-outline-add
+						.clearfix
+					// Hourly Rate
+					.sidebar-widget
+						h3 Hourly Rate
+						.margin-top-55
+						// Range Slider
+						input.range-slider(name="hourly_rate", type='text', data-slider-currency='$', data-slider-min='5', data-slider-max='300', data-slider-step='5', data-slider-value=(query && query.hourly_rate) ? query.hourly_rate.split(",").map(n => Number(n)) : '[5,300]')
+					// Tags
+					.sidebar-widget
+						h3 Skills
+						.tags-container
+							.tags-list.margin-bottom-20
+								each skill, i in data.skills
+									.tag
+										input(id=`tag-1-${i}`, type='checkbox', name=`skills[${i}]`, value=skill._id, checked=(query && query.skills && query.skills.includes(skill._id.toString())) ? "selected" : undefined)
+										label(for=`tag-1-${i}`)=skill.name.en
+							.clearfix
+							.tags-input-container
+								input.tags-input(data-name="skills", value="", type='text', placeholder='Add more Skills')
+								button.tags-input-button.ripple-effect(type="button")
+									i.icon-material-outline-add
+						.clearfix
+					.clearfix
+					button.button.ripple-effect(type="submit", style="display: block; width: 100%;") Search
+			.col-xl-9.col-lg-8.content-left-offset
+				h3.page-title.d-flex.justify-content-between.align-items-center
+					span Search Results
+					a(href="/browse/freelancers" style="font-size: 1rem;") Reset Search
+				.notify-box.margin-top-15
+					.switch-container
+						label.switch
+							input(type='checkbox')
+							span.switch-button
+							span.switch-text Turn on email alerts for this search
+					.sort-by.align-items-center
+						span Sort by:
+						select.selectpicker.hide-tick(data-selected-text-format='count', data-size='4',onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);")
+							option(selected=((_.isEmpty(query) || !Boolean(query.sort) || !Boolean(query.sort.created_at)) || (!_.isEmpty(query) && Boolean(query.sort) && Boolean(query.sort.created_at) && query.sort.created_at === "desc")) ? "selected" : undefined, value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "desc" }) ))}`) Newest
+							option(selected=((!_.isEmpty(query) && Boolean(query.sort) && Boolean(query.sort.created_at) && query.sort.created_at === "asc") ? "selected" : undefined), value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "asc" }) ))}`) Oldest
+				// Freelancers List Container
+				.freelancers-container.freelancers-grid-layout.compact-list.margin-top-30
+					each freelancer, i in data.freelancers
+						+freelancer_vertical(freelancer, i)
+				// Freelancers Container / End
+				// Pagination
+				.clearfix
+				if (hasNextPage || hasPrevPage)
+					.row
+						.col-md-12
+							.pagination-container.margin-top-45.margin-bottom-45
+								+pagination("/browse/freelancers", page, pages, query)
+					// Pagination / End
+block append modals
+block append scripts

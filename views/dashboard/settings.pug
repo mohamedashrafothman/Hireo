@@ -1,0 +1,224 @@
+extends ../layouts/_dashboard_layout.pug
+include ../mixins/_breadcrumb.pug
+include ../mixins/_attachment_box.pug
+
+block content
+
+	// Dashboard Headline
+	.dashboard-headline
+		h3= `${page_title}`
+		// Breadcrumbs
+		+breadcrumb(urlSegment)
+	// Row
+	.row
+		// Dashboard Box
+		.col-xl-12
+			.dashboard-box.margin-top-0
+				// Headline
+				.headline
+					h3
+						i.icon-material-outline-account-circle
+						|  My Account
+				form#account-setting-form.content.with-padding.padding-bottom-0(action=`/dashboard/settings/${data.user._id}/account-info?_csrf=${csrfToken}`, method="POST", enctype="multipart/form-data")
+					.row
+						.col-auto
+							.avatar-wrapper(data-tippy, data-tippy-placement='bottom', title='Change Avatar')
+								if (data.user.account.picture || data.user.account.picture_lg)
+									img.profile-pic(src=(!data.user.account.picture) ? `/${data.user.account.picture_lg.path}` : `/${data.user.account.picture.path}`, alt='')
+								else
+									img.profile-pic(src=data.user.gravatar(50), alt='')
+								.upload-button
+								input.file-upload(name='avatar', type='file', accept="image/*", data-file-size="5")
+						.col
+							.row
+								.col-xl-6
+									.submit-field
+										h5 Name
+										input.with-border(type='text', name="account.name", value=data.user.account.name, required)
+								.col-xl-6
+									.submit-field
+										h5 Email
+										input.with-border(type='email', name="email", value=data.user.email, disabled)
+								.col-xl-6
+									.submit-field
+										h5 Username
+										input.with-border(type='text', name="account.username", value=data.user.account.username, required)
+								if (!_.isEqual(data.user.role, "admin"))
+									.col-xl-6
+										.submit-field
+											h5 Website
+											input.with-border(type='text', name="account.website", value=data.user.account.website)
+									if (_.isEqual(data.user.role, "freelancer"))
+										.col-xl-6
+											// Account Type
+											.submit-field
+												h5 Gender
+												.row
+													.col-4
+														.radio
+															input#male-radio(name='account.gender', type='radio', value="male", checked=_.isEqual(data.user.account.gender, "male") ? 'checked' : undefined)
+															label(for='male-radio')
+																span.radio-label
+																| Male
+													.col-4
+														.radio
+															input#female-radio(name='account.gender', type='radio', value="female", checked=_.isEqual(data.user.account.gender, "female") ? 'checked' : undefined)
+															label(for='female-radio')
+																span.radio-label
+																|  Female
+				.footline
+					button.button.ripple-effect.big(type="submit" form="account-setting-form") Save Account Info
+		if (user && !_.isEqual(data.user.role, "admin"))
+			// Dashboard Box
+			.col-xl-12
+				.dashboard-box
+					// Headline
+					.headline
+						h3
+							i.icon-material-outline-face
+							|  My Profile
+					form#profile-setting-form.content(action=`/dashboard/settings/${data.user._id}/profile-info?_csrf=${csrfToken}`, method="POST", enctype="multipart/form-data")
+						ul.fields-ul
+							if (_.isEqual(data.user.role, "freelancer"))
+								li
+									.row
+										.col-xl-4
+											.submit-field
+												.bidding-widget
+													// Headline
+													span.bidding-detail
+														| Set your
+														strong  minimal hourly rate
+													// Slider
+													.bidding-value.margin-bottom-10
+														| $
+														span#biddingVal
+													input.bidding-slider(type='text', name="profile.hourly_rate", value=data.user.profile.hourly_rate, data-slider-handle='custom', data-slider-currency='$', data-slider-min='5', data-slider-max='300', data-slider-value=data.user.profile.hourly_rate, data-slider-step='1', data-slider-tooltip='hide')
+										.col-xl-4
+											.submit-field
+												h5
+													|Skills
+													i.help-icon(data-tippy, data-tippy-placement='right', title='Add up to 10 skills')
+												select.selectpicker.with-border(name="profile.skills", value=`${data.user.profile.skills}`, data-max-options='10', title='Select Your Skills', data-live-search='true', required, multiple)
+													each skill in data.skills
+														option(value=skill._id selected=(data.user.profile.skills && _.includes(data.user.profile.skills.toString(), skill._id.toString())) ? 'selected' : undefined)=(lang === 'en') ? skill.name.en : skill.name.ar
+										.col-xl-4
+											.submit-field
+												h5 Attachments
+												if data.user.profile.attachments.length
+													// Attachments
+													.attachments-container.margin-top-0.margin-bottom-0
+														each attachment, i in data.user.profile.attachments
+															+attachment_box({attachment: attachment, user: data.user}, i)
+													.clearfix
+												if (data.user.profile.attachments.length <= 1)
+													// Upload Button
+													.uploadButton.margin-top-0
+														input#upload.uploadButton-input(type='file', name="attachments", accept='image/*, application/*', multiple=(data.user.profile.attachments.length >= 1) ? undefined : 'multiple')
+														label.uploadButton-button.ripple-effect(for='upload') Upload Files
+														span.uploadButton-file-name=`Maximum of ${(data.user.profile.attachments.length < 1) ? "2 files" : "1 file"} size: ${process.env.ATTATCHMENT_MAX_SIZE_IN_MB}MB each`
+							li
+								.row
+									.col-xl-6
+										.submit-field
+											h5 Tagline
+											input.with-border(type='text', name="profile.tagline", value=data.user.profile.tagline, required)
+									.col-xl-6
+										.submit-field
+											h5 Nationality
+											select.selectpicker.with-border(name="profile.nationality", value=`${data.user.profile.nationality}`, data-size='7', title='Select Your Nationality', data-live-search='true', required)
+												each nation in data.nations
+													option(value=nation._id selected=(data.user.profile.nationality && _.isEqual(data.user.profile.nationality._id.toString(), nation._id.toString())) ? 'selected' : undefiend)=nation.name
+									.col-xl-6
+										.submit-field
+											h5 Dribbble Account
+											input.with-border(type='text', name="profile.social_accounts.dribbble", value=data.user.profile.social_accounts.dribbble)
+									.col-xl-6
+										.submit-field
+											h5 Twitter Account
+											input.with-border(type='text', name="profile.social_accounts.twitter", value=data.user.profile.social_accounts.twitter)
+									.col-xl-6
+										.submit-field
+											h5 Behance Account
+											input.with-border(type='text', name="profile.social_accounts.behance", value=data.user.profile.social_accounts.behance)
+									.col-xl-6
+										.submit-field
+											h5 Github Account
+											input.with-border(type='text', name="profile.social_accounts.github", value=data.user.profile.social_accounts.github)
+									.col-xl-12
+										.submit-field
+											h5 Introduce Yourself
+											textarea.with-border(name="profile.description", cols='30', rows='5', required)
+												=data.user.profile.description
+					.footline
+						button.button.ripple-effect.big(type="submit" form="profile-setting-form") Save Profile Info
+
+			// Dashboard Box
+		.col-xl-12
+			#test1.dashboard-box
+				// Headline
+				.headline
+					h3
+						i.icon-material-outline-lock
+						|  Password & Security
+				form#password-setting-form.content.with-padding(action=`/dashboard/settings/${data.user._id}/change-password` method="POST")
+					include ../partials/_csrf.pug
+					.row
+						.col-xl-6
+							.submit-field
+								h5 New Password
+								.input-with-icon-right
+									input#password.with-border(type='password', name="password", placeholder="New Password" required, data-tippy, data-tippy-placement='top', title=`Should be at least ${process.env.MINIMUM_PASSWORD_LENGTH} characters long, lowercase character, uppercase character, a number, and a special character.`)
+									i.icon-feather-eye.icon-right.show-password(data-target="#password")
+						.col-xl-6
+							.submit-field
+								h5 Repeat New Password
+								.input-with-icon-right
+									input#password-repeat.with-border(type='password', name="confirmPassword", placeholder="Repeat New Password" required, data-tippy, data-tippy-placement='top', title=`Should be exactly like new password field.`)
+									i.icon-feather-eye.icon-right.show-password(data-target="#password-repeat")
+				.footline
+					button.button.ripple-effect.big(type="submit" form="password-setting-form") Change Password
+
+		if (user && !_.isEqual(data.user.role, "admin"))
+			// Dashboard Box
+			.col-xl-12
+				#test1.dashboard-box
+					// Headline
+					.headline
+						h3
+							i.icon-feather-alert-triangle(style="color: #e53038;")
+							|  Danger Zone
+					.content.with-padding
+						h3 Delete Your Account
+						span This action cannot be reversed and could result to delete your entire website data.
+					.footline
+						a.button.red.ripple-effect.big.popup-with-zoom-anim(href="#small-dialog") Delete My Account
+	// Row / End
+
+
+
+block append modals
+	//
+		Delete My Account Dialog
+		==================================================
+	#small-dialog.zoom-anim-dialog.dialog-with-tabs.mfp-hide
+		// Tabs
+		.sign-in-form
+			ul.popup-tabs-nav
+				li
+					a(href="#tab") Delete My Account
+			.popup-tabs-container
+				// Tab
+				#tab.popup-tab-content
+					// Welcome Text
+					.welcome-text
+						h3 Are You sure you want to delete your account entierly?
+					// Form
+					form#delete-account-form(method="GET" action=`/auth/delete/${data.user._id}`)
+						include ../partials/_csrf.pug
+					// Button
+					button.button.red.margin-top-35.full-width.ripple-effect(type="submit" form="delete-account-form")
+						| Delete Now!
+	// Delete My Account Modal / End
+
+block append scripts

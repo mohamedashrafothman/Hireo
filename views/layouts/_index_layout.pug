@@ -1,0 +1,13 @@
+doctype html
+html(lang=`${locals.lang}` dir=`${(locals.lang === "en") ? "ltr" : "rtl"}`)
+	include ../partials/_head.pug
+	body
+		#wrapper(class=(page_title === 'Home') ? 'wrapper-with-transparent-header' : '')
+			include ../mixins/_header.pug
+			+header("home")
+			include ../sections/_flash_messages.pug
+			block content
+			include ../sections/_footer_lg.pug
+		include ../partials/_foot.pug
+		block modals
+		block scripts

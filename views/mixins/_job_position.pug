@@ -1,0 +1,27 @@
+mixin job_position(data={}, index=0)
+	// Job Listing
+	a.job-listing(href=`/job/${data.slug}`)
+		// Job Listing Details
+		.job-listing-details
+			// Details
+			.job-listing-description
+				h3.job-listing-title=data.title
+				// Job Listing Footer
+				.job-listing-footer
+					ul
+						li
+							i.icon-material-outline-location-on
+							=data.location.address
+						li
+							i.icon-material-outline-business-center
+							=data.type.name
+						li
+							i.icon-material-outline-access-time
+							=moment(data.created_at).format('ll')
+		// Bookmark
+		if (user && !_.isEqual(_.toString(user._id), _.toString(data.created_by._id)))
+			// Bookmark Icon
+			form.bookmark(action=`/api/bookmark/job/${data._id}`, method="POST")
+				- const bookmarked = user.bookmarked.job.map((obj)=> obj.toString())
+				- const bookmarkClass = bookmarked.includes(data._id.toString()) ? 'bookmark-icon bookmarked' : 'bookmark-icon'
+				button(type="submit", class=bookmarkClass)

@@ -1,0 +1,713 @@
+extends ./layouts/_index_layout.pug
+
+block content
+	//
+		Intro Banner
+		==================================================
+	.intro-banner.dark-overlay.big-padding
+		// Transparent Header Spacer
+		.transparent-header-spacer
+		.container
+			// Intro Headline
+			.row
+				.col-md-12
+					.banner-headline-alt
+						h3 Don't Just Dream, Do!
+						span Find the best jobs in the digital industry
+			// Search Bar
+			.row
+				.col-md-12
+					form#search-jobs-form.intro-banner-search-form.margin-top-95(method="GET", action="/browse/jobs")
+						// Search Field
+						.intro-search-field.with-autocomplete
+							label.field-title.ripple-effect(for='autocomplete-input') Where?
+							.input-with-icon
+								input#job-location-address.autocomplete-input(name="address", type='text', placeholder='Type Address')
+								input#job-location-long.autocomplete-input-long(name="long", type="hidden")
+								input#job-location-lat.autocomplete-input-lat(name="lat", type="hidden")
+								i.icon-material-outline-location-on
+						// Search Field
+						.intro-search-field
+							label.field-title.ripple-effect(for='intro-keywords') What you need done?
+							input#intro-keywords(name="keywords[]", type='text', placeholder='e.g. build me a website')
+						// Search Field
+						.intro-search-field
+							select.selectpicker.default(name="categories[]", data-selected-text-format='count', data-size='7', title='All Categories', data-live-search='true', multiple)
+								each category, i in categories
+									optgroup(label=category.name.en, data-icon=`icon-${category.icon.type}-${category.icon.name}`)
+										each child, i in category.childs
+											option(value=child._id)=child.name.en
+
+						// Button
+						.intro-search-button
+							button.button.ripple-effect(type="submit", form="search-jobs-form") Search
+			// Stats
+			.row
+				.col-md-12
+					ul.intro-stats.margin-top-45.hide-under-992px
+						li
+							strong.counter 1,586
+							span Jobs Posted
+						li
+							strong.counter 3,543
+							span Tasks Posted
+						li
+							strong.counter 1,232
+							span Freelancers
+		// Video Container
+		.video-container(data-background-image='images/home-video-background-poster.jpg')
+			video(loop autoplay muted)
+				source(src='videos/home-video-background.mp4', type='video/mp4')
+
+	//
+		Content
+		==================================================
+	// Popular Job Categories
+	.section.margin-top-65
+		.container
+			.row
+				.col-xl-12
+					.section-headline.centered.margin-bottom-15
+						h3 Popular Job Categories
+					// Category Boxes Container
+					.categories-container
+						each category, i in categories
+							// Category Box
+							a.category-box(href=`/browse/jobs?categories[]=${category._id}`)
+								.category-box-icon
+									i(class=`icon-${category.icon.type}-${category.icon.name}`)
+								.category-box-counter 612
+								.category-box-content
+									h3= category.name.en
+									p= category.description.en
+
+	// Features Cities / End
+	// Features Jobs
+	.section.gray.margin-top-45.padding-top-65.padding-bottom-75
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.margin-top-0.margin-bottom-35
+						h3 Recent Tasks
+						a.headline-link(href='tasks-list-layout-1.html') Browse All Tasks
+					// Jobs Container
+					.tasks-list-container.compact-list.margin-top-35
+						// Task
+						a.task-listing(href='single-task-page.html')
+							// Job Listing Details
+							.task-listing-details
+								// Details
+								.task-listing-description
+									h3.task-listing-title Food Delviery Mobile App
+									ul.task-icons
+										li
+											i.icon-material-outline-location-on
+											|  San Francisco
+										li
+											i.icon-material-outline-access-time
+											|  2 minutes ago
+									.task-tags.margin-top-15
+										span iOS
+										span Android
+										span mobile apps
+										span design
+							.task-listing-bid
+								.task-listing-bid-inner
+									.task-offers
+										strong $1,000 - $2,500
+										span Fixed Price
+									span.button.button-sliding-icon.ripple-effect
+										| Bid Now
+										i.icon-material-outline-arrow-right-alt
+						// Task
+						a.task-listing(href='single-task-page.html')
+							// Job Listing Details
+							.task-listing-details
+								// Details
+								.task-listing-description
+									h3.task-listing-title 2000 Words English to German
+									ul.task-icons
+										li
+											i.icon-material-outline-location-off
+											|  Online Job
+										li
+											i.icon-material-outline-access-time
+											|  5 minutes ago
+									.task-tags.margin-top-15
+										span copywriting
+										span translating
+										span editing
+							.task-listing-bid
+								.task-listing-bid-inner
+									.task-offers
+										strong $75
+										span Fixed Price
+									span.button.button-sliding-icon.ripple-effect
+										| Bid Now
+										i.icon-material-outline-arrow-right-alt
+						// Task
+						a.task-listing(href='single-task-page.html')
+							// Job Listing Details
+							.task-listing-details
+								// Details
+								.task-listing-description
+									h3.task-listing-title Fix Python Selenium Code
+									ul.task-icons
+										li
+											i.icon-material-outline-location-off
+											|  Online Job
+										li
+											i.icon-material-outline-access-time
+											|  30 minutes ago
+									.task-tags.margin-top-15
+										span Python
+										span Flask
+										span API Development
+							.task-listing-bid
+								.task-listing-bid-inner
+									.task-offers
+										strong $100 - $150
+										span Hourly Rate
+									span.button.button-sliding-icon.ripple-effect
+										| Bid Now
+										i.icon-material-outline-arrow-right-alt
+						// Task
+						a.task-listing(href='single-task-page.html')
+							// Job Listing Details
+							.task-listing-details
+								// Details
+								.task-listing-description
+									h3.task-listing-title WordPress Theme Installation
+									ul.task-icons
+										li
+											i.icon-material-outline-location-off
+											|  Online Job
+										li
+											i.icon-material-outline-access-time
+											|  1 hour ago
+									.task-tags.margin-top-15
+										span WordPress
+										span Theme Installation
+							.task-listing-bid
+								.task-listing-bid-inner
+									.task-offers
+										strong $100
+										span Fixed Price
+									span.button.button-sliding-icon.ripple-effect
+										| Bid Now
+										i.icon-material-outline-arrow-right-alt
+						// Task
+						a.task-listing(href='single-task-page.html')
+							// Job Listing Details
+							.task-listing-details
+								// Details
+								.task-listing-description
+									h3.task-listing-title PHP Core Website Fixes
+									ul.task-icons
+										li
+											i.icon-material-outline-location-off
+											|  Online Job
+										li
+											i.icon-material-outline-access-time
+											|  1 hour ago
+									.task-tags.margin-top-15
+										span PHP
+										span MySQL Administration
+										span API Development
+							.task-listing-bid
+								.task-listing-bid-inner
+									.task-offers
+										strong $50 - $80
+										span Hourly Rate
+									span.button.button-sliding-icon.ripple-effect
+										| Bid Now
+										i.icon-material-outline-arrow-right-alt
+					// Jobs Container / End
+	// Featured Jobs / End
+
+	// Icon Boxes
+	.section.padding-top-65.padding-bottom-65
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.centered.margin-top-0.margin-bottom-5
+						h3 How It Works?
+				.col-xl-4.col-md-4
+					// Icon Box
+					.icon-box.with-line
+						// Icon
+						.icon-box-circle
+							.icon-box-circle-inner
+								i.icon-line-awesome-lock
+								.icon-box-check
+									i.icon-material-outline-check
+						h3 Create an Account
+						p
+							| Bring to the table win-win survival strategies to ensure proactive domination going forward.
+				.col-xl-4.col-md-4
+					// Icon Box
+					.icon-box.with-line
+						// Icon
+						.icon-box-circle
+							.icon-box-circle-inner
+								i.icon-line-awesome-legal
+								.icon-box-check
+									i.icon-material-outline-check
+						h3 Post a Task
+						p
+							| Efficiently unleash cross-media information without. Quickly maximize return on investment.
+				.col-xl-4.col-md-4
+					// Icon Box
+					.icon-box
+						// Icon
+						.icon-box-circle
+							.icon-box-circle-inner
+								i.icon-line-awesome-trophy
+								.icon-box-check
+									i.icon-material-outline-check
+						h3 Choose an Expert
+						p
+							| Nanotechnology immersion along the information highway will close the loop on focusing solely.
+	// Icon Boxes / End
+
+	// Highest Rated Freelancers
+	.section.gray.padding-top-65.padding-bottom-70.full-width-carousel-fix
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.margin-top-0.margin-bottom-25
+						h3 Highest Rated Freelancers
+						a.headline-link(href='freelancers-grid-layout.html') Browse All Freelancers
+				.col-xl-12
+					.default-slick-carousel.freelancers-container.freelancers-grid-layout
+						// Freelancer
+						.freelancer
+							// Overview
+							.freelancer-overview
+								.freelancer-overview-inner
+									// Bookmark Icon
+									span.bookmark-icon
+									// Avatar
+									.freelancer-avatar
+										.verified-badge
+										a(href='single-freelancer-profile.html')
+											img(src='images/user-avatar-big-01.jpg', alt='')
+									// Name
+									.freelancer-name
+										h4
+											a(href='single-freelancer-profile.html')
+												| Tom Smith
+												img.flag(src='images/flags/gb.svg', alt='', title='United Kingdom', data-tippy-placement='top')
+										span UI/UX Designer
+									// Rating
+									.freelancer-rating
+										.star-rating(data-rating='5.0')
+							// Details
+							.freelancer-details
+								.freelancer-details-list
+									ul
+										li
+											| Location
+											strong
+												i.icon-material-outline-location-on
+												|  London
+										li
+											| Rate
+											strong $60 / hr
+										li
+											| Job Success
+											strong 95%
+								a.button.button-sliding-icon.ripple-effect(href='single-freelancer-profile.html')
+									| View Profile
+									i.icon-material-outline-arrow-right-alt
+						// Freelancer / End
+						// Freelancer
+						.freelancer
+							// Overview
+							.freelancer-overview
+								.freelancer-overview-inner
+									// Bookmark Icon
+									span.bookmark-icon
+									// Avatar
+									.freelancer-avatar
+										.verified-badge
+										a(href='single-freelancer-profile.html')
+											img(src='images/user-avatar-big-02.jpg', alt='')
+									// Name
+									.freelancer-name
+										h4
+											a(href='#')
+												| David Peterson
+												img.flag(src='images/flags/de.svg', alt='', title='Germany', data-tippy-placement='top')
+										span iOS Expert + Node Dev
+									// Rating
+									.freelancer-rating
+										.star-rating(data-rating='5.0')
+							// Details
+							.freelancer-details
+								.freelancer-details-list
+									ul
+										li
+											| Location
+											strong
+												i.icon-material-outline-location-on
+												|  Berlin
+										li
+											| Rate
+											strong $40 / hr
+										li
+											| Job Success
+											strong 88%
+								a.button.button-sliding-icon.ripple-effect(href='single-freelancer-profile.html')
+									| View Profile
+									i.icon-material-outline-arrow-right-alt
+						// Freelancer / End
+						// Freelancer
+						.freelancer
+							// Overview
+							.freelancer-overview
+								.freelancer-overview-inner
+									// Bookmark Icon
+									span.bookmark-icon
+									// Avatar
+									.freelancer-avatar
+										a(href='single-freelancer-profile.html')
+											img(src='images/user-avatar-placeholder.png', alt='')
+									// Name
+									.freelancer-name
+										h4
+											a(href='#')
+												| Marcin Kowalski
+												img.flag(src='images/flags/pl.svg', alt='', title='Poland', data-tippy-placement='top')
+										span Front-End Developer
+									// Rating
+									.freelancer-rating
+										.star-rating(data-rating='4.9')
+							// Details
+							.freelancer-details
+								.freelancer-details-list
+									ul
+										li
+											| Location
+											strong
+												i.icon-material-outline-location-on
+												|  Warsaw
+										li
+											| Rate
+											strong $50 / hr
+										li
+											| Job Success
+											strong 100%
+								a.button.button-sliding-icon.ripple-effect(href='single-freelancer-profile.html')
+									| View Profile
+									i.icon-material-outline-arrow-right-alt
+						// Freelancer / End
+						// Freelancer
+						.freelancer
+							// Overview
+							.freelancer-overview
+								.freelancer-overview-inner
+									// Bookmark Icon
+									span.bookmark-icon
+									// Avatar
+									.freelancer-avatar
+										.verified-badge
+										a(href='single-freelancer-profile.html')
+											img(src='images/user-avatar-big-03.jpg', alt='')
+									// Name
+									.freelancer-name
+										h4
+											a(href='#')
+												| Sindy Forest
+												img.flag(src='images/flags/au.svg', alt='', title='Australia', data-tippy-placement='top')
+										span Magento Certified Developer
+									// Rating
+									.freelancer-rating
+										.star-rating(data-rating='5.0')
+							// Details
+							.freelancer-details
+								.freelancer-details-list
+									ul
+										li
+											| Location
+											strong
+												i.icon-material-outline-location-on
+												|  Brisbane
+										li
+											| Rate
+											strong $70 / hr
+										li
+											| Job Success
+											strong 100%
+								a.button.button-sliding-icon.ripple-effect(href='single-freelancer-profile.html')
+									| View Profile
+									i.icon-material-outline-arrow-right-alt
+						// Freelancer / End
+						// Freelancer
+						.freelancer
+							// Overview
+							.freelancer-overview
+								.freelancer-overview-inner
+									// Bookmark Icon
+									span.bookmark-icon
+									// Avatar
+									.freelancer-avatar
+										a(href='single-freelancer-profile.html')
+											img(src='images/user-avatar-placeholder.png', alt='')
+									// Name
+									.freelancer-name
+										h4
+											a(href='#')
+												| Sebastiano Piccio
+												img.flag(src='images/flags/it.svg', alt='', title='Italy', data-tippy-placement='top')
+										span Laravel Dev
+									// Rating
+									.freelancer-rating
+										.star-rating(data-rating='4.5')
+							// Details
+							.freelancer-details
+								.freelancer-details-list
+									ul
+										li
+											| Location
+											strong
+												i.icon-material-outline-location-on
+												|  Milan
+										li
+											| Rate
+											strong $80 / hr
+										li
+											| Job Success
+											strong 89%
+								a.button.button-sliding-icon.ripple-effect(href='single-freelancer-profile.html')
+									| View Profile
+									i.icon-material-outline-arrow-right-alt
+						// Freelancer / End
+						// Freelancer
+						.freelancer
+							// Overview
+							.freelancer-overview
+								.freelancer-overview-inner
+									// Bookmark Icon
+									span.bookmark-icon
+									// Avatar
+									.freelancer-avatar
+										a(href='single-freelancer-profile.html')
+											img(src='images/user-avatar-placeholder.png', alt='')
+									// Name
+									.freelancer-name
+										h4
+											a(href='#')
+												| Gabriel Lagueux
+												img.flag(src='images/flags/fr.svg', alt='', title='France', data-tippy-placement='top')
+										span WordPress Expert
+									// Rating
+									.freelancer-rating
+										.star-rating(data-rating='5.0')
+							// Details
+							.freelancer-details
+								.freelancer-details-list
+									ul
+										li
+											| Location
+											strong
+												i.icon-material-outline-location-on
+												|  Paris
+										li
+											| Rate
+											strong $50 / hr
+										li
+											| Job Success
+											strong 100%
+								a.button.button-sliding-icon.ripple-effect(href='single-freelancer-profile.html')
+									| View Profile
+									i.icon-material-outline-arrow-right-alt
+						// Freelancer / End
+	// Highest Rated Freelancers / End
+	// Counters
+	.section.padding-top-70.padding-bottom-75
+		.container
+			.row
+				.col-xl-12
+					.counters-container
+						// Counter
+						.single-counter
+							i.icon-line-awesome-suitcase
+							.counter-inner
+								h3
+									span.counter 1,586
+								span.counter-title Jobs Posted
+						// Counter
+						.single-counter
+							i.icon-line-awesome-legal
+							.counter-inner
+								h3
+									span.counter 3,543
+								span.counter-title Tasks Posted
+						// Counter
+						.single-counter
+							i.icon-line-awesome-user
+							.counter-inner
+								h3
+									span.counter 2,413
+								span.counter-title Active Members
+						// Counter
+						.single-counter
+							i.icon-line-awesome-trophy
+							.counter-inner
+								h3
+									span.counter 99
+									| %
+								span.counter-title Satisfaction Rate
+	// Counters / End
+	// Recent Blog Posts
+	.section.gray.padding-top-65.padding-bottom-50
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.margin-top-0.margin-bottom-45
+						h3 From The Blog
+						a.headline-link(href='pages-blog.html') View Blog
+					.row
+						// Blog Post Item
+						.col-xl-4
+							a.blog-compact-item-container(href='pages-blog-post.html')
+								.blog-compact-item
+									img(src='images/blog-01a.jpg', alt='')
+									span.blog-item-tag Tips
+									.blog-compact-item-content
+										ul.blog-post-tags
+											li 22 July 2018
+										h3 16 Ridiculously Easy Ways to Find & Keep a Remote Job
+										p
+											| Distinctively reengineer revolutionary meta-services and premium architectures intuitive opportunities.
+						// Blog post Item / End
+						// Blog Post Item
+						.col-xl-4
+							a.blog-compact-item-container(href='pages-blog-post.html')
+								.blog-compact-item
+									img(src='images/blog-02a.jpg', alt='')
+									span.blog-item-tag Recruiting
+									.blog-compact-item-content
+										ul.blog-post-tags
+											li 29 June 2018
+										h3 How to "Woo" a Recruiter and Land Your Dream Job
+										p
+											| Appropriately empower dynamic leadership skills after business portals. Globally myocardinate interactive.
+						// Blog post Item / End
+						// Blog Post Item
+						.col-xl-4
+							a.blog-compact-item-container(href='pages-blog-post.html')
+								.blog-compact-item
+									img(src='images/blog-03a.jpg', alt='')
+									span.blog-item-tag Marketing
+									.blog-compact-item-content
+										ul.blog-post-tags
+											li 10 June 2018
+										h3 11 Tips to Help You Get New Clients Through Cold Calling
+										p
+											| Compellingly embrace empowered e-business after user friendly intellectual capital. Interactively front-end.
+						// Blog post Item / End
+	// Recent Blog Posts / End
+
+	// Membership Plans
+	.section.padding-top-60.padding-bottom-75
+		.container
+			.row
+				.col-xl-12
+					// Section Headline
+					.section-headline.centered.margin-top-0.margin-bottom-35
+						h3 Membership Plans
+				.col-xl-12
+					// Billing Cycle
+					.billing-cycle-radios.margin-bottom-70
+						.radio.billed-monthly-radio
+							input#radio-5(name='radio-payment-type', type='radio', checked='')
+							label(for='radio-5')
+								span.radio-label
+								|  Billed Monthly
+						.radio.billed-yearly-radio
+							input#radio-6(name='radio-payment-type', type='radio')
+							label(for='radio-6')
+								span.radio-label
+								|  Billed Yearly
+								span.small-label Save 10%
+					// Pricing Plans Container
+					.pricing-plans-container
+						// Plan
+						.pricing-plan
+							h3 Basic Plan
+							p.margin-top-10 One time fee for one listing or task highlighted in search results.
+							.pricing-plan-label.billed-monthly-label
+								strong $19
+								| / monthly
+							.pricing-plan-label.billed-yearly-label
+								strong $205
+								| / yearly
+							.pricing-plan-features
+								strong Features of Basic Plan
+								ul
+									li 1 Listing
+									li 30 Days Visibility
+									li Highlighted in Search Results
+							a.button.full-width.margin-top-20(href='pages-checkout-page.html') Buy Now
+						// Plan
+						.pricing-plan.recommended
+							.recommended-badge Recommended
+							h3 Standard Plan
+							p.margin-top-10 One time fee for one listing or task highlighted in search results.
+							.pricing-plan-label.billed-monthly-label
+								strong $49
+								| / monthly
+							.pricing-plan-label.billed-yearly-label
+								strong $529
+								| / yearly
+							.pricing-plan-features
+								strong Features of Standard Plan
+								ul
+									li 5 Listings
+									li 60 Days Visibility
+									li Highlighted in Search Results
+							a.button.full-width.margin-top-20(href='pages-checkout-page.html') Buy Now
+						// Plan
+						.pricing-plan
+							h3 Extended Plan
+							p.margin-top-10 One time fee for one listing or task highlighted in search results.
+							.pricing-plan-label.billed-monthly-label
+								strong $99
+								| / monthly
+							.pricing-plan-label.billed-yearly-label
+								strong $1069
+								| / yearly
+							.pricing-plan-features
+								strong Features of Extended Plan
+								ul
+									li Unlimited Listings Listing
+									li 90 Days Visibility
+									li Highlighted in Search Results
+							a.button.full-width.margin-top-20(href='pages-checkout-page.html') Buy Now
+	// Membership Plans / End
+
+block append scripts
+	// Google Autocomplete
+	script.
+		function initAutocomplete() {
+			var options = {
+				types: ['(cities)'],
+				// componentRestrictions: {country: "us"}
+			};
+			var input = document.getElementById('autocomplete-input');
+			var autocomplete = new google.maps.places.Autocomplete(input, options);
+		}
+		// Autocomplete adjustment for homepage
+		if ($('.intro-banner-search-form')[0]) {
+			setTimeout(function(){
+				$(".pac-container").prependTo(".intro-search-field.with-autocomplete");
+			}, 300);
+		}
+	// Google API
+	script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyAgeuuDfRlweIs7D6uo4wdIHVvJ0LonQ6g&libraries=places&callback=initAutocomplete')

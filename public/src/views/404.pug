@@ -1,0 +1,63 @@
+extends ./layouts/_index_layout.pug
+
+block append variables
+	- var page_name = "404";
+
+block content
+	//
+		Titlebar
+		==================================================
+	#titlebar.gradient
+		.container
+			.row
+				.col-md-12
+					h2 404 Not Found
+					// Breadcrumbs
+					nav#breadcrumbs.dark
+						ul
+							li
+								a(href='#') Home
+							li 404 Not Found
+	//
+		Page Content
+		==================================================
+	// Container
+	.container
+		.row
+			.col-xl-12
+				section#not-found.center.margin-top-50.margin-bottom-25
+					h2
+						| 404
+						i.icon-line-awesome-question-circle.margin-left-10
+					p We're sorry, but the page you were looking for doesn't exist
+				.row
+					.col-xl-8.offset-xl-2
+						.intro-banner-search-form.not-found-search.margin-bottom-50
+							// Search Field
+							.intro-search-field
+								input#intro-keywords(type='text', placeholder='What Are You Looking For?')
+							// Button
+							.intro-search-button
+								button.button.ripple-effect Search
+	// Container / End
+	// Spacer
+	.margin-top-70
+	// Spacer / End
+
+
+block append scripts
+
+	// Snackbar // documentation: https://www.polonel.com/snackbar/
+	script.
+		// Snackbar for user status switcher
+		$('#snackbar-user-status label').click(function() {
+			Snackbar.show({
+				text: 'Your status has been changed!',
+				pos: 'bottom-center',
+				showAction: false,
+				actionText: "Dismiss",
+				duration: 3000,
+				textColor: '#fff',
+				backgroundColor: '#383838'
+			});
+		});

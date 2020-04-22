@@ -1,0 +1,140 @@
+
+//
+	Footer
+	==================================================
+#footer
+	// Footer Top Section
+	.footer-top-section
+		.container
+			.row
+				.col-xl-12
+					// Footer Rows Container
+					.footer-rows-container
+						// Left Side
+						.footer-rows-left
+							.footer-row
+								.footer-row-inner.footer-logo
+									a(href="/")
+										img(src='/images/logo2.png', alt='')
+						// Right Side
+						.footer-rows-right
+							// Social Icons
+							.footer-row
+								.footer-row-inner
+									ul.footer-social-links
+										li
+											a(data-tippy, data-tippy-placement='bottom', data-tippy-theme='light', href='#', title='Facebook')
+												i.icon-brand-facebook-f
+										li
+											a(data-tippy, data-tippy-placement='bottom', data-tippy-theme='light', href='#', title='Twitter')
+												i.icon-brand-twitter
+										li
+											a(data-tippy, data-tippy-placement='bottom', data-tippy-theme='light', href='#', title='Google Plus')
+												i.icon-brand-google-plus-g
+										li
+											a(data-tippy, data-tippy-placement='bottom', data-tippy-theme='light', href='#', title='LinkedIn')
+												i.icon-brand-linkedin-in
+									.clearfix
+							// Language Switcher
+							.footer-row
+								.footer-row-inner
+									select.selectpicker.language-switcher(data-selected-text-format='count', data-size='2', onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);")
+										option(value="/lang/en" selected=(lang === 'en') ? 'selected' : undefined) English
+										option(value="/lang/ar" selected=(lang === 'ar') ? 'checked' : undefined) العربية
+					// Footer Rows Container / End
+	// Footer Top Section / End
+	// Footer Middle Section
+	.footer-middle-section
+		.container
+			.row
+				// Links
+				.col-xl-2.col-lg-2.col-md-3
+					.footer-links
+						h3 For Candidates
+						ul
+							li
+								a(href='/browse/jobs')
+									span Browse Jobs
+							if (user && !_.isEqual(user.role, "admin"))
+								li
+									a(href='/dashboard/settings')
+										span Add Resume
+							li
+								a(href='#')
+									span Job Alerts
+							if user
+								li
+									a(href='/dashboard/bookmarks')
+										span My Bookmarks
+				// Links
+				.col-xl-2.col-lg-2.col-md-3
+					.footer-links
+						h3 For Employers
+						ul
+							li
+								a(href='#')
+									span Browse Candidates
+							li
+								a(href='#')
+									span Post a Job
+							li
+								a(href='#')
+									span Post a Task
+							li
+								a(href='#')
+									span Plans &amp; Pricing
+				// Links
+				.col-xl-2.col-lg-2.col-md-3
+					.footer-links
+						h3 Helpful Links
+						ul
+							li
+								a(href='#')
+									span Contact
+							li
+								a(href='#')
+									span Privacy Policy
+							li
+								a(href='#')
+									span Terms of Use
+				// Links
+				.col-xl-2.col-lg-2.col-md-3
+					.footer-links
+						h3 Account
+						if (user)
+							ul
+								li
+									a(href='/dashboard/settings')
+										span My Account
+								li
+									a(href="/auth/logout")
+										span Logout
+						else
+							ul
+								li
+									a(href='/auth/login')
+										span Log In
+								li
+									a(href='/auth/register')
+										span Register
+				// Newsletter
+				.col-xl-4.col-lg-4.col-md-12
+					h3
+						i.icon-feather-mail
+						| Sign Up For a Newsletter
+					p Weekly breaking news, analysis and cutting edge advices on job searching.
+					form.newsletter(action='#', method='get')
+						input(name='fname', type='text', placeholder='Enter your email address')
+						button(type='submit')
+							i.icon-feather-arrow-right
+	// Footer Middle Section / End
+	// Footer Copyrights
+	.footer-bottom-section
+		.container
+			.row
+				.col-xl-12
+					= `© ${moment().format("YYYY")}`
+					strong= ` ${_.capitalize(siteName)}`
+					| . All Rights Reserved.
+	// Footer Copyrights / End
+// Footer / End

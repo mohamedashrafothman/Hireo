@@ -1,0 +1,132 @@
+extends ../../layouts/_dashboard_layout.pug
+include ../../mixins/_breadcrumb.pug
+include ../../mixins/_pagination.pug
+
+block content
+	// Dashboard Headline
+	.dashboard-headline
+		h3=page_title
+		// Breadcrumbs
+		+breadcrumb(urlSegment)
+	// Row
+	.row
+		// Dashboard Box
+		.col-xl-12
+			.dashboard-box.margin-top-0
+				// Headline
+				.headline
+					.container.padding-right-0.padding-left-0
+						.row.margin-right-0.margin-left-0(style="width: 100%")
+							.col-5.padding-left-0
+								h3
+									i.icon-material-outline-business-center
+									|  My Job Listings
+							.col-3
+								.sort-by
+									span Sort By:
+									select.selectpicker.hide-tick(data-selected-text-format='count', data-size='4',onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value)")
+										option(selected=((_.isEmpty(query) || _.isEmpty(query.sort) || _.isEmpty(query.sort.created_at)) || (query && query.sort && query.sort.created_at === "desc") ? "selected" : undefined), value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "desc" }) ))}`) Newest
+										option(selected=((query && query.sort && query.sort.created_at === "asc") ? "selected" : undefined), value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "asc" }) ))}`) Oldest
+							.col-4.padding-right-0
+								.search-input
+									.input-flat-with-icon-left
+										i.icon-material-outline-search.icon-right
+										input.input-text.autocomplete(name='q', type='text', placeholder='Search')
+				.content
+					ul.dashboard-box-list
+						if (!data.jobs.length)
+							li(style=`text-align:center;`)
+								// Overview
+								.job-listing.padding-top-15.padding-bottom-15(style="justify-content:center;")
+									h4 No Job Posted Yet
+								//  Buttons
+								.buttons-to-right.always-visible
+									a.button.ripple-effect(href=`/dashboard/jobs/add`)
+										i.icon-feather-plus.margin-right-10
+										| Post New Job
+						else
+							each job, i in data.jobs
+								li
+									// Job Listing
+									.job-listing
+										// Job Listing Details
+										.job-listing-details
+											if _.isEqual(user.role, "admin")
+												// Logo
+												a.job-listing-company-logo(href=`/job/${job.slug}`)
+													if (job.created_by.account.picture || job.created_by.account.picture_md)
+														img(src=(!job.created_by.account.picture) ? `/${job.created_by.account.picture_md.path}` : `/${job.created_by.account.picture.path}`, alt='')
+													else
+														img(src=`${job.created_by.gravatar(50)}`)
+											// Details
+											.job-listing-description
+												h3.job-listing-title
+													a(href=`/job/${job.slug}` style=`${(job.status === 2) ? "text-decoration: line-through" : ""};`)=job.title
+													case job.status
+														when 1
+															span.dashboard-status-button.orange Running
+														when 2
+															span.dashboard-status-button.green Completed
+														when 3
+															span.dashboard-status-button.yellow Expiring
+														when 4
+															span.dashboard-status-button.red Expired
+														default
+															- break
+												// Job Listing Footer
+												.job-listing-footer
+													ul.padding-left-10
+														li
+															i.icon-material-outline-date-range
+															= `Posted on ${moment(job.created_at).format('ll')}`
+														li
+															i.icon-material-outline-date-range
+															= `Expiring on ${moment(job.expiring_at).format('ll')}`
+									// Buttons
+									.buttons-to-right.always-visible
+										a.button.ripple-effect(href=`/dashboard/jobs/${job.slug}/applications`)
+											i.icon-material-outline-supervisor-account.margin-right-10
+											|Manage Candidates
+											span.button-info=job.applications.length
+										if _.isEqual(job.status, 3)
+											a.button.dark.ripple-effect(href=`/dashboard/jobs/refresh/${job._id}`)
+												i.icon-feather-rotate-ccw.margin-right-10
+												|Refresh
+										a.button.gray.ripple-effect.ico(href=`/dashboard/jobs/edit/${job.slug}`, title='Edit', data-tippy, data-tippy-placement='top')
+											i.icon-feather-edit
+										if (_.isEqual(job.created_by._id.toString(), user._id.toString()) || _.isEqual(user.role, "admin"))
+											a.button.gray.ripple-effect.popup-with-zoom-anim.ico(href=`#small-dialog-${i+1}`, title='Remove', data-tippy, data-tippy-placement='top')
+												i.icon-feather-trash-2
+	// Row / End
+	if (hasNextPage || hasPrevPage)
+		.col-md-12
+			.pagination-container.margin-top-20.margin-bottom-20
+				+pagination("/dashboard/jobs/list", page, pages, query)
+			// Pagination / End
+	// Row / End
+
+block append modals
+	//
+		Delete Skill Dialog
+		==================================================
+	each job, i in data.jobs
+		.zoom-anim-dialog.dialog-with-tabs.mfp-hide(id=`small-dialog-${i+1}`)
+			// Tabs
+			.sign-in-form
+				ul.popup-tabs-nav
+					li
+						a(href="#tab")= `Delete ${job.title} Job`
+				.popup-tabs-container
+					// Tab
+					#tab.popup-tab-content
+						// Welcome Text
+						.welcome-text
+							h3 Are You make sure you want to delete this Job entierly?
+						// Form
+						form(id=`delete-job-form-${i+1}` method="GET" action=`/dashboard/jobs/delete/${job._id}`)
+							include ../../partials/_csrf.pug
+						// Button
+						button.button.red.margin-top-35.full-width.ripple-effect(type="submit" form=`delete-job-form-${i+1}`)
+							| Delete Now!
+	// Delete My Account Modal / End
+block append scripts

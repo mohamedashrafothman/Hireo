@@ -1,0 +1,79 @@
+extends ../layouts/_index_layout.pug
+include ../mixins/_breadcrumb.pug
+
+block content
+	//
+		Titlebar
+		==================================================
+	#titlebar.gradient
+		.container
+			.row
+				.col-md-12
+					h2= `${_.capitalize(page_title)}`
+					// Breadcrumbs
+					+breadcrumb([urlSegment[0], urlSegment[2]])
+	//
+		Page Content
+		==================================================
+	.container
+		.row
+			.col-xl-6.offset-xl-3
+				.login-register-page
+					// Welcome Text
+					.welcome-text
+						h3(style='font-size: 26px;') Let's create your account!
+						span
+							| Already have an account?
+							a(href='/auth/login')  Log In!
+					// Form
+					form#register-account-form(action=`${urlSegment.join('/')}` method='post')
+						include ../partials/_csrf.pug
+						// Account Type
+						.account-type
+							div
+								input#freelancer-radio.account-type-radio(name='role', type='radio', value="freelancer", checked=(data && _.isEqual(data.old["role"], "freelancer")) ? 'checked' : undefined)
+								label.ripple-effect-dark(for='freelancer-radio')
+									i.icon-material-outline-account-circle
+									|  Freelancer
+							div
+								input#employer-radio.account-type-radio(name='role', type='radio', value="employer", checked=(data && _.isEqual(data.old["role"], "employer")) ? 'checked' : undefined)
+								label.ripple-effect-dark(for='employer-radio')
+									i.icon-material-outline-business-center
+									|  Employer
+						.input-with-icon-left
+							i.icon-feather-user.icon-left
+							input#name-register.input-text.with-border(name='account.name', type='text', placeholder='Name Or Company Name', value=`${(data && data.old["account.name"]) ? data.old["account.name"] : ''}` required="")
+						.input-with-icon-left
+							i.icon-feather-user.icon-left
+							input#username-register.input-text.with-border(name='account.username', type='text', placeholder='Username', value=`${(data && data.old["account.username"]) ? data.old["account.username"] : ''}` required="")
+						.input-with-icon-left
+							i.icon-material-baseline-mail-outline.icon-left
+							input#emailaddress-register.input-text.with-border(name='email', type='email', placeholder='Email Or Company Email', value=`${(data && data.old["email"]) ? data.old["email"] : ''}` required="")
+						.input-with-icon-left.input-with-icon-right(data-tippy-placement='bottom', title=`Should be at least ${process.env.MINIMUM_PASSWORD_LENGTH} characters long, lowercase character, uppercase character, a number, and a special character.`)
+							i.icon-material-outline-lock.icon-left
+							input#password-register.input-text.with-border(name='password', type='password', placeholder='Password', value=`${(data && data.old["password"]) ? data.old["password"] : ''}` required="")
+							i.icon-feather-eye.icon-right.show-password(data-target="#password-register")
+						.input-with-icon-left.input-with-icon-right
+							i.icon-material-outline-lock.icon-left
+							input#password-repeat-register.input-text.with-border(name='confirmPassword', type='password', placeholder='Repeat Password', value=`${(data && data.old["confirmPassword"]) ? data.old["confirmPassword"] : ''}` required="")
+							i.icon-feather-eye.icon-right.show-password(data-target="#password-repeat-register")
+					// Button
+					button.button.full-width.button-sliding-icon.ripple-effect.margin-top-10(type='submit', form='register-account-form')
+						| Register
+						i.icon-material-outline-arrow-right-alt
+					// Social Login
+					.social-login-separator
+						span or
+					.social-login-buttons
+						a.facebook-login.ripple-effect(href="/auth/facebook")
+							i.icon-brand-facebook-f
+							|  Register via Facebook
+						a.google-login.ripple-effect(href="/auth/google")
+							i.icon-brand-google-plus-g
+							|  Register via Google+
+	// Spacer
+	.margin-top-70
+	// Spacer / End
+
+
+block append scripts

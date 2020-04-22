@@ -1,0 +1,134 @@
+extends ../../layouts/_dashboard_layout.pug
+include ../../mixins/_breadcrumb.pug
+include ../../mixins/_pagination.pug
+
+block content
+	// Dashboard Headline
+	.dashboard-headline
+		h3=page_title
+		// Breadcrumbs
+		+breadcrumb(urlSegment)
+	// Row
+	.row
+		// Dashboard Box
+		.col-xl-12
+			.dashboard-box.margin-top-0
+				// Headline
+				.headline
+					.container.padding-right-0.padding-left-0
+						.row.margin-right-0.margin-left-0(style="width: 100%")
+							.col-5.padding-left-0
+								h3
+									i.icon-material-outline-business-center
+									|  My Application Listings
+							.col-3
+								.sort-by
+									span Sort By:
+									select.selectpicker.hide-tick(data-selected-text-format='count', data-size='4',onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value)")
+										option(selected=((_.isEmpty(query) || _.isEmpty(query.sort) || _.isEmpty(query.sort.created_at)) || (query && query.sort && query.sort.created_at === "desc") ? "selected" : undefined), value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "desc" }) ))}`) Newest
+										option(selected=((query && query.sort && query.sort.created_at === "asc") ? "selected" : undefined), value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "asc" }) ))}`) Oldest
+							.col-4.padding-right-0
+								.search-input
+									.input-flat-with-icon-left
+										i.icon-material-outline-search.icon-right
+										input.input-text.autocomplete(name='q', type='text', placeholder='Search')
+				.content
+					ul.dashboard-box-list
+						if (!data.applications.length)
+							li(style=`text-align:center;`)
+								// Overview
+								.job-listing.padding-top-15.padding-bottom-15(style="justify-content:center;")
+									h4 No Applications Posted Yet
+								//  Buttons
+								.buttons-to-right.always-visible
+									a.button.ripple-effect(href=`/browse/jobs`)
+										i.icon-feather-plus.margin-right-10
+										| Find a Job to Apply to!
+						else
+							each application, i in data.applications
+								li
+									// Job Listing
+									.job-listing
+										// Job Listing Details
+										.job-listing-details
+											if _.isEqual(user.role, "admin")
+												// Logo
+												a.job-listing-company-logo(href=`/job/${application.job.slug}`)
+													if (application.job.created_by.account.picture || application.job.created_by.account.picture_md)
+														img(src=(!application.job.created_by.account.picture) ? `/${application.job.created_by.account.picture_md.path}` : `/${application.job.created_by.account.picture.path}`, alt='')
+													else
+														img(src=`${application.job.created_by.gravatar(50)}`)
+											// Details
+											.job-listing-description
+												h3.job-listing-title
+													|Job:
+													a(href=`/job/${application.job.slug}` style=`${(application.job.status === 2) ? "text-decoration: line-through" : ""};`)=` ${application.job.title}`
+												// Job Listing Footer
+												.job-listing-footer
+													ul.padding-left-10
+														li(style="display:block")
+															i.icon-material-outline-settings
+															| Current application status:
+															case application.status
+																when 1
+																	span.dashboard-status-button.yellow Waiting
+																when 2
+																	span.dashboard-status-button.orange Withdrawn
+																when 3
+																	span.dashboard-status-button.red Rejected
+																when 4
+																	span.dashboard-status-button.green Accepted
+																default
+																	- break
+														li(style="display:block")
+															i.icon-material-outline-date-range
+															|Applied on:
+															span.dashboard-status-button=moment(application.created_at).format('ll')
+														if (application.was_seen)
+															li(style="display:block")
+																i.icon-feather-eye
+																|Seen by the employer at:
+																span.dashboard-status-button=moment(application.seen_at).format('llll')
+									// Buttons
+									.buttons-to-right.always-visible
+										if (application.status === 1)
+											a.button.dark.ripple-effect.popup-with-zoom-anim(href=`#small-dialog-${i+1}`)
+												i.icon-feather-x-square.margin-right-3
+												|Withdraw Application
+										a.button.ripple-effect.margin-right-5(href=`/dashboard/applications/${application._id}/attachment/${application.attachment}/download`)
+											i.icon-feather-file-text.margin-right-3
+											|Download CV
+	// Row / End
+	if (hasNextPage || hasPrevPage)
+		.col-md-12
+			.pagination-container.margin-top-20.margin-bottom-20
+				+pagination("/dashboard/applications/list", page, pages, query)
+			// Pagination / End
+	// Row / End
+
+block append modals
+	//
+		Delete Skill Dialog
+		==================================================
+	each application, i in data.applications
+		if (application.status === 1)
+			.zoom-anim-dialog.dialog-with-tabs.mfp-hide(id=`small-dialog-${i+1}`)
+				// Tabs
+				.sign-in-form
+					ul.popup-tabs-nav
+						li
+							a(href="#tab")= `Withdraw ${application.job.title} Job`
+					.popup-tabs-container
+						// Tab
+						#tab.popup-tab-content
+							// Welcome Text
+							.welcome-text
+								h3 Are You make sure you want to Withdraw this application?
+							// Form
+							form(id=`withdraw-application-form-${i+1}` method="GET" action=`/dashboard/applications/${application._id}/withdraw`)
+								include ../../partials/_csrf.pug
+							// Button
+							button.button.red.margin-top-35.full-width.ripple-effect(type="submit" form=`withdraw-application-form-${i+1}`)
+								| Withdraw Now
+		// Delete My Account Modal / End
+block append scripts

@@ -1,0 +1,91 @@
+extends ./layouts/_index_layout.pug
+
+block append variables
+	- var page_name = "registration";
+
+block content
+	//
+		Titlebar
+		==================================================
+	#titlebar.gradient
+		.container
+			.row
+				.col-md-12
+					h2 Register
+					// Breadcrumbs
+					nav#breadcrumbs.dark
+						ul
+							li
+								a(href='#') Home
+							li Register
+	//
+		Page Content
+		==================================================
+	.container
+		.row
+			.col-xl-6.offset-xl-3
+				.login-register-page
+					// Welcome Text
+					.welcome-text
+						h3(style='font-size: 26px;') Let's create your account!
+						span
+							| Already have an account?
+							a(href='login.html') Log In!
+					// Account Type
+					.account-type
+						div
+							input#freelancer-radio.account-type-radio(type='radio', name='account-type-radio', checked='')
+							label.ripple-effect-dark(for='freelancer-radio')
+								i.icon-material-outline-account-circle
+								|  Freelancer
+						div
+							input#employer-radio.account-type-radio(type='radio', name='account-type-radio')
+							label.ripple-effect-dark(for='employer-radio')
+								i.icon-material-outline-business-center
+								|  Employer
+					// Form
+					form#register-account-form(method='post')
+						.input-with-icon-left
+							i.icon-material-baseline-mail-outline
+							input#emailaddress-register.input-text.with-border(type='text', name='emailaddress-register', placeholder='Email Address', required='')
+						.input-with-icon-left(title='Should be at least 8 characters long', data-tippy-placement='bottom')
+							i.icon-material-outline-lock
+							input#password-register.input-text.with-border(type='password', name='password-register', placeholder='Password', required='')
+						.input-with-icon-left
+							i.icon-material-outline-lock
+							input#password-repeat-register.input-text.with-border(type='password', name='password-repeat-register', placeholder='Repeat Password', required='')
+					// Button
+					button.button.full-width.button-sliding-icon.ripple-effect.margin-top-10(type='submit', form='login-form')
+						| Register
+						i.icon-material-outline-arrow-right-alt
+					// Social Login
+					.social-login-separator
+						span or
+					.social-login-buttons
+						button.facebook-login.ripple-effect
+							i.icon-brand-facebook-f
+							|  Register via Facebook
+						button.google-login.ripple-effect
+							i.icon-brand-google-plus-g
+							|  Register via Google+
+	// Spacer
+	.margin-top-70
+	// Spacer / End
+
+
+block append scripts
+
+	// Snackbar // documentation: https://www.polonel.com/snackbar/
+	script.
+		// Snackbar for user status switcher
+		$('#snackbar-user-status label').click(function() {
+			Snackbar.show({
+				text: 'Your status has been changed!',
+				pos: 'bottom-center',
+				showAction: false,
+				actionText: "Dismiss",
+				duration: 3000,
+				textColor: '#fff',
+				backgroundColor: '#383838'
+			});
+		});

@@ -1,0 +1,45 @@
+extends ./layouts/_index_layout.pug
+include ./mixins/_breadcrumb.pug
+
+block content
+	//
+		Titlebar
+		==================================================
+	#titlebar.gradient
+		.container
+			.row
+				.col-md-12
+					h2= `${page_title}`
+					// Breadcrumbs
+					+breadcrumb([urlSegment[0], page_title])
+	//
+		Page Content
+		==================================================
+	// Container
+	.container
+		.row
+			.col-xl-12
+				section#not-found.center.margin-top-50.margin-bottom-25
+					h2
+						= error.status
+						i.icon-line-awesome-question-circle.margin-left-10
+					if (error.status == 404)
+						p We're sorry, but the page you were looking for doesn't exist
+					else
+						p We're sorry, but there is a problem right now on the server. try again in a few minutes.
+				.row
+					.col-xl-8.offset-xl-2
+						.intro-banner-search-form.not-found-search.margin-bottom-50
+							// Search Field
+							.intro-search-field
+								input#intro-keywords(type='text', placeholder='What Are You Looking For?')
+							// Button
+							.intro-search-button
+								button.button.ripple-effect Search
+	// Container / End
+	// Spacer
+	.margin-top-70
+	// Spacer / End
+
+
+block append scripts

@@ -11,10 +11,12 @@ module.exports = {
 		SharedArrayBuffer: "readonly"
 	},
 	parser: "babel-eslint",
-	parserOptions: { ecmaVersion: 2018 },
+	parserOptions: {
+		ecmaVersion: 2018
+	},
 	rules: {
-		indent: ["warn", "tab"],
-   		"strict": 0,
+		"indent": ["warn", "tab"],
+		"strict": 0,
 		"no-useless-constructor": "off",
 		"no-console": "off",
 		"class-methods-use-this": "off",
@@ -30,8 +32,21 @@ module.exports = {
 		"no-await-in-loop": ["warn"],
 		"camelcase": "off",
 		"quotes": ["error", "double"],
-		"max-len": ["error", { code: 300, ignoreComments: true, ignoreTrailingComments: true, ignoreUrls: true, ignoreStrings: true }],
-		"no-multi-spaces": ["error", { exceptions: { VariableDeclarator: true, ImportDeclaration: true } }],
-		"no-param-reassign": ["warn", { props: false }],
+		"max-len": ["error", {
+			code: 300,
+			ignoreComments: true,
+			ignoreTrailingComments: true,
+			ignoreUrls: true,
+			ignoreStrings: true
+		}],
+		"no-multi-spaces": ["error", {
+			exceptions: {
+				VariableDeclarator: true,
+				ImportDeclaration: true
+			}
+		}],
+		"no-param-reassign": ["warn", {
+			props: false
+		}],
 	}
 };

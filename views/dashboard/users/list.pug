@@ -26,13 +26,17 @@ block content
 								.sort-by
 									span Sort By:
 									select.selectpicker.hide-tick(data-selected-text-format='count', data-size='4',onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value)")
-										option(selected=((_.isEmpty(query) || _.isEmpty(query.sort) || _.isEmpty(query.sort.created_at)) || (query && query.sort && query.sort.created_at === "desc") ? "selected" : undefined), value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "desc" }) ))}`) Newest
-										option(selected=((query && query.sort && query.sort.created_at === "asc") ? "selected" : undefined), value=`?${qs.stringify(_.assignIn(query, qs.parse({ "sort[created_at]": "asc" }) ))}`) Oldest
+										- var query_option_1 = query;
+										option(selected=(query.sort && query.sort.created_at === "desc") ? "selected" : undefined, value=`?${qs.stringify(_.merge(_.omit(query_option_1, "sort[created_at]"), { "sort[created_at]": "desc" }))}`) Newest
+										- var query_option_2 = query;
+										option(selected=(query.sort && query.sort.created_at === "asc") ? "selected" : undefined, value=`?${qs.stringify(_.merge(_.omit(query_option_1, "sort[created_at]"), { "sort[created_at]": "asc" }))}`) Oldest
 							.col-4.padding-right-0
 								.search-input
 									.input-flat-with-icon-left
-										i.icon-material-outline-search.icon-right
-										input.input-text.autocomplete(name='q', type='text', placeholder='Search')
+										form#search-input-form(action="", method="GET")
+											input.input-text.autocomplete(name='q', type='text', placeholder='Search', value=query.q)
+											button.autocomplete-button.ripple-effect(type="submit", form="search-input-form")
+												i.icon-material-outline-search.icon-right
 				.content
 					ul.dashboard-box-list
 						if data.users
@@ -140,3 +144,14 @@ block append modals
 								| Delete Now!
 			// Delete My Account Modal / End
 block append scripts
+	if (query.q)
+		script.
+			$(document).ready(function() {
+				$(".freelancer-name h4 a, .job-listing-footer ul li").each(function(index, ele) {
+					$(ele).mark("#{query.q}", {element: "mark"}).filter(function(node, term, totalCounter, counter) {
+						if ($(term).find("mark").length) {
+							$(term).css({"display": "block"});
+						}
+					});
+				});
+			});

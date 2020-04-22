@@ -881,7 +881,22 @@ class UserController extends Controller {
 
 	async usersList(req, res, next) {
 		const { page = 1 } = req.query;
-		const query = { role: { $nin: ["admin"] } };
+		const query = {
+			...(req.query?.q && {
+				$or: [
+					{ email: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+					{ role: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+					{ "account.name": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+					{ "account.username": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+					{ "account.gender": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+					{ "account.website": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+					{ "profile.tagline": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+					{ "profile.description": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+				]
+			}),
+			role: { $nin: ["admin"] }
+		};
+
 		const options = {
 			populate: [
 				{ path: "profile.nationality" },

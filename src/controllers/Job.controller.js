@@ -73,6 +73,13 @@ class JobController extends Controller {
 
 	async getJobsLists(req, res, next) {
 		const query = {
+			...(req.query?.q && {
+				$or: [
+					{ title: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+					// { status: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+					{ description: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }
+				]
+			}),
 			...(req.user.role !== "admin" && { created_by: req.user._id })
 		};
 		const options = {

@@ -49,7 +49,17 @@ class ApplicationController extends Controller {
 	}
 
 	async getApplicationsList(req, res, next) {
-		const query = { ...(req.user && req.user.role !== "admin" && { created_by: req.user._id }) };
+		const query = {
+			...(req.query?.q && {
+				$or: [
+					{ status: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+					{ seen_at: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+					{ "job.title": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
+					{ "created_by.email": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }
+				]
+			}),
+			...(req.user && req.user.role !== "admin" && { created_by: req.user._id })
+		};
 		const options = {
 			populate: [
 				{

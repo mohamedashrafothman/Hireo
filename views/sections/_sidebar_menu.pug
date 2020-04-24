@@ -18,8 +18,8 @@
 							a(href='/dashboard')
 								i.icon-material-outline-dashboard
 								|  Dashboard
-						li
-							a(href='dashboard-messages.html')
+						li(class=(_.lowerCase(page_title) === 'messages') ? "active" : "")
+							a(href='/dashboard/conversations')
 								i.icon-material-outline-question-answer
 								|  Messages
 								span.nav-tag 2

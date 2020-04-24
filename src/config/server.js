@@ -3,6 +3,7 @@ import qs from "qs";
 import to from "await-to-js";
 import path from "path";
 import csrf from "csurf";
+import http from "http";
 import i18n from "i18n";
 import back from "express-back";
 import flash from "connect-flash";
@@ -12,6 +13,7 @@ import express from "express";
 import session from "express-session";
 import favicon from "serve-favicon";
 import passport from "passport";
+import socketio from "socket.io";
 import bodyParser from "body-parser";
 import compression from "compression";
 import connectMongo from "connect-mongo";
@@ -21,6 +23,7 @@ import loggerToMongo from "mongo-morgan-ext";
 
 import Helper from "../utilities/Helper";
 import CronJobs from "../utilities/CronJobs";
+import Socket from "../utilities/Socket";
 
 import Category from "../models/Category.model";
 import Application from "../models/Application.model";
@@ -37,10 +40,24 @@ const applicationService = new ApplicationService(Application);
 
 
 //
-// ─── SERVER INSTANCE ────────────────────────────────────────────────────────────
+// ─── APP INSTANCE ───────────────────────────────────────────────────────────────
 //
-const server = express();
-
+const app = express();
+const server = http.createServer(app);
+const io = socketio(server);
+const sessionMiddleware = session({
+	secret: process.env.SESSION_SECRET,
+	saveUninitialized: false, // NOTE: Don't create session until something stored.
+	resave: false, // NOTE: Don't save session if unmodified.
+	store: new MongoStore({
+		url: process.env.MONGODB_URI,
+		ttl: 60 * 60 * process.env.SESSION_TIMEOUT_IN_HOURS, // COMMENT: Time to remove session from database in hours.
+		resave: false,
+		autoReconnect: true,
+		autoRemove: "native",
+		autoRemoveInterval: 1
+	})
+});
 
 //
 // ─── MIDDLEWARE FUNCTIONS ───────────────────────────────────────────────────────
@@ -48,10 +65,10 @@ const server = express();
 // its own: An Express application is essentially a series of middleware function calls.
 // http://expressjs.com/en/guide/using-middleware.html
 //
-server.set("port", process.env.PORT || 3000);
-server.set("views", path.join(__dirname, "../../views"));
-server.set("view engine", "pug");
-server.set("permission", {
+app.set("port", process.env.PORT || 3000);
+app.set("views", path.join(__dirname, "../../views"));
+app.set("view engine", "pug");
+app.set("permission", {
 	role: "role",
 	notAuthenticated: {
 		flashType: "error",
@@ -66,36 +83,25 @@ server.set("permission", {
 		status: 403
 	}
 });
-server.use(express.static(path.join(__dirname, "../../public/build")));
-server.use(express.static(path.join(__dirname, "../../public")));
-server.use(favicon(path.join(__dirname, "../../public/build/images", "favicon.ico")));
-server.use(compression());
-server.use(logger("dev"));
-server.use(bodyParser.json());
-server.use(bodyParser.urlencoded({ extended: false }));
-server.use(cookieParser(process.env.SESSION_SECRET));
-server.use(session({
-	secret: process.env.SESSION_SECRET,
-	saveUninitialized: false, // NOTE: Don't create session until something stored.
-	resave: false, // NOTE: Don't save session if unmodified.
-	store: new MongoStore({
-		url: process.env.MONGODB_URI,
-		ttl: 60 * 60 * process.env.SESSION_TIMEOUT_IN_HOURS, // COMMENT: Time to remove session from database in hours.
-		resave: false,
-		autoReconnect: true,
-		autoRemove: "native",
-		autoRemoveInterval: 1
-	})
-}));
+app.use(express.static(path.join(__dirname, "../../public/build")));
+app.use(express.static(path.join(__dirname, "../../public")));
+app.use(favicon(path.join(__dirname, "../../public/build/images", "favicon.ico")));
+app.use(compression());
+app.use(logger("dev"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+io.use((socket, next) => { sessionMiddleware(socket.request, socket.request.res || {}, next); });
+app.use(cookieParser(process.env.SESSION_SECRET));
+app.use(sessionMiddleware);
 // COMMENT: Passport.js middleware came after session's middleware.
-server.use(passport.initialize());
-server.use(passport.session());
-server.use(csrf({ cookie: true })); // COMMENT: csrf protection MUST be defined after cookieParser and session middleware.
-server.use(flash());
-server.use(i18n.init);
-server.use(back());
-server.use(loggerToMongo(process.env.MONGODB_URI, "logs", (req, res) => res.statusCode > 399));
-server.use(async (req, res, next) => {
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(csrf({ cookie: true })); // COMMENT: csrf protection MUST be defined after cookieParser and session middleware.
+app.use(flash());
+app.use(i18n.init);
+app.use(back());
+app.use(loggerToMongo(process.env.MONGODB_URI, "logs", (req, res) => res.statusCode > 399));
+app.use(async (req, res, next) => {
 	// COMMENT: pass the Globals to all responses.
 	const [categoriesErr, categories] = await to(
 		categoryService.readMany(
@@ -131,7 +137,7 @@ server.use(async (req, res, next) => {
 	res.locals.unSeenApplicationsCount = unSeenApplications.total;
 	next();
 });
-server.use((req, res, next) => {
+app.use((req, res, next) => {
 	// COMMENT: after successful login, redirect back to the intended page.
 	if (!req.user && req.path !== "/auth/login" && req.path !== "/auth/register" && !req.path.match(/^\/auth/) && !req.path.match(/\./)) {
 		req.session.returnTo = req.originalUrl;
@@ -140,11 +146,27 @@ server.use((req, res, next) => {
 	}
 	next();
 });
-server.use((req, res, next) => {
+app.use((req, res, next) => {
 	// COMMENT: set headers to allow cross origin request.
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
+});
+
+
+//
+// ─── WEBSOCKET ──────────────────────────────────────────────────────────────────
+// The WebSocket is an advanced technology that makes it possible to open a two-way interactive communication session
+// between the user's browser and a server. With this API, you can send messages to a server and receive event-driven
+// responses without having to poll the server for a reply.
+//
+const socket = new Socket(io);
+
+app.use((req, res, next) => {
+	req.io = io;
+	req.socket = socket;
+
 	next();
 });
 
@@ -155,7 +177,7 @@ server.use((req, res, next) => {
 // an URL path/pattern, and a function that is called to handle that pattern.
 // http://expressjs.com/en/guide/routing.html
 //
-server.use("/", indexRouter);
+app.use("/", indexRouter);
 
 
 //
@@ -172,7 +194,7 @@ new CronJobs();
 // don’t need to write your own to get started.
 // http://expressjs.com/en/guide/error-handling.html
 //
-server.use((req, res, next) => {
+app.use((req, res, next) => {
 	// COMMENT: catch 404 and forward to error handler
 	const err = new Error("Not Found");
 	err.status = 404;
@@ -181,7 +203,7 @@ server.use((req, res, next) => {
 
 
 // COMMENT: handeling errors based on environment [development, production].
-server.use(
+app.use(
 	_.isEqual(process.env.NODE_ENV.trim(), "development")
 		? errorHandler()
 		// eslint-disable-next-line no-unused-vars
@@ -196,6 +218,6 @@ server.use(
 
 
 //
-// ─── EXPORTING SERVER INSTANCE ──────────────────────────────────────────────────
+// ─── EXPORTING SERVER & APP INSTANCE ────────────────────────────────────────────
 //
-export default server;
+export { server, app };

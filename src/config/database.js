@@ -21,7 +21,6 @@ export default class MongoDBConnection {
 	}
 
 	startConnection() {
-		console.log(blue.bold("⏳ Conencting to the database...."));
 		mongoose.Promise = global.Promise;
 		mongoose.set("useNewUrlParser", true);
 		mongoose.set("useFindAndModify", false);

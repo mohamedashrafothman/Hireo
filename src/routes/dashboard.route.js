@@ -4,6 +4,7 @@ import skillsRouter from "./skills.route";
 import categriesRouter from "./category.route";
 import jobsRoutes from "./job.route";
 import applicationsRoutes from "./application.route";
+import conversationsRoutes from "./conversation.route";
 import UserController from "../controllers/User.controller";
 import AttachmentController from "../controllers/Attachment.controller";
 
@@ -56,6 +57,7 @@ router.use("/skills", permission(["admin"]), skillsRouter);
 router.use("/categories", permission(["admin"]), categriesRouter);
 router.use("/jobs", permission(["admin", "employer"]), jobsRoutes);
 router.use("/applications", permission(["admin", "freelancer"]), applicationsRoutes);
+router.use("/conversations", conversationsRoutes);
 
 //
 // ─── EXPORTING ROUTER ───────────────────────────────────────────────────────────

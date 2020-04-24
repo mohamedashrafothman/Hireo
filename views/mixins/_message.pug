@@ -1,0 +1,28 @@
+mixin message(data={}, prev={}, index=0)
+	// Time Sign
+	if (!_.isEmpty(prev))
+		- var date1 = new Date(prev.created_at);
+		- var date2 = new Date(data.created_at);
+		- var difference = Math.round((date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24));
+		if (difference >= 1)
+			.message-time-sign
+				span=moment(prev.created_at).calendar()
+	div(class=`message-bubble ${(String(data.user._id) === String(user._id)) ? "me" : ""}`)
+		.message-bubble-inner
+		if (data.user.role !== "admin")
+			a.message-avatar(href=`/profile/${data.user.slug}`)
+				if (data.user.account.picture || data.user.account.picture_md)
+					img(src=(!data.user.account.picture) ? `/${data.user.account.picture_md.path}` : `/${data.user.account.picture.path}`, title=moment(data.created_at).calendar(), data-tippy,  data-tippy-placement='top')
+				else
+					img(src=data.user.gravatar(50), title=moment(data.created_at).calendar(), data-tippy,  data-tippy-placement='top')
+			.message-text
+				p=data.content
+		else
+			.message-avatar
+				if (data.user.account.picture || data.user.account.picture_md)
+					img(src=(!data.user.account.picture) ? `/${data.user.account.picture_md.path}` : `/${data.user.account.picture.path}`, title=moment(data.created_at).calendar(), data-tippy,  data-tippy-placement='top')
+				else
+					img(src=data.user.gravatar(50), title=moment(data.created_at).calendar(), data-tippy,  data-tippy-placement='top')
+			.message-text
+				p=data.content
+		.clearfix

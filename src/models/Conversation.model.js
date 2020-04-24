@@ -1,15 +1,13 @@
-import mongoose from "mongoose";
 import mongoosePagination from "mongoose-paginate-v2";
+import mongoose from "mongoose";
 
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
 //
-const AttachmentSchema = new mongoose.Schema({
-	path: { type: String },
-	dir: { type: String },
-	name: { type: String },
-	extname: { type: String },
-	base: { type: String }
+const ConversationSchema = new mongoose.Schema({
+	users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+	messages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
+	status: { type: Number, default: 0 }, // 0 => inboxed, 1 => deleted, 2 => archived
 }, {
 	timestamps: {
 		createdAt: "created_at",
@@ -18,16 +16,16 @@ const AttachmentSchema = new mongoose.Schema({
 });
 
 //
-// ─── SCHEMA PLUGINS ─────────────────────────────────────────────────────────────
+// ─── SCHEMA PLUGIN ──────────────────────────────────────────────────────────────
 //
-AttachmentSchema.plugin(mongoosePagination);
+ConversationSchema.plugin(mongoosePagination);
 
 //
 // ─── SCHEMA MODEL ───────────────────────────────────────────────────────────────
 //
-const Attachment = mongoose.model("Attachment", AttachmentSchema);
+const Conversation = mongoose.model("Conversation", ConversationSchema);
 
 //
 // ─── EXPORTING SCHEMA ───────────────────────────────────────────────────────────
 //
-export default Attachment;
+export default Conversation;

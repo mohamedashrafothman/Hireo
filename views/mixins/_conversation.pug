@@ -1,0 +1,18 @@
+mixin conversation(data={}, current={}, index=0)
+	- var message_user = data.users.filter(function(current) {return String(current._id) !== String(user._id);})[0];
+	// .active-message
+	li(class=(String(data._id) === String(current._id) ? "active-message" : "") )
+		a(href=`/dashboard/conversations/${data._id}`)
+			.message-avatar
+				i(class=`status-icon ${(message_user.is_active) ? "status-online" : "status-offline"}`)
+				if (message_user.account.picture || message_user.account.picture_md)
+					img(src=(!message_user.account.picture) ? `/${message_user.account.picture_md.path}` : `/${message_user.account.picture.path}`, alt='')
+				else
+					img(src=message_user.gravatar(50), alt='')
+			.message-by
+				.message-by-headline
+					h5=message_user.account.name
+						if (data.messages.length)
+							span=moment(data.messages[0].created_at).format("dddd")
+					if (data.messages.length)
+						p=data.messages[0].content

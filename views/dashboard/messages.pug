@@ -1,0 +1,107 @@
+extends ../layouts/_dashboard_layout.pug
+include ../mixins/_breadcrumb.pug
+include ../mixins/_conversation.pug
+include ../mixins/_message.pug
+
+block content
+	// Dashboard Headline
+	.dashboard-headline
+		h3= `${page_title}`
+		// Breadcrumbs
+		+breadcrumb(urlSegment)
+	// Row
+	.row
+		// Dashboard Box
+		.col-xl-12
+			// content here
+			.messages-container.margin-top-0
+				.messages-container-inner
+					if (data.conversation)
+						// Messages
+						.messages-inbox
+							.messages-headline
+								form#search-input-form(action="#", method="GET", style="position: relative;")
+									input.input-text.autocomplete(name='q', type='text', placeholder='Search', value="")
+									button.autocomplete-button.ripple-effect(type="submit", form="search-input-form")
+										i.icon-material-outline-search.icon-right
+							ul
+								each conversation_loop, i in data.conversations
+									+conversation(conversation_loop, data.conversation, i)
+						// Messages / End
+						// Message Content
+						.message-content
+							.messages-headline
+								h4= data.conversation.users.filter(function(current) {return String(current._id) !== String(user._id)})[0].account.name
+								a.message-action(href='#')
+									i.icon-feather-trash-2
+									|  Delete Conversation
+							// Message Content Inner
+							.message-content-inner
+								if (data.conversation.messages.length)
+									each message, i in data.conversation.messages
+										+message(message, data.conversation.messages[i-1], i)
+									//- TODO: add on type functionality
+									//- .message-bubble
+									//- 	.message-bubble-inner
+									//- 		.message-avatar
+									//- 			img(src='/images/user-avatar-small-02.jpg', alt='')
+									//- 		.message-text
+									//- 			// Typing Indicator
+									//- 			.typing-indicator
+									//- 				span
+									//- 				span
+									//- 				span
+										.clearfix
+							// Message Content Inner / End
+							// Reply Area
+							form.message-reply(action="/dashboard/conversations", method="POST")
+								textarea(name="content", cols='1', rows='1', placeholder='Your Message', data-autoresize='')
+								button.button.ripple-effect(type="submit") Send
+						// Message Content
+			// Messages Container / End
+
+block append modals
+block append scripts
+	if (data.conversation)
+		script.
+			$(document).ready(function() {
+				var socket = io.connect();
+				var $conversationForm = $("form.message-reply");
+				var $conversationContainer = $(".message-content-inner");
+				var send_to_user = '#{data.conversation.users.filter(function(current) {return String(current._id) !== String(user._id)})[0]._id}';
+				var send_from_user = '#{user._id}'
+
+				$conversationForm.on("submit", function(e) {
+					e.preventDefault();
+
+					var message = $(e.target).find('textarea').val();
+
+					outputMessage(message);
+					$(e.target).find('textarea').val("");
+
+					socket.emit("newMessage", { to: send_to_user, from: send_from_user, message });
+				});
+
+				socket.on("message", (data) => {
+					if (data.to === send_from_user && data.from === send_to_user) {
+						outputMessage(data.message);
+						$conversationContainer.scrollTop($conversationContainer[0].scrollHeight);
+					}
+				});
+
+				function outputMessage(message) {
+					$conversationContainer.append(`
+						<div class="message-bubble">
+							<div class="message-bubble-inner">
+								<a href="#" class="message-avatar">
+									<img src="" title="message" data-tippy data-tippy-placement="top">
+								</a>
+								<div class="message-text">
+									<p>${message}</p>
+								</div>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+					`);
+				}
+			})

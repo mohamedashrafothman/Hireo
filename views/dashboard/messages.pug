@@ -65,43 +65,104 @@ block append scripts
 	if (data.conversation)
 		script.
 			$(document).ready(function() {
+				// Socket instance.
 				var socket = io.connect();
-				var $conversationForm = $("form.message-reply");
+
+				// DOM, and other variables.
 				var $conversationContainer = $(".message-content-inner");
+				var conversation_id = '#{data.conversation._id}';
 				var send_to_user = '#{data.conversation.users.filter(function(current) {return String(current._id) !== String(user._id)})[0]._id}';
-				var send_from_user = '#{user._id}'
+				var send_to_user_gravatar = '#{data.conversation.users.filter(function(current) {return String(current._id) !== String(user._id)})[0].gravatar(50)}';
+				var send_from_user = '#{user._id}';
+				var send_from_user_gravatar = '#{user.gravatar(50)}';
 
-				$conversationForm.on("submit", function(e) {
+				// emitting to join conversation socket with conversation mongodb id.
+				socket.emit("join_conversation", conversation_id);
+
+				// Handling on typing chat input event.
+				$("form.message-reply textarea").on("keyup", function(e) {
+					// Emitting "user is typing" event with conversation, sender, and receiver data.
+					socket.emit("user_is_typing", { conversation: conversation_id, to: send_to_user, from: send_from_user });
+				})
+
+				// Handling submiting chat form event, with emitting the message to the server.
+				$("form.message-reply").on("submit", function(e) {
+					// Preventing the button from submiting the form.
 					e.preventDefault();
-
+					// Extract the message text from form input.
 					var message = $(e.target).find('textarea').val();
-
-					outputMessage(message);
+					// Reseting form input to empty again.
 					$(e.target).find('textarea').val("");
-
-					socket.emit("newMessage", { to: send_to_user, from: send_from_user, message });
+					// Emitting new message with conversation, sender, and receiver data.
+					socket.emit("new_message", { conversation: conversation_id, to: send_to_user, from: send_from_user, message });
 				});
 
-				socket.on("message", (data) => {
-					if (data.to === send_from_user && data.from === send_to_user) {
-						outputMessage(data.message);
-						$conversationContainer.scrollTop($conversationContainer[0].scrollHeight);
+				// listining to event typing
+				socket.on("typing", (data, cb) => {
+					if (data.from._id !== send_from_user) {
+						outputTyping(data);
 					}
 				});
 
-				function outputMessage(message) {
+				// Listining to event message.
+				socket.on("message", (data, cb) => {
+					// Get needed html for the chat pupup.
+					outputMessage(data);
+					// Scroll Chat container all the way down to buttom.
+					$conversationContainer.scrollTop($conversationContainer[0].scrollHeight);
+				});
+
+				// Function that used to draw the chat pupups.
+				function outputMessage(data) {
+					if ($conversationContainer.find("#typing").length) {
+						$conversationContainer.find("#typing").remove();
+					}
 					$conversationContainer.append(`
-						<div class="message-bubble">
+						<div class="message-bubble ${(data.from._id === send_from_user) ? 'me' : ''}">
 							<div class="message-bubble-inner">
 								<a href="#" class="message-avatar">
-									<img src="" title="message" data-tippy data-tippy-placement="top">
+									${
+										(data.from.account.picture || data.from.account.picture_md) ?
+											'<img src="${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}" title="message" data-tippy data-tippy-placement="top">' :
+											'<img src="'+ (data.from._id === send_from_user ? send_from_user_gravatar : send_to_user_gravatar) +'" title="message" data-tippy data-tippy-placement="top">'
+									}
 								</a>
 								<div class="message-text">
-									<p>${message}</p>
+									<p>${data.message}</p>
 								</div>
 							</div>
 							<div class="clearfix"></div>
 						</div>
 					`);
 				}
-			})
+
+				function outputTyping(data) {
+					if (!$conversationContainer.find("#typing").length) {
+						$conversationContainer.append(`
+							<div class="message-bubble" id="typing">
+								<div class="message-bubble-inner">
+									<a href="#" class="message-avatar">
+										${
+											(data.from.account.picture || data.from.account.picture_md) ?
+												'<img src="${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}" title="message" data-tippy data-tippy-placement="top">' :
+												'<img src="'+ (data.from._id === send_from_user ? send_from_user_gravatar : send_to_user_gravatar) +'" title="message" data-tippy data-tippy-placement="top">'
+										}
+									</a>
+									<div class="message-text">
+										<div class="typing-indicator">
+											<span></span>
+											<span></span>
+											<span></span>
+										</div>
+									</div>
+								</div>
+								<div class="clearfix"></div>
+							</div>
+						`)
+					}
+				}
+
+				function gravatar(email, size) {
+					if (!size) size = 200;
+				}
+			});

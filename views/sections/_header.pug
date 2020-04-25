@@ -66,7 +66,7 @@
 						.header-notifications-dropdown
 							.header-notifications-headline
 								h4 Notifications
-								button.mark-as-read.ripple-effect-dark(title='Mark all as read', data-tippy-placement='left')
+								button.mark-as-read.ripple-effect-dark(title='Mark all as read', data-tippy, data-tippy-placement='left')
 									i.icon-feather-check-square
 							.header-notifications-content
 								.header-notifications-scroll(data-simplebar='')
@@ -112,7 +112,7 @@
 						.header-notifications-dropdown
 							.header-notifications-headline
 								h4 Messages
-								button.mark-as-read.ripple-effect-dark(title='Mark all as read', data-tippy-placement='left')
+								button.mark-as-read.ripple-effect-dark(title='Mark all as read', data-tippy,  data-tippy-placement='left')
 									i.icon-feather-check-square
 							.header-notifications-content
 								.header-notifications-scroll(data-simplebar='')
@@ -144,7 +144,8 @@
 													strong Marcin Kowalski
 													p.notification-msg-text I received payment. Thanks for cooperation!
 													span.color Yesterday
-							a.header-notifications-button.ripple-effect.button-sliding-icon(href='dashboard-messages.html')
+							a.header-notifications-button.ripple-effect.button-sliding-icon(href='/dashboard/conversations')
+								| View All Messages
 								i.icon-material-outline-arrow-right-alt
 				// User Notifications / End
 				// User Menu

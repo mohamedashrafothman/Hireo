@@ -290,7 +290,8 @@
     font-size: 15px;
     padding: 0;
     margin: 0;
-    line-height: 25px;
+	line-height: 25px;
+	word-break: break-word;
   }
   &.me {
     .message-avatar {

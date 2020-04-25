@@ -55,7 +55,7 @@ block content
 							// Message Content Inner / End
 							// Reply Area
 							form.message-reply(action="/dashboard/conversations", method="POST")
-								textarea(name="content", cols='1', rows='1', placeholder='Your Message', data-autoresize='')
+								textarea(name="content", cols='1', rows='1', placeholder='Your Message')
 								button.button.ripple-effect(type="submit") Send
 						// Message Content
 			// Messages Container / End
@@ -75,6 +75,8 @@ block append scripts
 				var send_to_user_gravatar = '#{data.conversation.users.filter(function(current) {return String(current._id) !== String(user._id)})[0].gravatar(50)}';
 				var send_from_user = '#{user._id}';
 				var send_from_user_gravatar = '#{user.gravatar(50)}';
+
+				$conversationContainer.scrollTop($conversationContainer[0].scrollHeight);
 
 				// emitting to join conversation socket with conversation mongodb id.
 				socket.emit("join_conversation", conversation_id);
@@ -101,6 +103,8 @@ block append scripts
 				socket.on("typing", (data, cb) => {
 					if (data.from._id !== send_from_user) {
 						outputTyping(data);
+
+						$conversationContainer.scrollTop($conversationContainer[0].scrollHeight);
 					}
 				});
 
@@ -120,20 +124,33 @@ block append scripts
 					$conversationContainer.append(`
 						<div class="message-bubble ${(data.from._id === send_from_user) ? 'me' : ''}">
 							<div class="message-bubble-inner">
-								<a href="#" class="message-avatar">
-									${
-										(data.from.account.picture || data.from.account.picture_md) ?
-											'<img src="${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}" title="message" data-tippy data-tippy-placement="top">' :
-											'<img src="'+ (data.from._id === send_from_user ? send_from_user_gravatar : send_to_user_gravatar) +'" title="message" data-tippy data-tippy-placement="top">'
-									}
+								<a href="/profile/${(data.from._id === send_from_user) ? data.from.slug : data.to.slug }" class="message-avatar">
+									${ (data.from.account.picture || data.from.account.picture_md) ? '<img src="${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}" title="'+ moment(data.message.created_at).calendar() +'" data-tippy="" data-tippy-placement="top">' : '<img src="'+ (data.from._id === send_from_user ? send_from_user_gravatar : send_to_user_gravatar) +'" title="'+ moment(data.message.created_at).calendar() +'" data-tippy="" data-tippy-placement="top">' }
 								</a>
 								<div class="message-text">
-									<p>${data.message}</p>
+									<p>${data.message.content}</p>
 								</div>
 							</div>
 							<div class="clearfix"></div>
 						</div>
 					`);
+
+					tippy("[data-tippy]", {
+						delay: 100,
+						arrow: true,
+						arrowType: "sharp",
+						size: "regular",
+						duration: 200,
+
+						// 'shift-toward', 'fade', 'scale', 'perspective'
+						animation: "shift-away",
+
+						animateFill: true,
+						theme: "dark",
+
+						// How far the tooltip is from its reference element in pixels
+						distance: 10
+					});
 				}
 
 				function outputTyping(data) {
@@ -142,11 +159,7 @@ block append scripts
 							<div class="message-bubble" id="typing">
 								<div class="message-bubble-inner">
 									<a href="#" class="message-avatar">
-										${
-											(data.from.account.picture || data.from.account.picture_md) ?
-												'<img src="${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}" title="message" data-tippy data-tippy-placement="top">' :
-												'<img src="'+ (data.from._id === send_from_user ? send_from_user_gravatar : send_to_user_gravatar) +'" title="message" data-tippy data-tippy-placement="top">'
-										}
+										${ (data.from.account.picture || data.from.account.picture_md) ? '<img src="${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}" title="message" data-tippy data-tippy-placement="top">' : '<img src="'+ (data.from._id === send_from_user ? send_from_user_gravatar : send_to_user_gravatar) +'" title="message" data-tippy data-tippy-placement="top">' }
 									</a>
 									<div class="message-text">
 										<div class="typing-indicator">
@@ -160,9 +173,5 @@ block append scripts
 							</div>
 						`)
 					}
-				}
-
-				function gravatar(email, size) {
-					if (!size) size = 200;
 				}
 			});

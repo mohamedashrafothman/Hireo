@@ -7109,7 +7109,7 @@ ul.dashboard-box-list > li:hover { background-color: #fcfcfc; }
 
 .message-bubble.me .message-text { float: left; }
 
-.message-bubble .message-text p { font-size: 15px; padding: 0; margin: 0; line-height: 25px; }
+.message-bubble .message-text p { font-size: 15px; padding: 0; margin: 0; line-height: 25px; word-break: break-word; }
 
 .message-bubble.me .message-avatar { right: auto; left: 0; }
 

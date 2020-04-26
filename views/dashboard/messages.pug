@@ -8,7 +8,7 @@ block content
 	.dashboard-headline
 		h3= `${page_title}`
 		// Breadcrumbs
-		+breadcrumb(urlSegment)
+		+breadcrumb(urlSegment.slice(0, 3))
 	// Row
 	.row
 		// Dashboard Box
@@ -40,138 +40,18 @@ block content
 								if (data.conversation.messages.length)
 									each message, i in data.conversation.messages
 										+message(message, data.conversation.messages[i-1], i)
-									//- TODO: add on type functionality
-									//- .message-bubble
-									//- 	.message-bubble-inner
-									//- 		.message-avatar
-									//- 			img(src='/images/user-avatar-small-02.jpg', alt='')
-									//- 		.message-text
-									//- 			// Typing Indicator
-									//- 			.typing-indicator
-									//- 				span
-									//- 				span
-									//- 				span
-										.clearfix
 							// Message Content Inner / End
 							// Reply Area
 							form.message-reply(action="/dashboard/conversations", method="POST")
 								textarea(name="content", cols='1', rows='1', placeholder='Your Message')
+								input(type="hidden", id="conversation_id", value=data.conversation._id)
+								input(type="hidden", id="send_to_user", value=data.conversation.users.filter(function(current) {return String(current._id) !== String(user._id)})[0]._id)
+								input(type="hidden", id="send_to_user_gravatar", value=data.conversation.users.filter(function(current) {return String(current._id) !== String(user._id)})[0].gravatar(50))
+								input(type="hidden", id="send_from_user", value=user._id)
+								input(type="hidden", id="send_from_user_gravatar", value=user.gravatar(50))
 								button.button.ripple-effect(type="submit") Send
 						// Message Content
 			// Messages Container / End
 
 block append modals
 block append scripts
-	if (data.conversation)
-		script.
-			$(document).ready(function() {
-				// Socket instance.
-				var socket = io.connect();
-
-				// DOM, and other variables.
-				var $conversationContainer = $(".message-content-inner");
-				var conversation_id = '#{data.conversation._id}';
-				var send_to_user = '#{data.conversation.users.filter(function(current) {return String(current._id) !== String(user._id)})[0]._id}';
-				var send_to_user_gravatar = '#{data.conversation.users.filter(function(current) {return String(current._id) !== String(user._id)})[0].gravatar(50)}';
-				var send_from_user = '#{user._id}';
-				var send_from_user_gravatar = '#{user.gravatar(50)}';
-
-				$conversationContainer.scrollTop($conversationContainer[0].scrollHeight);
-
-				// emitting to join conversation socket with conversation mongodb id.
-				socket.emit("join_conversation", conversation_id);
-
-				// Handling on typing chat input event.
-				$("form.message-reply textarea").on("keyup", function(e) {
-					// Emitting "user is typing" event with conversation, sender, and receiver data.
-					socket.emit("user_is_typing", { conversation: conversation_id, to: send_to_user, from: send_from_user });
-				})
-
-				// Handling submiting chat form event, with emitting the message to the server.
-				$("form.message-reply").on("submit", function(e) {
-					// Preventing the button from submiting the form.
-					e.preventDefault();
-					// Extract the message text from form input.
-					var message = $(e.target).find('textarea').val();
-					// Reseting form input to empty again.
-					$(e.target).find('textarea').val("");
-					// Emitting new message with conversation, sender, and receiver data.
-					socket.emit("new_message", { conversation: conversation_id, to: send_to_user, from: send_from_user, message });
-				});
-
-				// listining to event typing
-				socket.on("typing", (data, cb) => {
-					if (data.from._id !== send_from_user) {
-						outputTyping(data);
-
-						$conversationContainer.scrollTop($conversationContainer[0].scrollHeight);
-					}
-				});
-
-				// Listining to event message.
-				socket.on("message", (data, cb) => {
-					// Get needed html for the chat pupup.
-					outputMessage(data);
-					// Scroll Chat container all the way down to buttom.
-					$conversationContainer.scrollTop($conversationContainer[0].scrollHeight);
-				});
-
-				// Function that used to draw the chat pupups.
-				function outputMessage(data) {
-					if ($conversationContainer.find("#typing").length) {
-						$conversationContainer.find("#typing").remove();
-					}
-					$conversationContainer.append(`
-						<div class="message-bubble ${(data.from._id === send_from_user) ? 'me' : ''}">
-							<div class="message-bubble-inner">
-								<a href="/profile/${(data.from._id === send_from_user) ? data.from.slug : data.to.slug }" class="message-avatar">
-									${ (data.from.account.picture || data.from.account.picture_md) ? '<img src="${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}" title="'+ moment(data.message.created_at).calendar() +'" data-tippy="" data-tippy-placement="top">' : '<img src="'+ (data.from._id === send_from_user ? send_from_user_gravatar : send_to_user_gravatar) +'" title="'+ moment(data.message.created_at).calendar() +'" data-tippy="" data-tippy-placement="top">' }
-								</a>
-								<div class="message-text">
-									<p>${data.message.content}</p>
-								</div>
-							</div>
-							<div class="clearfix"></div>
-						</div>
-					`);
-
-					tippy("[data-tippy]", {
-						delay: 100,
-						arrow: true,
-						arrowType: "sharp",
-						size: "regular",
-						duration: 200,
-
-						// 'shift-toward', 'fade', 'scale', 'perspective'
-						animation: "shift-away",
-
-						animateFill: true,
-						theme: "dark",
-
-						// How far the tooltip is from its reference element in pixels
-						distance: 10
-					});
-				}
-
-				function outputTyping(data) {
-					if (!$conversationContainer.find("#typing").length) {
-						$conversationContainer.append(`
-							<div class="message-bubble" id="typing">
-								<div class="message-bubble-inner">
-									<a href="#" class="message-avatar">
-										${ (data.from.account.picture || data.from.account.picture_md) ? '<img src="${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}" title="message" data-tippy data-tippy-placement="top">' : '<img src="'+ (data.from._id === send_from_user ? send_from_user_gravatar : send_to_user_gravatar) +'" title="message" data-tippy data-tippy-placement="top">' }
-									</a>
-									<div class="message-text">
-										<div class="typing-indicator">
-											<span></span>
-											<span></span>
-											<span></span>
-										</div>
-									</div>
-								</div>
-								<div class="clearfix"></div>
-							</div>
-						`)
-					}
-				}
-			});

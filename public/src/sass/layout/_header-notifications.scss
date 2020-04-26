@@ -157,7 +157,7 @@ button.mark-as-read {
     li {
       border-bottom: 1px solid #e6e6e6;
       transition: 0.25s;
-      &:hover {
+      &.notifications-not-read {
         background-color: #fafafa;
         .notification-icon {
           background-color: #eee;
@@ -252,12 +252,12 @@ button.mark-as-read {
   .notification-text {
     padding-left: 20px;
     padding-right: 5px;
-    display: inline-block;
+    display: block;
     line-height: 23px;
     font-size: 14.7px;
   }
   .notification-msg-text {
-    display: inline-block;
+    display: block;
     line-height: 23px;
     font-size: 14.7px;
     margin: 4px 0;
@@ -271,7 +271,7 @@ button.mark-as-read {
 
 .notification-text span.color, .header-notifications-content .notification-text span.color {
   color: $primary-color;
-  display: inline-block;
+  display: block;
 }
 
 .notification-text span.color {

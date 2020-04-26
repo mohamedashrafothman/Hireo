@@ -25,18 +25,24 @@ import Helper from "../utilities/Helper";
 import CronJobs from "../utilities/CronJobs";
 import Socket from "../utilities/Socket";
 
+import Message from "../models/Message.model";
 import Category from "../models/Category.model";
 import Application from "../models/Application.model";
+import Conversation from "../models/Conversation.model";
 
+import MessageService from "../services/Message";
 import CategoryService from "../services/Category";
 import ApplicationService from "../services/Application";
+import ConversationService from "../services/Conversation";
 
 import indexRouter from "../routes/index.route";
 
 const MongoStore = connectMongo(session);
 const helper = new Helper();
+const messageService = new MessageService(Message);
 const categoryService = new CategoryService(Category);
 const applicationService = new ApplicationService(Application);
+const conversationService = new ConversationService(Conversation);
 
 
 //
@@ -120,6 +126,54 @@ app.use(async (req, res, next) => {
 	const [unSeenApplicationsErr, unSeenApplications] = await to(applicationService.unSeenApplicationsByUser(req.user));
 	if (unSeenApplicationsErr) return next(unSeenApplicationsErr);
 	if (unSeenApplications.error) return next(unSeenApplications.errors);
+
+	if (req.user) {
+		const [messageReadResponseError, messageReadResponse] = await to(
+			messageService.readMany(
+				{ user: { $ne: req.user._id } },
+				{
+					pagination: false,
+					sort: {
+						was_read: "asc",
+						created_at: "desc"
+					},
+					populate: [
+						{
+							path: "conversation",
+							select: "-users -messages"
+						},
+						{
+							path: "user",
+							select: "account email is_active",
+							populate: [
+								{ path: "account.picture", select: "path name" },
+								{ path: "account.picture_sm", select: "path name" },
+								{ path: "account.picture_md", select: "path name" },
+								{ path: "account.picture_lg", select: "path name" }
+							]
+						}
+					]
+				}
+			)
+		);
+		if (messageReadResponseError) return next(messageReadResponseError);
+		if (messageReadResponse.error) return next(messageReadResponse.errors);
+
+
+		const [conversationReadResponseError, conversationReadResponse] = await to(
+			conversationService.readMany(
+				{ users: req.user._id },
+				{ pagination: false }
+			)
+		);
+		if (conversationReadResponseError) return next(conversationReadResponseError);
+		if (conversationReadResponse.error) return next(conversationReadResponse.errors);
+
+
+		res.locals.unReadMessages = messageReadResponse.data;
+		res.locals.conversations = conversationReadResponse.data;
+	}
+
 
 	res.locals._ = _;
 	res.locals.h = helper;

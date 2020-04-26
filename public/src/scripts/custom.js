@@ -385,11 +385,11 @@
 
 		// Enabling Scrollbar
 		function fullPageScrollbar() {
-			$(".full-page-sidebar-inner, .dashboard-sidebar-inner, .tags-inner").each(function() {
+			$(".full-page-sidebar-inner, .dashboard-sidebar-inner, .tags-inner, .message-content-inner").each(function() {
 				var headerHeight = $("#header-container").outerHeight();
 				var windowHeight = $(window).outerHeight() - headerHeight;
 				var sidebarContainerHeight = $(this)
-					.find(".sidebar-container, .dashboard-nav-container, .tags-container")
+					.find(".sidebar-container, .dashboard-nav-container, .tags-container, .message-content")
 					.outerHeight();
 
 				// Enables scrollbar if sidebar is higher than wrapper
@@ -1654,6 +1654,216 @@
 			});
 		})();
 
+
+		// Mark All Message As Readed
+		(function() {
+			// caching dom.
+			var $notification_header_container = $(".header-notifications-dropdown");
+			var $notification_read_all = $notification_header_container.find(".mark-as-read");
+
+			$notification_read_all.each(function(index, ele) {
+				$(ele).on("click", function(e) {
+					var $target = $(e.target);
+					var notification_type = $target.data("notification-type");
+
+					if (notification_type === "messages") {
+						console.log("mark all messages to read");
+					}
+				});
+			});
+		})();
+
+
+		// Sockets.io
+		(function() {
+			// Socket instance.
+			var socket = io.connect();
+
+			// Caching DOM.
+
+			// Conversations ids
+			var conversations_id = $("meta[name='conversations']").attr("content").split(",");
+			var user_id = $("meta[name='user']").attr("content");
+
+			// 1- Header's DOM
+			var $headerMessagesContainer = $(".header-notifications#header-message");
+			var $headerMessagesTrigger = $headerMessagesContainer.find(".header-notifications-trigger");
+			var $headerMessagesDropDown = $headerMessagesContainer.find(".header-notifications-dropdown");
+
+			// 2- Sidebar's DOM
+			var $messagesNavItemContainer = $("#messages-nav-item");
+
+			// 3- Conversation's DOM
+			var $conversationContainer = $(".message-content");
+			var $conversationContainerInner;
+			var $messages_form;
+			var $messages_replay;
+			var conversation_id;
+			var send_to_user;
+			var send_to_user_gravatar;
+			var send_from_user;
+			var send_from_user_gravatar;
+
+			// emitting to join conversation socket with conversation mongodb id.
+			conversations_id.forEach(function(ele) { socket.emit("join_conversation", ele); });
+
+
+			if ($conversationContainer.length) {
+
+				$conversationContainerInner = $conversationContainer.find(".message-content-inner");
+				$messages_form = $conversationContainer.find("form.message-reply");
+				$messages_replay = $messages_form.find("textarea");
+				conversation_id = $messages_form.find("input#conversation_id[type='hidden']").val();
+				send_to_user = $messages_form.find("input#send_to_user[type='hidden']").val();
+				send_to_user_gravatar = $messages_form.find("input#send_to_user_gravatar[type='hidden']").val();
+				send_from_user = $messages_form.find("input#send_from_user[type='hidden']").val();
+				send_from_user_gravatar = $messages_form.find("input#send_from_user_gravatar[type='hidden']").val();
+
+				// Scroll Chat container all the way down to buttom.
+				$conversationContainerInner.scrollTop($conversationContainerInner[0].scrollHeight);
+
+				// Handling on typing chat input event.
+				$messages_replay.on("keyup", function(e) {
+					// Emitting "user is typing" event with conversation, sender, and receiver data.
+					socket.emit("user_is_typing", { conversation: conversation_id, to: send_to_user, from: send_from_user});
+				})
+
+				// Handling submiting chat form event, with emitting the message to the server.
+				$messages_form.on("submit", function(e) {
+					// Preventing the button from submiting the form.
+					e.preventDefault();
+					// Extract the message text from form input.
+					var message = $(e.target).find('textarea').val();
+					// Reseting form input to empty again.
+					$(e.target).find('textarea').val("");
+					// Emitting new message with conversation, sender, and receiver data.
+					socket.emit("new_message", { conversation: conversation_id, to: send_to_user, from: send_from_user, message });
+				});
+
+			}
+
+			// listining to event typing
+			socket.on("typing", (data) => {
+				if (data.from._id !== send_from_user && $conversationContainer.length) {
+					outputTyping(data);
+					// Scroll Chat container all the way down to buttom.
+					$conversationContainerInner.scrollTop($conversationContainerInner[0].scrollHeight);
+				}
+			});
+
+			// Listining to event message.
+			socket.on("message", (data) => {
+				if (data.to._id === user_id) {
+					// Add nedded html for messages notification in header for sent to user.
+					addMessageNotification(data);
+					if ($messagesNavItemContainer.length) addMessageSideBarCounter();
+					$.playSound("../sounds/sharp.mp3");
+				}
+
+				if ($conversationContainer.length) {
+					// Add needed html for the chat pupup in conversation container.
+					outputMessagePopup(data, send_to_user_gravatar, send_from_user_gravatar);
+					// Scroll Chat container all the way down to buttom.
+					$conversationContainerInner.scrollTop($conversationContainerInner[0].scrollHeight);
+				}
+			});
+
+			// Function that used to draw the chat pupups.
+			function outputMessagePopup(data, send_to_user_gravatar, send_from_user_gravatar) {
+				if ($conversationContainerInner.find("#typing").length) {
+					$conversationContainerInner.find("#typing").remove();
+				}
+				$conversationContainerInner.append(`
+					<div class="message-bubble ${(data.from._id === send_from_user) ? 'me' : ''}">
+						<div class="message-bubble-inner">
+							<a href="/profile/${(data.from._id === send_from_user) ? data.from.slug : data.to.slug }" class="message-avatar">
+								${ (data.from.account.picture || data.from.account.picture_md)
+									? '<img src=/' + `${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}` + ' title="'+ moment(data.message.created_at).calendar() +'" data-tippy="" data-tippy-placement="top">'
+									: '<img src=/' + `${(data.from._id === send_from_user ? send_from_user_gravatar : send_to_user_gravatar)}` + ' title="'+ moment(data.message.created_at).calendar() +'" data-tippy="" data-tippy-placement="top">' }
+							</a>
+							<div class="message-text">
+								<p>${data.message.content}</p>
+							</div>
+						</div>
+						<div class="clearfix"></div>
+					</div>
+				`);
+
+				tippy("[data-tippy]", {
+					delay: 100,
+					arrow: true,
+					arrowType: "sharp",
+					size: "regular",
+					duration: 200,
+					// 'shift-toward', 'fade', 'scale', 'perspective'
+					animation: "shift-away",
+					animateFill: true,
+					theme: "dark",
+					// How far the tooltip is from its reference element in pixels
+					distance: 10
+				});
+			}
+
+			function outputTyping(data) {
+				if (!$conversationContainerInner.find("#typing").length) {
+					$conversationContainerInner.append(`
+						<div class="message-bubble" id="typing">
+							<div class="message-bubble-inner">
+								<a href="#" class="message-avatar">
+									${ (data.from.account.picture || data.from.account.picture_md) ? '<img src=/' + `${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}` + ' title="message" data-tippy data-tippy-placement="top">' : '<img src=/'+ `${(data.from._id === send_from_user ? send_from_user_gravatar : send_to_user_gravatar)}` +' title="message" data-tippy data-tippy-placement="top">' }
+								</a>
+								<div class="message-text">
+									<div class="typing-indicator">
+										<span></span>
+										<span></span>
+										<span></span>
+									</div>
+								</div>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+					`)
+				}
+			}
+
+			function addMessageNotification(data) {
+				if ($headerMessagesTrigger.find("a span").length) {
+					$headerMessagesTrigger.find("a span").text(Number($headerMessagesTrigger.find("a span").text()) + 1)
+				} else {
+					$headerMessagesTrigger.find("a").append("<span>1</span>")
+				}
+
+				// TODO: fix image source in case there is not user image yet.
+				$headerMessagesDropDown.find(".header-notifications-content").find("ul").prepend(`
+					<li class="${!data.message.was_read ? 'notifications-not-read' : ''}">
+						<a href="/dashboard/conversations/${data.conversation}?message=${data.message._id}">
+							<span class="notification-avatar ${(data.from.is_active) ? "status-online" : "status-offline"}">
+								${
+									(data.from.account.picture || data.from.account.picture_sm)
+									? '<img src=/' + `${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}` + '>'
+									: '<img src="#">'
+								}
+							</span>
+							<div class="notification-text">
+								<strong>${data.from.account.name}</strong>
+								<p class="notification-msg-text">${data.message.content}</p>
+								<span class="color">${moment(data.message.created_at).calendar()}</span>
+							</div>
+						</a>
+					</li>
+				`);
+			}
+
+			function addMessageSideBarCounter() {
+				if ($messagesNavItemContainer.find("a span").length) {
+					$messagesNavItemContainer.find("a span").text(Number($messagesNavItemContainer.find("a span").text()) + 1)
+				} else {
+					$messagesNavItemContainer.find("a").append("<span>1</span>")
+				}
+
+			}
+
+		})();
 		// ------------------ End Document ------------------ //
 	});
 })(this.jQuery);

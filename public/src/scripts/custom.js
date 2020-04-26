@@ -1753,11 +1753,12 @@
 
 			// Listining to event message.
 			socket.on("message", (data) => {
+				console.log(data);
 				if (data.to._id === user_id) {
 					// Add nedded html for messages notification in header for sent to user.
 					addMessageNotification(data);
 					if ($messagesNavItemContainer.length) addMessageSideBarCounter();
-					$.playSound("../sounds/sharp.mp3");
+					$.playSound("/sounds/sharp.mp3");
 				}
 
 				if ($conversationContainer.length) {

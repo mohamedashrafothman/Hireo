@@ -943,9 +943,9 @@ button.mark-as-read:hover { background-color: #f2f2f2; color: #888; }
 
 .header-notifications-content ul li { border-bottom: 1px solid #e6e6e6; -webkit-transition: 0.25s; transition: 0.25s; }
 
-.header-notifications-content ul li:hover { background-color: #fafafa; }
+.header-notifications-content ul li.notifications-not-read { background-color: #fafafa; }
 
-.header-notifications-content ul li:hover .notification-icon { background-color: #eee; }
+.header-notifications-content ul li.notifications-not-read .notification-icon { background-color: #eee; }
 
 .header-notifications-content ul li:last-child { border-bottom: none; }
 
@@ -975,13 +975,13 @@ button.mark-as-read:hover { background-color: #f2f2f2; color: #888; }
 /* Notification Texts */
 .notification-text { padding-right: 20px; padding-left: 5px; display: inline-block; line-height: 23px; font-size: 14.7px; }
 
-.header-notifications-content .notification-text { padding-right: 20px; padding-left: 5px; display: inline-block; line-height: 23px; font-size: 14.7px; }
+.header-notifications-content .notification-text { padding-right: 20px; padding-left: 5px; display: block; line-height: 23px; font-size: 14.7px; }
 
-.header-notifications-content .notification-msg-text { display: inline-block; line-height: 23px; font-size: 14.7px; margin: 4px 0; }
+.header-notifications-content .notification-msg-text { display: block; line-height: 23px; font-size: 14.7px; margin: 4px 0; }
 
 .notification-text strong, .header-notifications-content .notification-text strong { font-weight: 600; color: #333; }
 
-.notification-text span.color, .header-notifications-content .notification-text span.color { color: #2a41e8; display: inline-block; }
+.notification-text span.color, .header-notifications-content .notification-text span.color { color: #2a41e8; display: block; }
 
 .notification-text span.color { display: block; }
 

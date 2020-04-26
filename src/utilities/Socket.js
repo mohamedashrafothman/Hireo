@@ -39,21 +39,21 @@ export default class SocketConnection {
 
 	joinChatEvent(conversation) { this.socket.join(conversation); }
 
-	async newMessageEvent(data, cb) {
+	async newMessageEvent(data) {
 		// get user documents from mongodb.
 		const userReadResponse = await userService.readMany(
 			{ _id: { $in: [data.to, data.from] } },
 			{ pagination: false, select: "email slug account is_active", populate: [{ path: "account.picture", select: "path name" }, { path: "account.picture_sm", select: "path name" }, { path: "account.picture_md", select: "path name" }, { path: "account.picture_lg", select: "path name" }] }
 		);
-		if (userReadResponse.error) return cb(userReadResponse.errors);
+		if (userReadResponse.error) throw userReadResponse.errors;
 
 		// create new messages documents in mongodb.
 		const messageCreateResonse = await messageService.create({ user: data.from, conversation: data.conversation, content: data.message });
-		if (messageCreateResonse.error) return cb(messageCreateResonse.errors);
+		if (messageCreateResonse.error) throw messageCreateResonse.errors;
 
 		// add messages to conversation model.
 		const conversationUpdateResponse = await conversationService.updateOne({ _id: data.conversation }, { $addToSet: { messages: messageCreateResonse.data._id } });
-		if (conversationUpdateResponse.error) return cb(conversationUpdateResponse.errors);
+		if (conversationUpdateResponse.error) throw conversationUpdateResponse.errors;
 
 		// add user documents to event data.
 		[data.to, data.from, data.message] = [
@@ -66,13 +66,13 @@ export default class SocketConnection {
 		this.io.sockets.in(data.conversation).emit("message", data);
 	}
 
-	async userTypingEvent(data, cb) {
+	async userTypingEvent(data) {
 		// get user documents from mongodb.
 		const userReadResponse = await userService.readMany(
 			{ _id: { $in: [data.to, data.from] } },
 			{ pagination: false, select: "email account is_active", populate: [{ path: "account.picture", select: "path name" }, { path: "account.picture_sm", select: "path name" }, { path: "account.picture_md", select: "path name" }, { path: "account.picture_lg", select: "path name" }] }
 		);
-		if (userReadResponse.error) return cb(userReadResponse.errors);
+		if (userReadResponse.error) throw userReadResponse.errors;
 
 		// add user documents to event data.
 		[data.to, data.from] = [userReadResponse.data.filter((current) => String(current._id) === data.to)[0], userReadResponse.data.filter((current) => String(current._id) === data.from)[0]];

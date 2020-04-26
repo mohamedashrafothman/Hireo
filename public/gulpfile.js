@@ -57,6 +57,9 @@ const config = {
 	},
 	videos: {
 		file_path_and_pattern: ["videos/**/*.+(webm|mkv|gif|mp4)"]
+	},
+	sounds: {
+		file_path_and_pattern: ["sounds/**/*.+(mp3)"]
 	}
 };
 
@@ -166,16 +169,22 @@ gulp.task("videos", () => gulp
 	.pipe(gulp.dest(`${config.build_dir}/videos`))
 	.pipe(browserSync.stream()));
 
+gulp.task("sounds", () => gulp
+	.src(config.sounds.file_path_and_pattern.map((v) => `${config.assets_dir}/${v}`))
+	.pipe(gulp.dest(`${config.build_dir}/sounds`))
+	.pipe(browserSync.stream()));
+
 //
 // ─── WATCH TASKS ────────────────────────────────────────────────────────────────
 //
 gulp.task(
 	"dev",
-	gulp.series("fonts", "images", "videos", "sass", "rtl", "js", "pug", () => {
+	gulp.series("fonts", "images", "sounds", "videos", "sass", "rtl", "js", "pug", () => {
 		browserSync.init({ server: `./${config.build_dir}`, open: false });
 		gulp.watch(["src/fonts/**/*.+(eot|svg|ttf|woff|woff2)"], gulp.series("fonts"));
 		gulp.watch(["src/images/**/*.+(png|jpg|gif|svg|ico)"], gulp.series("images"));
 		gulp.watch(["src/videos/**/*.+(webm|mkv|gif|mp4)"], gulp.series("videos"));
+		gulp.watch(["src/sounds/**/*.+(mp3)"], gulp.series("sounds"));
 		gulp.watch(["src/sass/**/*.scss", "src/sass/*.scss"], gulp.series("sass"));
 		gulp.watch(["build/styles/style.min.css"], gulp.series("rtl"));
 		gulp.watch(["src/scripts/**/*.js", "src/scripts/*.js"], gulp.series("js"));
@@ -183,4 +192,4 @@ gulp.task(
 		gulp.watch("./build/*.html").on("change", browserSync.reload);
 	})
 );
-gulp.task("prod", gulp.series("fonts", "images", "videos", "sass", "rtl", "js", "pug", "html-pretty"));
+gulp.task("prod", gulp.series("fonts", "images", "videos", "sounds", "sass", "rtl", "js", "pug", "html-pretty"));

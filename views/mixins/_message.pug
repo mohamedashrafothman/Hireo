@@ -3,11 +3,11 @@ mixin message(data={}, prev={}, index=0)
 	if (!_.isEmpty(prev))
 		- var date1 = new Date(prev.created_at);
 		- var date2 = new Date(data.created_at);
-		- var difference = Math.round((date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24));
+		- var difference = Math.round((date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 12));
 		if (difference >= 1)
 			.message-time-sign
 				span=moment(data.created_at).calendar()
-	div(class=`message-bubble ${(String(data.user._id) === String(user._id)) ? "me" : ""}`)
+	div(class=`message-bubble ${(String(data.user._id) === String(user._id) && data.was_read) ? "me" : (String(data.user._id) === String(user._id) && !data.was_read) ? "me unread-message" : (String(data.user._id) !== String(user._id) && !data.was_read) ? "unread-message" : ""}`)
 		.message-bubble-inner
 		if (data.user.role !== "admin")
 			a.message-avatar(href=`/profile/${data.user.slug}`)

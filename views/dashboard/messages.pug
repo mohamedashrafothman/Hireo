@@ -32,9 +32,13 @@ block content
 						.message-content
 							.messages-headline
 								h4= data.conversation.users.filter(function(current) {return String(current._id) !== String(user._id)})[0].account.name
-								a.message-action(href='#')
-									i.icon-feather-trash-2
-									|  Delete Conversation
+								div.message-actions
+									a.message-action.blue-bg(href='#')
+										i.icon-feather-archive
+										|  Archive Conversation
+									a.message-action.red-bg(href='#')
+										i.icon-feather-trash-2
+										|  Delete Conversation
 							// Message Content Inner
 							.message-content-inner
 								if (data.conversation.messages.length)

@@ -15,24 +15,35 @@ const conversationService = new ConversationService(Conversation);
 export default class SocketConnection {
 	constructor(io) {
 		this.io = io;
-		this.init();
+
+		this.connectionEvent = this.connectionEvent.bind(this);
+		this.joinChatEvent = this.joinChatEvent.bind(this);
+		this.newMessageEvent = this.newMessageEvent.bind(this);
+		this.userTypingEvent = this.userTypingEvent.bind(this);
+		this.disconnectingEvent = this.disconnectingEvent.bind(this);
+
+		this.connectionEvent();
 	}
 
-	init() {
-		this.io.sockets.on("connection", this.connectingEvent.bind(this));
-	}
+	connectionEvent() {
+		this.io.sockets.on("connection", (socket) => {
+			console.log(`✅  ${blue("Socket connection has been opened successfully!")}`);
 
-	connectingEvent(socket) {
-		console.log(`✅  ${blue("Socket connection has been opened successfully!")}`);
+			// Save socket.io in the session
+			socket.request.session.socketio = socket.id;
+			socket.request.session.save();
 
-		// Add socket to all class for all methods accessability.
-		this.socket = socket;
+			// Add socket to all class for all methods accessability.
+			this.socket = socket;
+			this.session = socket.request.session;
 
-		// Socket Event handlers.
-		this.socket.on("join_conversation", this.joinChatEvent.bind(this));
-		this.socket.on("new_message", this.newMessageEvent.bind(this));
-		this.socket.on("user_is_typing", this.userTypingEvent.bind(this));
-		this.socket.on("disconnect", this.disconnectingEvent.bind(this));
+			// Socket Event handlers.
+			this.socket.on("join_conversation", (conversation) => this.joinChatEvent(conversation));
+			this.socket.on("new_message", (data) => this.newMessageEvent(data));
+			this.socket.on("user_is_typing", (data) => this.userTypingEvent(data));
+			this.socket.on("read_all_messages", (data) => this.readAllMessages(data));
+			this.socket.on("disconnect", () => this.disconnectingEvent());
+		});
 	}
 
 	disconnectingEvent() { console.log(`✅  ${red("Socket connection has been disconnected successfully!")}`); }
@@ -56,9 +67,11 @@ export default class SocketConnection {
 		if (conversationUpdateResponse.error) throw conversationUpdateResponse.errors;
 
 		// add user documents to event data.
-		[data.to, data.from, data.message] = [
+		[data.to, data.to_gravatar, data.from, data.from_gravatar, data.message] = [
 			userReadResponse.data.filter((current) => String(current._id) === data.to)[0],
+			userReadResponse.data.filter((current) => String(current._id) === data.to)[0].gravatar(50),
 			userReadResponse.data.filter((current) => String(current._id) === data.from)[0],
+			userReadResponse.data.filter((current) => String(current._id) === data.from)[0].gravatar(50),
 			messageCreateResonse.data
 		];
 
@@ -79,5 +92,21 @@ export default class SocketConnection {
 
 		// Emitting new message to all users in conversation.
 		this.io.sockets.in(data.conversation).emit("typing", data);
+	}
+
+	async readAllMessages(data) {
+		const messagesReadResponse = await messageService.readMany(
+			{ conversation: data.conversation, user: data.receiver, was_read: false }
+		);
+		if (messagesReadResponse.error) throw messagesReadResponse.errors;
+
+		const messagesUpdateResponse = await messageService.updateMany(
+			{ conversation: data.conversation, user: data.receiver, was_read: false },
+			{ $set: { was_read: true } }
+		);
+		if (messagesUpdateResponse.error) throw messagesUpdateResponse.errors;
+
+		// Emit to sender only.
+		this.io.sockets.in(data.conversation).emit("all_messages_readed", { ...data, messages: messagesReadResponse.data });
 	}
 }

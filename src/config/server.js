@@ -65,6 +65,7 @@ const sessionMiddleware = session({
 	})
 });
 
+
 //
 // ─── MIDDLEWARE FUNCTIONS ───────────────────────────────────────────────────────
 // Express is a routing and middleware web framework that has minimal functionality of
@@ -128,47 +129,27 @@ app.use(async (req, res, next) => {
 	if (unSeenApplications.error) return next(unSeenApplications.errors);
 
 	if (req.user) {
+		const [conversationReadResponseError, conversationReadResponse] = await to(
+			conversationService.readMany({ users: req.user._id }, { pagination: false })
+		);
+		if (conversationReadResponseError) return next(conversationReadResponseError);
+		if (conversationReadResponse.error) return next(conversationReadResponse.errors);
+
 		const [messageReadResponseError, messageReadResponse] = await to(
 			messageService.readMany(
-				{ user: { $ne: req.user._id } },
+				{ _id: { $in: [].concat(...conversationReadResponse.data.map((array) => array.messages)) }, user: { $ne: req.user._id } },
 				{
 					pagination: false,
-					sort: {
-						was_read: "asc",
-						created_at: "desc"
-					},
+					sort: { was_read: "asc", created_at: "desc" },
 					populate: [
-						{
-							path: "conversation",
-							select: "-users -messages"
-						},
-						{
-							path: "user",
-							select: "account email is_active",
-							populate: [
-								{ path: "account.picture", select: "path name" },
-								{ path: "account.picture_sm", select: "path name" },
-								{ path: "account.picture_md", select: "path name" },
-								{ path: "account.picture_lg", select: "path name" }
-							]
-						}
+						{ path: "conversation", select: "-users -messages" },
+						{ path: "user", select: "account email is_active", populate: [{ path: "account.picture", select: "path name" }, { path: "account.picture_sm", select: "path name" }, { path: "account.picture_md", select: "path name" }, { path: "account.picture_lg", select: "path name" }] }
 					]
 				}
 			)
 		);
 		if (messageReadResponseError) return next(messageReadResponseError);
 		if (messageReadResponse.error) return next(messageReadResponse.errors);
-
-
-		const [conversationReadResponseError, conversationReadResponse] = await to(
-			conversationService.readMany(
-				{ users: req.user._id },
-				{ pagination: false }
-			)
-		);
-		if (conversationReadResponseError) return next(conversationReadResponseError);
-		if (conversationReadResponse.error) return next(conversationReadResponse.errors);
-
 
 		res.locals.unReadMessages = messageReadResponse.data;
 		res.locals.conversations = conversationReadResponse.data;
@@ -214,15 +195,9 @@ app.use((req, res, next) => {
 // The WebSocket is an advanced technology that makes it possible to open a two-way interactive communication session
 // between the user's browser and a server. With this API, you can send messages to a server and receive event-driven
 // responses without having to poll the server for a reply.
+// TODO: Share this Socket instance with controller files.
 //
-const socket = new Socket(io);
-
-app.use((req, res, next) => {
-	req.io = io;
-	req.socket = socket;
-
-	next();
-});
+new Socket(io);
 
 
 //

@@ -1,5 +1,5 @@
 import app from "express";
-import ConversationController from "../controllers/Conversation.controller";
+import MessageController from "../controllers/Message.controller";
 
 //
 // ─── DEFINING EXPRESS ROUTER ────────────────────────────────────────────────────
@@ -10,8 +10,8 @@ const router = app.Router();
 // ─── ROUTER BREAKPOINTS ─────────────────────────────────────────────────────────
 //
 router
-	.route(["/", "/:id"])
-	.get(ConversationController.getAllConversations);
+	.route(["/add/:to"])
+	.post(MessageController.validator("add message"), MessageController.addMessage);
 
 //
 // ─── EXPORTING ROUTER ───────────────────────────────────────────────────────────

@@ -455,7 +455,17 @@ class JobController extends Controller {
 			populate: [
 				{ path: "attachment", select: "path name extname" },
 				{ path: "job", select: "title slug" },
-				{ path: "created_by", select: "email slug is_verified account.name account.picture account.picture_sm account.picture_md account.picture_lg profile.nationality ", populate: { path: "profile.nationality", select: "name code -_id" } }
+				{
+					path: "created_by",
+					select: "email slug is_verified account.name account.picture account.picture_sm account.picture_md account.picture_lg profile.nationality ",
+					populate: [
+						{ path: "profile.nationality", select: "name code -_id" },
+						{ path: "account.picture", select: "path name" },
+						{ path: "account.picture_sm", select: "path name" },
+						{ path: "account.picture_md", select: "path name" },
+						{ path: "account.picture_lg", select: "path name" },
+					]
+				}
 			],
 			...req.query
 		};

@@ -1,11 +1,8 @@
 import Controller from "../utilities/Controller";
-import MessageService from "../services/Message";
 import ConversationService from "../services/Conversation";
-import Message from "../models/Message.model";
 import Conversation from "../models/Conversation.model";
 
 const conversationService = new ConversationService(Conversation);
-const messageService = new MessageService(Message);
 
 class ConversationController extends Controller {
 	constructor(service) {
@@ -31,17 +28,6 @@ class ConversationController extends Controller {
 		const conversationsReadResponse = await conversationService.readMany(conversationsQuery, options);
 		if (conversationsReadResponse.error) return next(conversationsReadResponse.errors);
 
-		// updated all messages found in conversation that's not read.
-		const messagesUpdateResponse = await messageService.updateMany(
-			{
-				...(req?.query?.message && { _id: req.query.message }),
-				...(!req.query.message && { conversation: conversationReadResponse.data[0]._id }),
-				user: { $ne: req.user._id },
-				was_read: false
-			},
-			{ $set: { was_read: true } }
-		);
-		if (messagesUpdateResponse.error) return next(messagesUpdateResponse.errors);
 
 		res.render("dashboard/messages", {
 			page_title: "Messages",

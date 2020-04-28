@@ -1722,10 +1722,13 @@
 				// Scroll Chat container all the way down to buttom.
 				$conversationContainerInner.scrollTop($conversationContainerInner[0].scrollHeight);
 
+				// Handeling read all messages in opend conversation
+				socket.emit("read_all_messages", { conversation: conversation_id, receiver: send_to_user, sender: send_from_user });
+
 				// Handling on typing chat input event.
 				$messages_replay.on("keyup", function(e) {
 					// Emitting "user is typing" event with conversation, sender, and receiver data.
-					socket.emit("user_is_typing", { conversation: conversation_id, to: send_to_user, from: send_from_user});
+					socket.emit("user_is_typing", { conversation: conversation_id, to: send_to_user, from: send_from_user });
 				})
 
 				// Handling submiting chat form event, with emitting the message to the server.
@@ -1753,11 +1756,12 @@
 
 			// Listining to event message.
 			socket.on("message", (data) => {
-				console.log(data);
 				if (data.to._id === user_id) {
-					// Add nedded html for messages notification in header for sent to user.
-					addMessageNotification(data);
-					if ($messagesNavItemContainer.length) addMessageSideBarCounter();
+					if (data.conversation !== conversation_id || !$conversationContainer.length) {
+						// Add nedded html for messages notification in header for sent to user.
+						addMessageNotification(data);
+						if ($messagesNavItemContainer.length) addMessageSideBarCounter();
+					}
 					$.playSound("/sounds/sharp.mp3");
 				}
 
@@ -1766,6 +1770,17 @@
 					outputMessagePopup(data, send_to_user_gravatar, send_from_user_gravatar);
 					// Scroll Chat container all the way down to buttom.
 					$conversationContainerInner.scrollTop($conversationContainerInner[0].scrollHeight);
+
+					// Handeling read all messages in opend conversation
+					socket.emit("read_all_messages", {  conversation: conversation_id, receiver: send_to_user, sender: send_from_user });
+				}
+			});
+
+			// listining to event readed messages.
+			socket.on("all_messages_readed", (data) => {
+				if ($conversationContainer.length) {
+					decrementMessageNotificationCounter(data);
+					decrementMessageSideBarCounter(data);
 				}
 			});
 
@@ -1780,7 +1795,7 @@
 							<a href="/profile/${(data.from._id === send_from_user) ? data.from.slug : data.to.slug }" class="message-avatar">
 								${ (data.from.account.picture || data.from.account.picture_md)
 									? '<img src=/' + `${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}` + ' title="'+ moment(data.message.created_at).calendar() +'" data-tippy="" data-tippy-placement="top">'
-									: '<img src=/' + `${(data.from._id === send_from_user ? send_from_user_gravatar : send_to_user_gravatar)}` + ' title="'+ moment(data.message.created_at).calendar() +'" data-tippy="" data-tippy-placement="top">' }
+									: '<img src=' + `${(data.from._id === send_from_user ? send_from_user_gravatar : send_to_user_gravatar)}` + ' title="'+ moment(data.message.created_at).calendar() +'" data-tippy="" data-tippy-placement="top">' }
 							</a>
 							<div class="message-text">
 								<p>${data.message.content}</p>
@@ -1834,15 +1849,14 @@
 					$headerMessagesTrigger.find("a").append("<span>1</span>")
 				}
 
-				// TODO: fix image source in case there is not user image yet.
 				$headerMessagesDropDown.find(".header-notifications-content").find("ul").prepend(`
-					<li class="${!data.message.was_read ? 'notifications-not-read' : ''}">
+					<li class="${!data.message.was_read ? 'notifications-not-read' : ''}" id="message-${data.message._id}">
 						<a href="/dashboard/conversations/${data.conversation}?message=${data.message._id}">
 							<span class="notification-avatar ${(data.from.is_active) ? "status-online" : "status-offline"}">
 								${
 									(data.from.account.picture || data.from.account.picture_sm)
 									? '<img src=/' + `${(!data.from.account.picture) ? data.from.account.picture_md.path : data.from.account.picture.path}` + '>'
-									: '<img src="#">'
+									: '<img src='+`${data.from_gravatar}`+'>'
 								}
 							</span>
 							<div class="notification-text">
@@ -1855,13 +1869,38 @@
 				`);
 			}
 
+			function decrementMessageNotificationCounter(data) {
+				if ($headerMessagesTrigger.find("a span").length) {
+					var counter = Number($headerMessagesTrigger.find("a span").text()) - data.messages.length;
+					if (counter > 0) {
+						$headerMessagesTrigger.find("a span").text(counter);
+					} else {
+						$headerMessagesTrigger.find("a span").remove();
+					}
+				}
+
+				data.messages.forEach(element => {
+					$headerMessagesDropDown.find(".header-notifications-content").find(`ul`).find(`.notifications-not-read[id='message-${element._id}']`).removeClass("notifications-not-read");
+				});
+			}
+
 			function addMessageSideBarCounter() {
 				if ($messagesNavItemContainer.find("a span").length) {
 					$messagesNavItemContainer.find("a span").text(Number($messagesNavItemContainer.find("a span").text()) + 1)
 				} else {
 					$messagesNavItemContainer.find("a").append("<span>1</span>")
 				}
+			}
 
+			function decrementMessageSideBarCounter(data) {
+				if ($messagesNavItemContainer.find("a span").length) {
+					var counter = Number($messagesNavItemContainer.find("a span").text()) - data.messages.length;
+					if (counter > 0) {
+						$messagesNavItemContainer.find("a span").text(counter)
+					} else {
+						$messagesNavItemContainer.find("a span").remove();
+					}
+				}
 			}
 
 		})();

@@ -121,7 +121,7 @@
 										// Notification
 										if (unReadMessages.length)
 											each unReadMessage, i in unReadMessages
-												li(class=`${(!unReadMessage.was_read) ? "notifications-not-read" : ""}`)
+												li(class=`${(!unReadMessage.was_read) ? "notifications-not-read" : ""}`, id=`message-${unReadMessage._id}`)
 													a(href=`/dashboard/conversations/${unReadMessage.conversation._id}?message=${unReadMessage._id}`)
 														span(class=`notification-avatar ${(unReadMessage.user.is_active) ? "status-online" : "status-offline"}`)
 															if (unReadMessage.user.account.picture || unReadMessage.user.account.picture_sm)

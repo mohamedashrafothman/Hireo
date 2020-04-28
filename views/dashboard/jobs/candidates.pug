@@ -126,11 +126,11 @@ block append modals
 						.popup-tab-content(id=`tab-message-${i}`)
 							// Welcome Text
 							.welcome-text
-								h3 Direct Message To Sindy
+								h3=`Direct Message To ${application.name}`
 							// Form
-							form(id=`send-candidate-message-${i}`, method='post', action="#")
+							form(id=`send-candidate-message-${i}`, method='POST', action=`/dashboard/messages/add/${application.created_by._id}`)
 								include ../../partials/_csrf.pug
-								textarea.with-border(name='textarea', cols='10', placeholder='Message', required='')
+								textarea.with-border(name='content', cols='10', placeholder='Message', required)
 							// Button
 							button.button.full-width.button-sliding-icon.ripple-effect(type='submit', form=`send-candidate-message-${i}`)
 								| Send

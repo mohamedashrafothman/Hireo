@@ -217,7 +217,7 @@ new CronJobs();
 
 
 //
-// ─── ERROR HANDELING ────────────────────────────────────────────────────────────
+// ─── ERROR HANDLING ─────────────────────────────────────────────────────────────
 // Error Handling refers to how Express catches and processes errors that occur both
 // synchronously and asynchronously. Express comes with a default error handler so you
 // don’t need to write your own to get started.
@@ -231,7 +231,7 @@ app.use((req, res, next) => {
 });
 
 
-// COMMENT: handeling errors based on environment [development, production].
+// COMMENT: handling errors based on environment [development, production].
 app.use(
 	_.isEqual(process.env.NODE_ENV.trim(), "development")
 		? errorHandler()

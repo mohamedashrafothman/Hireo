@@ -12,6 +12,9 @@ const router = app.Router();
 router
 	.route(["/add/:to"])
 	.post(MessageController.validator("add message"), MessageController.addMessage);
+router
+	.route(["/read_all"])
+	.post(MessageController.readAllMessages);
 
 //
 // ─── EXPORTING ROUTER ───────────────────────────────────────────────────────────

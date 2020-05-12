@@ -172,8 +172,8 @@ app.use(async (req, res, next) => {
 	res.locals.unSeenApplicationsCount = unSeenApplications.total;
 	next();
 });
+// COMMENT: after successful login, redirect back to the intended page.
 app.use((req, res, next) => {
-	// COMMENT: after successful login, redirect back to the intended page.
 	if (!req.user && req.path !== "/auth/login" && req.path !== "/auth/register" && !req.path.match(/^\/auth/) && !req.path.match(/\./)) {
 		req.session.returnTo = req.originalUrl;
 	} else if (req.user && (req.path === "/auth/profile" || req.path.match(/^\/api/))) {
@@ -181,8 +181,8 @@ app.use((req, res, next) => {
 	}
 	next();
 });
+// COMMENT: set headers to allow cross origin request.
 app.use((req, res, next) => {
-	// COMMENT: set headers to allow cross origin request.
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -195,9 +195,8 @@ app.use((req, res, next) => {
 // The WebSocket is an advanced technology that makes it possible to open a two-way interactive communication session
 // between the user's browser and a server. With this API, you can send messages to a server and receive event-driven
 // responses without having to poll the server for a reply.
-// TODO: Share this Socket instance with controller files.
 //
-new Socket(io);
+app.set("io", new Socket(io)); // Sharing websocket instance to all express app.
 
 
 //

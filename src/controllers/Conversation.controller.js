@@ -14,9 +14,9 @@ class ConversationController extends Controller {
 		const options = {
 			populate: [
 				{ path: "users", select: "is_active email account", populate: "account.picture account.picture_sm account.picture_md account.picture_lg" },
-				{ path: "messages", options: { sort: { created_at: "asc" } }, populate: { path: "user", populate: "account.picture account.picture_sm account.picture_md account.picture_lg" } }
+				{ path: "messages", options: { sort: { created_at: "desc" } }, populate: { path: "user", populate: "account.picture account.picture_sm account.picture_md account.picture_lg" } }
 			],
-			sort: { created_at: "desc", updated_at: "desc" },
+			sort: { updated_at: "desc" },
 			pagination: false
 		};
 		const conversationQuery = { ...(id && { _id: id }), ...(req.user.role !== "admin" && { users: req.user._id }) };

@@ -42,7 +42,7 @@ block content
 							// Message Content Inner
 							.message-content-inner
 								if (data.conversation.messages.length)
-									each message, i in data.conversation.messages
+									each message, i in data.conversation.messages.reverse()
 										+message(message, data.conversation.messages[i-1], i)
 							// Message Content Inner / End
 							// Reply Area

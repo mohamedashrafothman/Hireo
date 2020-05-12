@@ -1655,7 +1655,7 @@
 		})();
 
 
-		// Mark All Message As Readed
+		// Mark All Message As was Read
 		(function() {
 			// caching dom.
 			var $notification_header_container = $(".header-notifications-dropdown");
@@ -1665,9 +1665,62 @@
 				$(ele).on("click", function(e) {
 					var $target = $(e.target);
 					var notification_type = $target.data("notification-type");
+					var $unread_notifications = $target.closest(".header-notifications-dropdown").find(".notifications-not-read");
+					var unread_notifications_id = [];
 
-					if (notification_type === "messages") {
-						console.log("mark all messages to read");
+					$unread_notifications.each(function(index, ele) {
+						unread_notifications_id.push($(ele).data("notification-id"));
+					});
+
+					if (notification_type == "messages") {
+						if (unread_notifications_id.length) {
+							$.ajax({
+								url: "/dashboard/messages/read_all",
+								type: "POST",
+								dataType: "json",
+								contentType: 'application/json',
+								data: JSON.stringify({ CSRF: $('meta[name="csrf-token"]').attr("content"), messages: unread_notifications_id }),
+								headers: { "X-CSRF-Token": $('meta[name="csrf-token"]').attr("content") },
+								success: function (res) {
+									res = res.filter(function(item) { return item.was_read });
+									res.forEach(ele => {
+										$target.closest(".header-notifications-dropdown").find(`#message-${ele._id}`).removeClass("notifications-not-read")
+										var notification_counter = $(".header-notifications#header-message").find(".header-notifications-trigger").find("a span").text;
+										var counter = Number(notification_counter) - 1;
+										if (counter > 0) {
+											$(".header-notifications#header-message").find(".header-notifications-trigger").find("a span").text(counter);
+										} else {
+											$(".header-notifications#header-message").find(".header-notifications-trigger").find("a span").remove();
+										}
+									});
+									Snackbar.show({
+										text: `Success, All messages marked as read.`,
+										pos: "bottom-center",
+										duration: 5000,
+										textColor: "#fff",
+										backgroundColor: "#383838"
+									});
+								},
+								error: function(err) {
+									Snackbar.show({
+										text: `Error has been occurred, please try again in a few seconds.`,
+										pos: "bottom-center",
+										duration: 5000,
+										textColor: "#fff",
+										backgroundColor: "#383838"
+									});
+									console.log(err);
+								}
+							});
+						} else {
+							Snackbar.show({
+								text: `No new messages found!`,
+								pos: "bottom-center",
+								duration: 5000,
+								textColor: "#fff",
+								backgroundColor: "#383838"
+							});
+						}
 					}
 				});
 			});
@@ -1676,23 +1729,21 @@
 
 		// Sockets.io
 		(function() {
-			// Socket instance.
+			// SOCKET INSTANCE.
+			// ─────────────────────────────────────────────────────────────────
 			var socket = io.connect();
 
-			// Caching DOM.
-
+			// CACHING DOM.
+			// ─────────────────────────────────────────────────────────────────
 			// Conversations ids
 			var conversations_id = $("meta[name='conversations']").attr("content").split(",");
 			var user_id = $("meta[name='user']").attr("content");
-
 			// 1- Header's DOM
 			var $headerMessagesContainer = $(".header-notifications#header-message");
 			var $headerMessagesTrigger = $headerMessagesContainer.find(".header-notifications-trigger");
 			var $headerMessagesDropDown = $headerMessagesContainer.find(".header-notifications-dropdown");
-
 			// 2- Sidebar's DOM
 			var $messagesNavItemContainer = $("#messages-nav-item");
-
 			// 3- Conversation's DOM
 			var $conversationContainer = $(".message-content");
 			var $conversationContainerInner;
@@ -1704,10 +1755,12 @@
 			var send_from_user;
 			var send_from_user_gravatar;
 
-			// emitting to join conversation socket with conversation mongodb id.
+			// EMITTING EVENTS.
+			// ─────────────────────────────────────────────────────────────────
+			// 1-emitting to join conversation socket with conversation mongodb id.
 			conversations_id.forEach(function(ele) { socket.emit("join_conversation", ele); });
 
-
+			// 2-handling conversation page events.
 			if ($conversationContainer.length) {
 
 				$conversationContainerInner = $conversationContainer.find(".message-content-inner");
@@ -1719,10 +1772,10 @@
 				send_from_user = $messages_form.find("input#send_from_user[type='hidden']").val();
 				send_from_user_gravatar = $messages_form.find("input#send_from_user_gravatar[type='hidden']").val();
 
-				// Scroll Chat container all the way down to buttom.
+				// Scroll Chat container all the way down to bottom.
 				$conversationContainerInner.scrollTop($conversationContainerInner[0].scrollHeight);
 
-				// Handeling read all messages in opend conversation
+				// Handling read all messages in opened conversation
 				socket.emit("read_all_messages", { conversation: conversation_id, receiver: send_to_user, sender: send_from_user });
 
 				// Handling on typing chat input event.
@@ -1731,13 +1784,25 @@
 					socket.emit("user_is_typing", { conversation: conversation_id, to: send_to_user, from: send_from_user });
 				})
 
-				// Handling submiting chat form event, with emitting the message to the server.
+				// Handling submitting chat form event, with emitting the message to the server.
 				$messages_form.on("submit", function(e) {
-					// Preventing the button from submiting the form.
+					// Preventing the button from submitting the form.
 					e.preventDefault();
 					// Extract the message text from form input.
 					var message = $(e.target).find('textarea').val();
-					// Reseting form input to empty again.
+					// make sure to enter a message
+					if (message == "") {
+						// TODO: return error message from server side validation.
+						// NOTE: make sure to use callback validation.
+						return Snackbar.show({
+							text: `Don't forget to type something first!`,
+							pos: "bottom-center",
+							duration: 5000,
+							textColor: "#fff",
+							backgroundColor: "#383838"
+						});
+					}
+					// Resting form input to empty again.
 					$(e.target).find('textarea').val("");
 					// Emitting new message with conversation, sender, and receiver data.
 					socket.emit("new_message", { conversation: conversation_id, to: send_to_user, from: send_from_user, message });
@@ -1745,20 +1810,22 @@
 
 			}
 
-			// listining to event typing
+			// LISTENING TO EVENTS.
+			// ─────────────────────────────────────────────────────────────────
+			// 1-listening to typing event
 			socket.on("typing", (data) => {
 				if (data.from._id !== send_from_user && $conversationContainer.length) {
 					outputTyping(data);
-					// Scroll Chat container all the way down to buttom.
+					// Scroll Chat container all the way down to bottom.
 					$conversationContainerInner.scrollTop($conversationContainerInner[0].scrollHeight);
 				}
 			});
 
-			// Listining to event message.
+			// 2-Listening to message event.
 			socket.on("message", (data) => {
 				if (data.to._id === user_id) {
 					if (data.conversation !== conversation_id || !$conversationContainer.length) {
-						// Add nedded html for messages notification in header for sent to user.
+						// Add needed html for messages notification in header for sent to user.
 						addMessageNotification(data);
 						if ($messagesNavItemContainer.length) addMessageSideBarCounter();
 					}
@@ -1766,17 +1833,17 @@
 				}
 
 				if ($conversationContainer.length) {
-					// Add needed html for the chat pupup in conversation container.
+					// Add needed html for the chat popup in conversation container.
 					outputMessagePopup(data, send_to_user_gravatar, send_from_user_gravatar);
-					// Scroll Chat container all the way down to buttom.
+					// Scroll Chat container all the way down to button.
 					$conversationContainerInner.scrollTop($conversationContainerInner[0].scrollHeight);
 
-					// Handeling read all messages in opend conversation
+					// Handling read all messages in opened conversation
 					socket.emit("read_all_messages", {  conversation: conversation_id, receiver: send_to_user, sender: send_from_user });
 				}
 			});
 
-			// listining to event readed messages.
+			// 3-listening to event readed messages.
 			socket.on("all_messages_readed", (data) => {
 				if ($conversationContainer.length) {
 					decrementMessageNotificationCounter(data);
@@ -1784,7 +1851,9 @@
 				}
 			});
 
-			// Function that used to draw the chat pupups.
+
+			// HELPER FUNCTIONS.
+			// ─────────────────────────────────────────────────────────────────
 			function outputMessagePopup(data, send_to_user_gravatar, send_from_user_gravatar) {
 				if ($conversationContainerInner.find("#typing").length) {
 					$conversationContainerInner.find("#typing").remove();

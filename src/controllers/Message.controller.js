@@ -75,6 +75,21 @@ class MessageController extends Controller {
 		req.flash("success", "Direct Message Sent Successfully");
 		res.redirect("back");
 	}
+
+	async readAllMessages(req, res, next) {
+		const { messages } = req.body;
+
+		const messagesUpdateResponse = await messageService.updateMany({ _id: { $in: messages } }, { $set: { was_read: true } });
+		if (messagesUpdateResponse.error) return next(messagesUpdateResponse.errors);
+
+		const messagesReadResponse = await messageService.readMany(
+			{ _id: { $in: messages } },
+			{ pagination: false, select: "_id was_read" }
+		);
+		if (messagesReadResponse.error) return next(messagesReadResponse.errors);
+
+		return res.json(messagesReadResponse.data);
+	}
 }
 
 export default new MessageController(messageService);

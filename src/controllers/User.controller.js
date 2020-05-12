@@ -298,7 +298,7 @@ class UserController extends Controller {
 				if (loginError) return next();
 
 				if (req.body.remember) {
-					const expire = 1000 * 60 * 60 * process.env.COOKIES_MAXAGE_IN_HOURS;
+					const expire = 1000 * 60 * 60 * process.env.COOKIES_MAX_AGE_IN_HOURS;
 					req.session.cookie.expires = new Date(Date.now() + expire);
 					req.session.cookie.maxAge = expire;
 				} else {
@@ -315,7 +315,7 @@ class UserController extends Controller {
 
 				const returnTo = req.session.returnTo || "/";
 
-				req.flash("success", "Successfull login process.");
+				req.flash("success", "Successfully login process.");
 				res.status(userUpdateResponse.statusCode).redirect(returnTo);
 			});
 		})(req, res, next);
@@ -345,7 +345,7 @@ class UserController extends Controller {
 		}
 
 		const userUpdatePasswordEmailResponse = await emailService.send({
-			subject: `[${process.env.SITE_NAME}] Reseting Password.`,
+			subject: `[${process.env.SITE_NAME}] Resetting Password.`,
 			resetURL: `http://${req.headers.host}/auth/reset/${userForgotPasswordResponse.data.resetPasswordToken}`,
 			to: userForgotPasswordResponse.data,
 			filename: "password-reset",
@@ -384,7 +384,7 @@ class UserController extends Controller {
 
 		const userResetPasswordEmailResponse = await emailService.send({
 			filename: "password-updated",
-			subject: `[${process.env.SITE_NAME}] Reseting Password Confirmation.`,
+			subject: `[${process.env.SITE_NAME}] Resetting Password Confirmation.`,
 			to: userResetPasswordResponse.data,
 			from: String(process.env.MAIL_SENDER),
 			email: userResetPasswordResponse.data.email,
@@ -400,12 +400,11 @@ class UserController extends Controller {
 
 	async logoutUser(req, res, next) {
 		const userLoggingOutResponse = await userService.logout(req.user);
-		if (userLoggingOutResponse.error) {
-			return next(userLoggingOutResponse.errors);
-		}
+		if (userLoggingOutResponse.error) return next(userLoggingOutResponse.errors);
+
 		req.logout();
 		req.user = null;
-		req.flash("success", "Successfull logout process.");
+		req.flash("success", "Successfully logout process.");
 		res.redirect("/");
 	}
 
@@ -422,16 +421,16 @@ class UserController extends Controller {
 		);
 		if (searchInBookmarksResponse.error) return next(searchInBookmarksResponse.errors);
 
-		// Remove any attachments belongs to user from attachment colection.
+		// Remove any attachments belongs to user from attachment collection.
 		const attachmentService = new AttachmentService(Attachment);
-		const userAttachmentDeleteRespose = await attachmentService.deleteMany(
+		const userAttachmentDeleteResponse = await attachmentService.deleteMany(
 			{ _id: { $in: [...userDeleteResponse.data.profile.attachments, userDeleteResponse.data.account.picture, userDeleteResponse.data.account.picture_sm, userDeleteResponse.data.account.picture_md, userDeleteResponse.data.account.picture_lg].filter(Boolean) } },
 			{ pagination: false }
 		);
-		if (userAttachmentDeleteRespose.error) return next(userAttachmentDeleteRespose.errors);
+		if (userAttachmentDeleteResponse.error) return next(userAttachmentDeleteResponse.errors);
 
 		// Remove any attachments belongs to user from project folder directory.
-		const userAttachmentDeleteFilesResponse = await attachmentService.handelFilesForDirDeletion(userAttachmentDeleteRespose.data.map((attachment) => attachment.path));
+		const userAttachmentDeleteFilesResponse = await attachmentService.handelFilesForDirDeletion(userAttachmentDeleteResponse.data.map((attachment) => attachment.path));
 		if (userAttachmentDeleteFilesResponse.error) return next(userAttachmentDeleteFilesResponse.errors);
 
 		// Remove user from all skills that he was belongs to it from skills collection.
@@ -442,7 +441,7 @@ class UserController extends Controller {
 		if (userDeleteSkillsResponse.error) return next(userDeleteSkillsResponse.errors);
 
 		// TODO: Delete all job created by deleted user.
-		// TODO: Delete all Applications belonges to deleted job and deleted user.
+		// TODO: Delete all Applications belongs to deleted job and deleted user.
 
 		req.flash("success", `${userDeleteResponse.data.account.name}'s Account deleted.`);
 		res.status(userDeleteResponse.statusCode).redirect("/");

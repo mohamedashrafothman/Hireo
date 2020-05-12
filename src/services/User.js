@@ -82,8 +82,8 @@ export default class UserService extends Service {
 	}
 
 	async logout(user) {
-		const logedOutUser = await this.updateOne({ email: user.email, is_active: 1 }, { $set: { is_active: 0 } });
-		return logedOutUser;
+		const loggedOutUser = await this.updateOne({ email: user.email, is_active: 1 }, { $set: { is_active: 0 } });
+		return loggedOutUser;
 	}
 
 	async getSettingsUserData(_id) {

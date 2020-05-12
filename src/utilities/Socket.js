@@ -25,8 +25,8 @@ export default class SocketConnection {
 		this.connectionEvent();
 	}
 
-	connectionEvent() {
-		this.io.sockets.on("connection", (socket) => {
+	async connectionEvent() {
+		await this.io.sockets.on("connection", (socket) => {
 			console.log(`✅  ${blue("Socket connection has been opened successfully!")}`);
 
 			// Save socket.io in the session
@@ -48,7 +48,7 @@ export default class SocketConnection {
 
 	disconnectingEvent() { console.log(`✅  ${red("Socket connection has been disconnected successfully!")}`); }
 
-	joinChatEvent(conversation) { this.socket.join(conversation); }
+	async joinChatEvent(conversation) { await this.socket.join(conversation); }
 
 	async newMessageEvent(data) {
 		// get user documents from mongodb.
@@ -59,11 +59,11 @@ export default class SocketConnection {
 		if (userReadResponse.error) throw userReadResponse.errors;
 
 		// create new messages documents in mongodb.
-		const messageCreateResonse = await messageService.create({ user: data.from, conversation: data.conversation, content: data.message });
-		if (messageCreateResonse.error) throw messageCreateResonse.errors;
+		const messageCreateResponse = await messageService.create({ user: data.from, conversation: data.conversation, content: data.message });
+		if (messageCreateResponse.error) throw messageCreateResponse.errors;
 
 		// add messages to conversation model.
-		const conversationUpdateResponse = await conversationService.updateOne({ _id: data.conversation }, { $addToSet: { messages: messageCreateResonse.data._id } });
+		const conversationUpdateResponse = await conversationService.updateOne({ _id: data.conversation }, { $addToSet: { messages: messageCreateResponse.data._id } });
 		if (conversationUpdateResponse.error) throw conversationUpdateResponse.errors;
 
 		// add user documents to event data.
@@ -72,7 +72,7 @@ export default class SocketConnection {
 			userReadResponse.data.filter((current) => String(current._id) === data.to)[0].gravatar(50),
 			userReadResponse.data.filter((current) => String(current._id) === data.from)[0],
 			userReadResponse.data.filter((current) => String(current._id) === data.from)[0].gravatar(50),
-			messageCreateResonse.data
+			messageCreateResponse.data
 		];
 
 		// Emitting new message to all users in conversation.

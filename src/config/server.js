@@ -57,7 +57,7 @@ const sessionMiddleware = session({
 	resave: false, // NOTE: Don't save session if unmodified.
 	store: new MongoStore({
 		url: process.env.MONGODB_URI,
-		ttl: 60 * 60 * process.env.SESSION_TIMEOUT_IN_HOURS, // COMMENT: Time to remove session from database in hours.
+		ttl: 60 * 60 * process.env.SESSION_TIMEOUT_IN_HOURS, // Time to remove session from database in hours.
 		resave: false,
 		autoReconnect: true,
 		autoRemove: "native",
@@ -100,16 +100,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 io.use((socket, next) => { sessionMiddleware(socket.request, socket.request.res || {}, next); });
 app.use(cookieParser(process.env.SESSION_SECRET));
 app.use(sessionMiddleware);
-// COMMENT: Passport.js middleware came after session's middleware.
+// Passport.js middleware came after session's middleware.
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(csrf({ cookie: true })); // COMMENT: csrf protection MUST be defined after cookieParser and session middleware.
+app.use(csrf({ cookie: true })); // csrf protection MUST be defined after cookieParser and session middleware.
 app.use(flash());
 app.use(i18n.init);
 app.use(back());
 app.use(loggerToMongo(process.env.MONGODB_URI, "logs", (req, res) => res.statusCode > 399));
 app.use(async (req, res, next) => {
-	// COMMENT: pass the Globals to all responses.
+	// pass the Globals to all responses.
 	const [categoriesErr, categories] = await to(
 		categoryService.readMany(
 			{ parent: { $size: 0 } },
@@ -172,7 +172,7 @@ app.use(async (req, res, next) => {
 	res.locals.unSeenApplicationsCount = unSeenApplications.total;
 	next();
 });
-// COMMENT: after successful login, redirect back to the intended page.
+// after successful login, redirect back to the intended page.
 app.use((req, res, next) => {
 	if (!req.user && req.path !== "/auth/login" && req.path !== "/auth/register" && !req.path.match(/^\/auth/) && !req.path.match(/\./)) {
 		req.session.returnTo = req.originalUrl;
@@ -181,7 +181,7 @@ app.use((req, res, next) => {
 	}
 	next();
 });
-// COMMENT: set headers to allow cross origin request.
+// set headers to allow cross origin request.
 app.use((req, res, next) => {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
@@ -195,8 +195,9 @@ app.use((req, res, next) => {
 // The WebSocket is an advanced technology that makes it possible to open a two-way interactive communication session
 // between the user's browser and a server. With this API, you can send messages to a server and receive event-driven
 // responses without having to poll the server for a reply.
-//
-app.set("io", new Socket(io)); // Sharing websocket instance to all express app.
+// ────────────────────────────────────────────────────────────────────────────────
+// Sharing websocket instance to all express app.
+app.set("io", new Socket(io));
 
 
 //
@@ -223,14 +224,14 @@ new CronJobs();
 // http://expressjs.com/en/guide/error-handling.html
 //
 app.use((req, res, next) => {
-	// COMMENT: catch 404 and forward to error handler
+	// catch 404 and forward to error handler
 	const err = new Error("Not Found");
 	err.status = 404;
 	next(err);
 });
 
 
-// COMMENT: handling errors based on environment [development, production].
+// handling errors based on environment [development, production].
 app.use(
 	_.isEqual(process.env.NODE_ENV.trim(), "development")
 		? errorHandler()

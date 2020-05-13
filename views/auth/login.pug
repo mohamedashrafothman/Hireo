@@ -37,7 +37,7 @@ block content
 							input#password.input-text.with-border(name='password', type='password', placeholder='Password', value=`${(data && data.old["password"]) ? data.old["password"] : ''}`, required)
 							i.icon-feather-eye.icon-right.show-password(data-target="#password")
 						.checkbox
-							input#remember(type='checkbox', name="remember", checked=(data && _.isEqual(data.old["remember"], "on")) ? 'checked' : undefined)
+							input#remember(type='checkbox', name="remember", checked=(data && _.isEqual(data.old["remember"], true)) ? 'checked' : undefined)
 							label(for='remember')
 								span.checkbox-icon
 								| Remember Me

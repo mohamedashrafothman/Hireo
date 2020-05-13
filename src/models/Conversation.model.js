@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 const ConversationSchema = new mongoose.Schema({
 	users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 	messages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
-	status: { type: Number, default: 0 }, // 0 => inboxed, 1 => deleted, 2 => archived
+	status: { type: Number, default: 0 }, // 0 => inbox, 1 => archived, 2 => deleted
 }, {
 	timestamps: {
 		createdAt: "created_at",

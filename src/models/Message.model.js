@@ -18,8 +18,7 @@ const MessageSchema = new mongoose.Schema({
 		required: true,
 		trim: true
 	},
-	was_read: { type: Boolean, default: 0 },
-	status: { type: Number, default: 0 } // 0 => inboxed, 1 => deleted, 2 => favorited
+	was_read: { type: Boolean, default: 0 }
 }, {
 	timestamps: {
 		createdAt: "created_at",

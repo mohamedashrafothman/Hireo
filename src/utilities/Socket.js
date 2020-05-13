@@ -38,24 +38,21 @@ export default class SocketConnection {
 			this.session = socket.request.session;
 
 			// Socket Event handlers.
-			this.socket.on("join_conversation", (conversation) => this.joinChatEvent(conversation));
-			this.socket.on("new_message", (data) => this.newMessageEvent(data));
-			this.socket.on("user_is_typing", (data) => this.userTypingEvent(data));
-			this.socket.on("read_all_messages", (data) => this.readAllMessages(data));
+			this.socket.on("conversations/join", (conversation) => this.joinChatEvent(conversation));
+			this.socket.on("messages/new", (data) => this.newMessageEvent(data));
+			this.socket.on("messages/typing", (data) => this.userTypingEvent(data));
+			this.socket.on("messages/read_all", (data) => this.readAllMessages(data));
 			this.socket.on("disconnect", () => this.disconnectingEvent());
 		});
 	}
 
-	disconnectingEvent() { console.log(`✅  ${red("Socket connection has been disconnected successfully!")}`); }
+	async disconnectingEvent() { console.log(`✅  ${red("Socket connection has been disconnected successfully!")}`); }
 
 	async joinChatEvent(conversation) { await this.socket.join(conversation); }
 
 	async newMessageEvent(data) {
 		// get user documents from mongodb.
-		const userReadResponse = await userService.readMany(
-			{ _id: { $in: [data.to, data.from] } },
-			{ pagination: false, select: "email slug account is_active", populate: [{ path: "account.picture", select: "path name" }, { path: "account.picture_sm", select: "path name" }, { path: "account.picture_md", select: "path name" }, { path: "account.picture_lg", select: "path name" }] }
-		);
+		const userReadResponse = await userService.readMany({ _id: { $in: [data.to, data.from] } }, { pagination: false, select: "email slug account is_active", populate: [{ path: "account.picture", select: "path name" }, { path: "account.picture_sm", select: "path name" }, { path: "account.picture_md", select: "path name" }, { path: "account.picture_lg", select: "path name" }] });
 		if (userReadResponse.error) throw userReadResponse.errors;
 
 		// create new messages documents in mongodb.
@@ -81,29 +78,24 @@ export default class SocketConnection {
 
 	async userTypingEvent(data) {
 		// get user documents from mongodb.
-		const userReadResponse = await userService.readMany(
-			{ _id: { $in: [data.to, data.from] } },
-			{ pagination: false, select: "email account is_active", populate: [{ path: "account.picture", select: "path name" }, { path: "account.picture_sm", select: "path name" }, { path: "account.picture_md", select: "path name" }, { path: "account.picture_lg", select: "path name" }] }
-		);
+		const userReadResponse = await userService.readMany({ _id: { $in: [data.to, data.from] } }, { pagination: false, select: "email account is_active", populate: [{ path: "account.picture", select: "path name" }, { path: "account.picture_sm", select: "path name" }, { path: "account.picture_md", select: "path name" }, { path: "account.picture_lg", select: "path name" }] });
 		if (userReadResponse.error) throw userReadResponse.errors;
 
 		// add user documents to event data.
-		[data.to, data.from] = [userReadResponse.data.filter((current) => String(current._id) === data.to)[0], userReadResponse.data.filter((current) => String(current._id) === data.from)[0]];
+		[data.to, data.from] = [
+			userReadResponse.data.filter((current) => String(current._id) === data.to)[0],
+			userReadResponse.data.filter((current) => String(current._id) === data.from)[0]
+		];
 
 		// Emitting new message to all users in conversation.
 		this.io.sockets.in(data.conversation).emit("typing", data);
 	}
 
 	async readAllMessages(data) {
-		const messagesReadResponse = await messageService.readMany(
-			{ conversation: data.conversation, user: data.receiver, was_read: false }
-		);
+		const messagesReadResponse = await messageService.readMany({ conversation: data.conversation, user: data.receiver, was_read: false });
 		if (messagesReadResponse.error) throw messagesReadResponse.errors;
 
-		const messagesUpdateResponse = await messageService.updateMany(
-			{ conversation: data.conversation, user: data.receiver, was_read: false },
-			{ $set: { was_read: true } }
-		);
+		const messagesUpdateResponse = await messageService.updateMany({ conversation: data.conversation, user: data.receiver, was_read: false }, { $set: { was_read: true } });
 		if (messagesUpdateResponse.error) throw messagesUpdateResponse.errors;
 
 		// Emit to sender only.

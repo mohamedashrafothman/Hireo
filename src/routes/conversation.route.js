@@ -10,8 +10,11 @@ const router = app.Router();
 // ─── ROUTER BREAKPOINTS ─────────────────────────────────────────────────────────
 //
 router
-	.route(["/", "/:id"])
+	.route(["/", "/:status", "/:status/:id"])
 	.get(ConversationController.getAllConversations);
+router
+	.route(["/:conversation/edit_status/:status"])
+	.get(ConversationController.changeConversationStatus);
 
 //
 // ─── EXPORTING ROUTER ───────────────────────────────────────────────────────────

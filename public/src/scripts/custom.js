@@ -1758,7 +1758,7 @@
 			// EMITTING EVENTS.
 			// ─────────────────────────────────────────────────────────────────
 			// 1-emitting to join conversation socket with conversation mongodb id.
-			conversations_id.forEach(function(ele) { socket.emit("join_conversation", ele); });
+			conversations_id.forEach(function(ele) { socket.emit("conversations/join", ele); });
 
 			// 2-handling conversation page events.
 			if ($conversationContainer.length) {
@@ -1776,13 +1776,13 @@
 				$conversationContainerInner.scrollTop($conversationContainerInner[0].scrollHeight);
 
 				// Handling read all messages in opened conversation
-				socket.emit("read_all_messages", { conversation: conversation_id, receiver: send_to_user, sender: send_from_user });
+				socket.emit("messages/read_all", { conversation: conversation_id, receiver: send_to_user, sender: send_from_user });
 
 				// Handling on typing chat input event.
 				$messages_replay.on("keyup", function(e) {
 					// Emitting "user is typing" event with conversation, sender, and receiver data.
-					socket.emit("user_is_typing", { conversation: conversation_id, to: send_to_user, from: send_from_user });
-				})
+					socket.emit("messages/typing", { conversation: conversation_id, to: send_to_user, from: send_from_user });
+				});
 
 				// Handling submitting chat form event, with emitting the message to the server.
 				$messages_form.on("submit", function(e) {
@@ -1805,9 +1805,8 @@
 					// Resting form input to empty again.
 					$(e.target).find('textarea').val("");
 					// Emitting new message with conversation, sender, and receiver data.
-					socket.emit("new_message", { conversation: conversation_id, to: send_to_user, from: send_from_user, message });
+					socket.emit("messages/new", { conversation: conversation_id, to: send_to_user, from: send_from_user, message });
 				});
-
 			}
 
 			// LISTENING TO EVENTS.
@@ -1839,7 +1838,7 @@
 					$conversationContainerInner.scrollTop($conversationContainerInner[0].scrollHeight);
 
 					// Handling read all messages in opened conversation
-					socket.emit("read_all_messages", {  conversation: conversation_id, receiver: send_to_user, sender: send_from_user });
+					socket.emit("messages/read_all", {  conversation: conversation_id, receiver: send_to_user, sender: send_from_user });
 				}
 			});
 
@@ -1851,6 +1850,11 @@
 				}
 			});
 
+			// 4-listening to event logout user.
+			socket.on("user/logout", (data)=> { changeUserStatusIndicator(data); });
+
+			// 5- listening to event login user.
+			socket.on("user/login", (data)=> { changeUserStatusIndicator(data); });
 
 			// HELPER FUNCTIONS.
 			// ─────────────────────────────────────────────────────────────────
@@ -1972,6 +1976,31 @@
 				}
 			}
 
+			function changeUserStatusIndicator(data) {
+				// caching dom.
+				var $status_indicator = $(`i[data-user='${data.id}']`);
+				if ($status_indicator.length) {
+					$status_indicator.each(function(index, ele) {
+						if (data.is_active) {
+							if ($(ele).hasClass("status-offline")) {
+								$(ele).removeClass("status-offline").addClass("status-online");
+							}
+						} else {
+							if ($(ele).hasClass("status-online")) {
+								$(ele).removeClass("status-online").addClass("status-offline");
+							}
+						}
+
+						Snackbar.show({
+							text: `${data.name} is ${data.is_active ? "online" : "offline"}.`,
+							pos: "bottom-center",
+							duration: 5000,
+							textColor: "#fff",
+							backgroundColor: "#383838"
+						});
+					});
+				}
+			}
 		})();
 		// ------------------ End Document ------------------ //
 	});

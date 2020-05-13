@@ -4,7 +4,7 @@
     "description": "Job posting & tasks marketplace.",
     "main": "index.js",
     "scripts": {
-        "start": "npm run build",
+        "start": "npm run server:dev",
         "server:dev": "set NODE_ENV=development && npm-run-all clean && nodemon --exec babel-node ./src/index.js --ignore ./public/",
         "server:prod": "set NODE_ENV=production && npm-run-all clean build && node ./dist/index.js",
         "assets:dev": "cd public/ && npm run build:dev",

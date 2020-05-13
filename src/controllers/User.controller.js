@@ -1,5 +1,5 @@
 import { body, validationResult, sanitizeBody } from "express-validator";
-import { assignIn } from "lodash";
+import { assignIn, isEmpty } from "lodash";
 import qs from "qs";
 import to from "await-to-js";
 import path from "path";
@@ -13,17 +13,20 @@ import Email from "../models/Email.model";
 import Skill from "../models/Skill.model";
 import Nationality from "../models/Nationality.model";
 import Attachment from "../models/Attachment.model";
+import Conversation from "../models/Conversation.model";
 
 import UserService from "../services/User";
 import EmailService from "../services/Email";
 import SkillService from "../services/Skill";
 import NationalityService from "../services/Nationality";
 import AttachmentService from "../services/Attachment";
+import ConversationService from "../services/Conversation";
 
 const userService = new UserService(User);
 const emailService = new EmailService(Email);
 const skillService = new SkillService(Skill);
 const nationalitySerivce = new NationalityService(Nationality);
+const conversationService = new ConversationService(Conversation);
 const avatarAttachmentService = new AttachmentService(Attachment);
 const profileInfoAttachmentService = new AttachmentService(Attachment);
 
@@ -305,12 +308,28 @@ class UserController extends Controller {
 					req.session.cookie.expires = false;
 				}
 
-				const userUpdateResponse = await userService.updateOne(
-					{ email: user.email, is_active: 0 },
-					{ $set: { is_active: 1 } }
-				);
-				if (userUpdateResponse.error) {
-					return next(userUpdateResponse.errors);
+				// updated logged in user.
+				const userUpdateResponse = await userService.updateOne({ email: user.email, is_active: 0 }, { $set: { is_active: 1 } });
+				if (userUpdateResponse.error) return next(userUpdateResponse.errors);
+
+				// Get logged in user data.
+				const userUpdatedResponse = await userService.readOne({ _id: user._id });
+				if (userUpdatedResponse.error) return next(userUpdatedResponse.errors);
+
+				// Get all conversations belongs to user.
+				const conversationsReadResponse = await conversationService.readMany({ users: userUpdatedResponse.data._id }, { pagination: false, select: "_id" });
+				if (conversationsReadResponse.error) return next(conversationsReadResponse.errors);
+
+				// Emit to user conversations channels, to notify other users.
+				if (!isEmpty(conversationsReadResponse.data)) {
+					const { io } = req.app.get("io");
+					conversationsReadResponse.data.forEach((conversation) => {
+						io.sockets.in(conversation._id).emit("user/login", {
+							id: userUpdatedResponse.data._id,
+							is_active: userUpdatedResponse.data.is_active,
+							name: userUpdatedResponse.data.account.name
+						});
+					});
 				}
 
 				const returnTo = req.session.returnTo || "/";
@@ -404,6 +423,23 @@ class UserController extends Controller {
 
 		req.logout();
 		req.user = null;
+
+		// Get all conversations belongs to user.
+		const conversationsReadResponse = await conversationService.readMany({ users: userLoggingOutResponse.data._id }, { pagination: false, select: "_id" });
+		if (conversationsReadResponse.error) return next(conversationsReadResponse.errors);
+
+		// Emit to user conversations channels, to notify other users.
+		if (!isEmpty(conversationsReadResponse.data)) {
+			const { io } = req.app.get("io");
+			conversationsReadResponse.data.forEach((conversation) => {
+				io.sockets.in(conversation._id).emit("user/logout", {
+					id: userLoggingOutResponse.data._id,
+					is_active: userLoggingOutResponse.data.is_active,
+					name: userLoggingOutResponse.data.account.name
+				});
+			});
+		}
+
 		req.flash("success", "Successfully logout process.");
 		res.redirect("/");
 	}

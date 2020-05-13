@@ -2,9 +2,9 @@ mixin conversation(data={}, current={}, index=0)
 	- var message_user = data.users.filter(function(current) {return String(current._id) !== String(user._id);})[0];
 	// .active-message
 	li(class=(String(data._id) === String(current._id) ? "active-message" : "") )
-		a(href=`/dashboard/conversations/${data._id}`)
+		a(href=`/dashboard/conversations/${data.status}/${data._id}`)
 			.message-avatar
-				i(class=`status-icon ${(message_user.is_active) ? "status-online" : "status-offline"}`)
+				i(class=`status-icon ${(message_user.is_active) ? "status-online" : "status-offline"}`, data-user=message_user._id)
 				if (message_user.account.picture || message_user.account.picture_md)
 					img(src=(!message_user.account.picture) ? `/${message_user.account.picture_md.path}` : `/${message_user.account.picture.path}`, alt='')
 				else

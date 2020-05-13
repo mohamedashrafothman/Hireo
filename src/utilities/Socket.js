@@ -27,7 +27,7 @@ export default class SocketConnection {
 
 	async connectionEvent() {
 		await this.io.sockets.on("connection", (socket) => {
-			console.log(`✅  ${blue("Socket connection has been opened successfully!")}`);
+			console.log(`✅  ${blue("Socket connection has been opened!")}`);
 
 			// Save socket.io in the session
 			socket.request.session.socketio = socket.id;
@@ -46,7 +46,7 @@ export default class SocketConnection {
 		});
 	}
 
-	async disconnectingEvent() { console.log(`✅  ${red("Socket connection has been disconnected successfully!")}`); }
+	async disconnectingEvent() { console.log(`✅  ${red("Socket connection has been closed!")}`); }
 
 	async joinChatEvent(conversation) { await this.socket.join(conversation); }
 
@@ -60,7 +60,10 @@ export default class SocketConnection {
 		if (messageCreateResponse.error) throw messageCreateResponse.errors;
 
 		// add messages to conversation model.
-		const conversationUpdateResponse = await conversationService.updateOne({ _id: data.conversation }, { $addToSet: { messages: messageCreateResponse.data._id } });
+		const conversationUpdateResponse = await conversationService.updateOne(
+			{ _id: data.conversation },
+			{ $addToSet: { messages: messageCreateResponse.data._id }, $set: { is_deleted: false }, $pull: { deleted_by: data.to } }
+		);
 		if (conversationUpdateResponse.error) throw conversationUpdateResponse.errors;
 
 		// add user documents to event data.

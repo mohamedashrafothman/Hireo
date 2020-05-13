@@ -53,12 +53,15 @@ class MessageController extends Controller {
 
 			const conversationUpdateResponse = await conversationService.updateOne(
 				{ _id: conversationReadResponse.data._id },
-				{ $addToSet: { messages: messageCreateResponse.data._id }, $set: { status: 0 } }
+				{ $addToSet: { messages: messageCreateResponse.data._id }, $set: { is_deleted: false }, $pull: { deleted_by: to } }
 			);
 			if (conversationUpdateResponse.error) return next(conversationUpdateResponse.errors);
 
 			// Getting all users in the conversation.
-			const userReadResponse = await userService.readMany({ _id: { $in: conversationReadResponse.data.users } }, { pagination: false, select: "email slug account is_active", populate: [{ path: "account.picture", select: "path name" }, { path: "account.picture_sm", select: "path name" }, { path: "account.picture_md", select: "path name" }, { path: "account.picture_lg", select: "path name" }] });
+			const userReadResponse = await userService.readMany(
+				{ _id: { $in: conversationReadResponse.data.users } },
+				{ pagination: false, select: "email slug account is_active", populate: [{ path: "account.picture", select: "path name" }, { path: "account.picture_sm", select: "path name" }, { path: "account.picture_md", select: "path name" }, { path: "account.picture_lg", select: "path name" }] }
+			);
 			if (userReadResponse.error) throw userReadResponse.errors;
 
 			// sending created message using sockets to all users in the conversation.
@@ -84,7 +87,7 @@ class MessageController extends Controller {
 
 		const conversationUpdateResponse = await conversationService.updateOne(
 			{ _id: conversationCreateResponse.data._id },
-			{ $addToSet: { messages: messageCreateResponse.data._id }, $set: { status: 0 } }
+			{ $addToSet: { messages: messageCreateResponse.data._id }, $set: { is_deleted: false }, $pull: { deleted_by: to } }
 		);
 		if (conversationUpdateResponse.error) return next(conversationUpdateResponse.errors);
 

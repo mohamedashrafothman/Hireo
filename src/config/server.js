@@ -130,14 +130,14 @@ app.use(async (req, res, next) => {
 
 	if (req.user) {
 		const [conversationReadResponseError, conversationReadResponse] = await to(
-			conversationService.readMany({ users: req.user._id }, { pagination: false })
+			conversationService.readMany({ users: req.user._id, is_deleted: false }, { pagination: false })
 		);
 		if (conversationReadResponseError) return next(conversationReadResponseError);
 		if (conversationReadResponse.error) return next(conversationReadResponse.errors);
 
 		const [messageReadResponseError, messageReadResponse] = await to(
 			messageService.readMany(
-				{ _id: { $in: [].concat(...conversationReadResponse.data.map((array) => array.messages)) }, user: { $ne: req.user._id } },
+				{ _id: { $in: [].concat(...conversationReadResponse.data.map((array) => array.messages)) }, user: { $ne: req.user._id }, is_deleted: false },
 				{
 					pagination: false,
 					sort: { was_read: "asc", created_at: "desc" },

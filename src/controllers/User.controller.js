@@ -490,6 +490,22 @@ class UserController extends Controller {
 		);
 		if (userChangeAvailabilityResponse.error) return next(userChangeAvailabilityResponse.errors);
 
+		// Get all conversations belongs to user.
+		const conversationsReadResponse = await conversationService.readMany({ users: userChangeAvailabilityResponse.data._id }, { pagination: false, select: "_id" });
+		if (conversationsReadResponse.error) return next(conversationsReadResponse.errors);
+
+		// Emit to user conversations channels, to notify other users.
+		if (!isEmpty(conversationsReadResponse.data)) {
+			const { io } = req.app.get("io");
+			conversationsReadResponse.data.forEach((conversation) => {
+				io.sockets.in(conversation._id).emit(userChangeAvailabilityResponse.data.is_active ? "user/login" : "user/logout", {
+					id: userChangeAvailabilityResponse.data._id,
+					is_active: userChangeAvailabilityResponse.data.is_active,
+					name: userChangeAvailabilityResponse.data.account.name
+				});
+			});
+		}
+
 		res.json(userChangeAvailabilityResponse.data.is_active);
 	}
 

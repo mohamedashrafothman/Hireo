@@ -18,7 +18,8 @@ const MessageSchema = new mongoose.Schema({
 		required: true,
 		trim: true
 	},
-	was_read: { type: Boolean, default: 0 }
+	was_read: { type: Boolean, default: false },
+	is_deleted: { type: Boolean, default: false }
 }, {
 	timestamps: {
 		createdAt: "created_at",

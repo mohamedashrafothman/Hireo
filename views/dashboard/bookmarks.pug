@@ -41,7 +41,7 @@ block content
 											// Logo
 											a.job-listing-company-logo(href=`/profile/${job.created_by.slug}`)
 												if (job.created_by.account.picture || job.created_by.account.picture_md)
-													img(src=`${(!job.created_by.account.picture_md) ? job.created_by.account.picture : job.created_by.account.picture_md}`)
+													img.profile-pic(src=(!job.created_by.account.picture_md) ? `/${job.created_by.account.picture_md.path}` : `/${job.created_by.account.picture_md.path}`, alt='')
 												else
 													img(src=`${job.created_by.gravatar(50)}`)
 											// Details
@@ -102,7 +102,7 @@ block content
 													.verified-badge
 												a(href=`/profile/${freelancer.slug}`)
 													if (freelancer.account.picture || freelancer.account.picture_md)
-														img(src=`${(!freelancer.account.picture_md) ? freelancer.account.picture : freelancer.account.picture_md}`)
+														img.profile-pic(src=(!freelancer.account.picture_md) ? `/${freelancer.account.picture_md.path}` : `/${freelancer.account.picture_md.path}`, alt='')
 													else
 														img(src=`${freelancer.gravatar(50)}`)
 											// Name
@@ -155,7 +155,7 @@ block content
 													.verified-badge
 												a(href=`/profile/${employer.slug}`)
 													if (employer.account.picture || employer.account.picture_md)
-														img(src=`${(!employer.account.picture_md) ? employer.account.picture : employer.account.picture_md}`)
+														img.profile-pic(src=(!employer.account.picture_md) ? `/${employer.account.picture_md.path}` : `/${employer.account.picture.path_md}`, alt='')
 													else
 														img(src=`${employer.gravatar(50)}`)
 											// Name

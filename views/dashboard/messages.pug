@@ -20,8 +20,8 @@ block content
 						// Messages
 						.messages-inbox
 							.messages-headline
-								form#search-input-form(action="#", method="GET", style="position: relative;")
-									input.input-text.autocomplete(name='q', type='text', placeholder='Search', value="")
+								form#search-input-form(action="", method="GET", style="position: relative;")
+									input.input-text.autocomplete(name='q', type='text', placeholder='Search', value=query.q)
 									button.autocomplete-button.ripple-effect(type="submit", form="search-input-form")
 										i.icon-material-outline-search.icon-right
 							ul
@@ -79,3 +79,10 @@ block append modals
 							| Delete Now!
 		// Delete Conversation Dialog / End
 block append scripts
+	if (query.q)
+		script.
+			$(document).ready(function() {
+				$(".message-by-headline h5, .message-by-headline p, .message-text p").each(function(index, ele) {
+					$(ele).mark("#{query.q}", {element: "mark"});
+				});
+			});

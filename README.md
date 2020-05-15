@@ -80,7 +80,7 @@ The below environment variables are needed to get the application up and running
 
 To load sample data, run the following command in your terminal:
 ```bash
-npm run sample
+npm run samples
 ```
 
 That will populate 3 accounts based on 3 roles (admin, employer, freelancer). The logins for the accounts are as follows:

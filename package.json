@@ -10,7 +10,7 @@
         "assets:dev": "cd public/ && npm run build:dev",
         "assets:prod": "cd public/ && npm run build:prod",
         "clean": "rimraf dist",
-        "build": "babel ./src --out-dir dist && assets:prod",
+        "build": "babel ./src --out-dir dist && npm run assets:prod",
         "samples": "npm-run-all samples:drop samples:load",
         "samples:load": "babel-node ./src/utilities/Samples.js",
         "samples:drop": "babel-node ./src/utilities/Samples.js --drop"

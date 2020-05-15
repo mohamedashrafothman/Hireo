@@ -1608,6 +1608,21 @@
 		})();
 
 
+		/*----------------------------------------------------*/
+		/*  Auto remove notifications
+	    /*----------------------------------------------------*/
+		(function() {
+			var $alertsWrapper = $(".alerts-wrapper");
+			var $notifications = $alertsWrapper.find(".notification");
+			if ($notifications.length) {
+				$notifications.each(function(index, ele) {
+					console.log((index + 1) * 1000);
+					setTimeout(() => {
+						$(ele).find(".close").click();
+					}, Boolean($(ele).data("timeout-close")) ? Number($(ele).data("timeout-close")) : (index +1) * 1250);
+				});
+			}
+		})();
 
 		/*----------------------------------------------------*/
 		/*  Google Maps Init Function
@@ -1807,6 +1822,14 @@
 					// Emitting new message with conversation, sender, and receiver data.
 					socket.emit("messages/new", { conversation: conversation_id, to: send_to_user, from: send_from_user, message });
 				});
+
+				// Handling Conversation DOM on scroll
+				// $conversationContainerInner.scroll(function(e) {
+				// 	const scrollPercentage = getScrollPercentage(e.target, -1);
+				// 	if (scrollPercentage >= 75) {
+				// 		console.log(scrollPercentage);
+				// 	}
+				// })
 			}
 
 			// LISTENING TO EVENTS.
@@ -1858,6 +1881,15 @@
 
 			// HELPER FUNCTIONS.
 			// ─────────────────────────────────────────────────────────────────
+			// function getScrollPercentage(ele, direction) {
+			// 	var scrollTop = $(ele).scrollTop();
+			// 	var docHeight = $(ele).parent().height();
+			// 	var winHeight = $(ele).height();
+			// 	var scrollPercent = (scrollTop) / (docHeight - winHeight);
+			// 	var scrollPercentRounded = Math.round(scrollPercent * 100);
+			// 	return (direction === -1) ? (100 - scrollPercentRounded) : scrollPercentRounded;
+			// };
+
 			function outputMessagePopup(data, send_to_user_gravatar, send_from_user_gravatar) {
 				if ($conversationContainerInner.find("#typing").length) {
 					$conversationContainerInner.find("#typing").remove();

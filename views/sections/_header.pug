@@ -116,22 +116,22 @@
 								button.mark-as-read.ripple-effect-dark(data-notification-type="messages", title='Mark all as read', data-tippy, data-tippy-placement='left')
 									i.icon-feather-check-square
 							.header-notifications-content
-								.header-notifications-scroll(data-simplebar='')
-									ul
-										// Notification
-										if (unReadMessages.length)
-											each unReadMessage, i in unReadMessages
-												li(class=`${(!unReadMessage.was_read) ? "notifications-not-read" : ""}`, id=`message-${unReadMessage._id}`, data-notification-id=`${unReadMessage._id}`)
-													a(href=`/dashboard/conversations/${unReadMessage.conversation._id}?message=${unReadMessage._id}`)
-														span(class=`notification-avatar ${(unReadMessage.user.is_active) ? "status-online" : "status-offline"}`)
-															if (unReadMessage.user.account.picture || unReadMessage.user.account.picture_sm)
-																img(src=(!unReadMessage.user.account.picture) ? `/${unReadMessage.user.account.picture_sm.path}` : `/${unReadMessage.user.account.picture.path}`, alt='')
-															else
-																img(src=unReadMessage.user.gravatar(50), alt='')
-														.notification-text
-															strong=unReadMessage.user.account.name
-															p.notification-msg-text=unReadMessage.content
-															span.color=moment(unReadMessage.created_at).calendar()
+								//- .header-notifications-scroll(data-simplebar='')
+								ul
+									// Notification
+									if (unReadMessages.length)
+										each unReadMessage, i in unReadMessages
+											li(class=`${(!unReadMessage.was_read) ? "notifications-not-read" : ""}`, id=`message-${unReadMessage._id}`, data-notification-id=`${unReadMessage._id}`)
+												a(href=`/dashboard/conversations/${unReadMessage.conversation._id}?message=${unReadMessage._id}`)
+													span(class=`notification-avatar ${(unReadMessage.user.is_active) ? "status-online" : "status-offline"}`)
+														if (unReadMessage.user.account.picture || unReadMessage.user.account.picture_sm)
+															img(src=(!unReadMessage.user.account.picture) ? `/${unReadMessage.user.account.picture_sm.path}` : `/${unReadMessage.user.account.picture.path}`, alt='')
+														else
+															img(src=unReadMessage.user.gravatar(50), alt='')
+													.notification-text
+														strong=unReadMessage.user.account.name
+														p.notification-msg-text=unReadMessage.content
+														span.color=moment(unReadMessage.created_at).calendar()
 							a.header-notifications-button.ripple-effect.button-sliding-icon(href='/dashboard/conversations')
 								| View All Messages
 								i.icon-material-outline-arrow-right-alt

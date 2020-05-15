@@ -257,7 +257,7 @@
 
 	.message-content-inner {
 		padding: 30px;
-		padding-bottom: 0;
+		padding-bottom: 15px;
 		flex-grow: 1;
 	}
 
@@ -462,7 +462,7 @@
 	padding: 30px;
 	display: flex;
 	align-items: flex-start;
-	margin-top: 15px;
+	// margin-top: 15px;
 
 	textarea {
 		min-width: auto;

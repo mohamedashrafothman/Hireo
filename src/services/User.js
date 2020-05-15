@@ -140,27 +140,51 @@ export default class UserService extends Service {
 			this.model
 				.findOne({ _id })
 				.select("_id bookmarked")
-				.populate({
-					path: "bookmarked.job",
-					model: "Job",
-					select: "slug title location.address created_at",
-					populate: [
-						{ path: "created_by", model: "User", select: "slug rating email account.name account.picture account.picture_sm account.picture_md account.picture_lg" },
-						{ path: "type", model: "job_type", select: "name -_id" }
-					]
-				})
-				.populate({
-					path: "bookmarked.freelancer",
-					model: "User",
-					select: "is_verified rating slug email account.picture account.picture_sm account.picture_md account.picture_lg account.name profile.tagline",
-					populate: { path: "profile.nationality", model: "Nationality", select: "-_id code name" }
-				})
-				.populate({
-					path: "bookmarked.employer",
-					model: "User",
-					select: "is_verified rating slug email account.picture account.picture_sm account.picture_md account.picture_lg account.name profile.tagline",
-					populate: { path: "profile.nationality", model: "Nationality", select: "-_id code name" }
-				})
+				.populate([
+					{
+						path: "bookmarked.job",
+						model: "Job",
+						select: "slug title location.address created_at",
+						populate: [
+							{
+								path: "created_by",
+								model: "User",
+								select: "slug rating email account.name account.picture account.picture_sm account.picture_md account.picture_lg",
+								populate: [
+									{ path: "account.picture", select: "_id path name", model: "Attachment" },
+									{ path: "account.picture_sm", select: "_id path name", model: "Attachment" },
+									{ path: "account.picture_md", select: "_id path name", model: "Attachment" },
+									{ path: "account.picture_lg", select: "_id path name", model: "Attachment" },
+								]
+							},
+							{ path: "type", model: "job_type", select: "name -_id" }
+						]
+					},
+					{
+						path: "bookmarked.freelancer",
+						model: "User",
+						select: "is_verified rating slug email account.picture account.picture_sm account.picture_md account.picture_lg account.name profile.tagline",
+						populate: [
+							{ path: "account.picture", select: "_id path name", model: "Attachment" },
+							{ path: "account.picture_sm", select: "_id path name", model: "Attachment" },
+							{ path: "account.picture_md", select: "_id path name", model: "Attachment" },
+							{ path: "account.picture_lg", select: "_id path name", model: "Attachment" },
+							{ path: "profile.nationality", model: "Nationality", select: "-_id code name" }
+						]
+					},
+					{
+						path: "bookmarked.employer",
+						model: "User",
+						select: "is_verified rating slug email account.picture account.picture_sm account.picture_md account.picture_lg account.name profile.tagline",
+						populate: [
+							{ path: "account.picture", select: "_id path name", model: "Attachment" },
+							{ path: "account.picture_sm", select: "_id path name", model: "Attachment" },
+							{ path: "account.picture_md", select: "_id path name", model: "Attachment" },
+							{ path: "account.picture_lg", select: "_id path name", model: "Attachment" },
+							{ path: "profile.nationality", model: "Nationality", select: "-_id code name" }
+						]
+					}
+				])
 		);
 
 		if (userError) return { error: true, statusCode: 500, errors: userError };

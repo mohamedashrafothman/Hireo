@@ -418,14 +418,15 @@ class UserController extends Controller {
 	}
 
 	async logoutUser(req, res, next) {
-		const userLoggingOutResponse = await userService.logout(req.user);
-		if (userLoggingOutResponse.error) return next(userLoggingOutResponse.errors);
+		const { _id } = req.user;
+		const userUpdateResponse = await userService.updateOne({ _id }, { $set: { is_active: 0 } });
+		if (userUpdateResponse.error) return next(userUpdateResponse.errors);
 
 		req.logout();
 		req.user = null;
 
 		// Get all conversations belongs to user.
-		const conversationsReadResponse = await conversationService.readMany({ users: userLoggingOutResponse.data._id }, { pagination: false, select: "_id" });
+		const conversationsReadResponse = await conversationService.readMany({ users: userUpdateResponse.data._id }, { pagination: false, select: "_id" });
 		if (conversationsReadResponse.error) return next(conversationsReadResponse.errors);
 
 		// Emit to user conversations channels, to notify other users.
@@ -433,9 +434,9 @@ class UserController extends Controller {
 			const { io } = req.app.get("io");
 			conversationsReadResponse.data.forEach((conversation) => {
 				io.sockets.in(conversation._id).emit("user/logout", {
-					id: userLoggingOutResponse.data._id,
-					is_active: userLoggingOutResponse.data.is_active,
-					name: userLoggingOutResponse.data.account.name
+					id: userUpdateResponse.data._id,
+					is_active: userUpdateResponse.data.is_active,
+					name: userUpdateResponse.data.account.name
 				});
 			});
 		}
@@ -924,6 +925,7 @@ class UserController extends Controller {
 		const userBookmarkedList = await userService.getBookmarked(req.user._id);
 		if (userBookmarkedList.error) return next(userBookmarkedList.errors);
 
+		// return res.json(userBookmarkedList.data);
 		res.render("dashboard/bookmarks", {
 			page_title: "My Bookmarks",
 			data: userBookmarkedList.data

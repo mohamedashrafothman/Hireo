@@ -18,7 +18,6 @@ class ConversationController extends Controller {
 	async getAllConversations(req, res, next) {
 		const { id } = req.params;
 		const options = {
-			pagination: false,
 			populate: [
 				{
 					path: "users",
@@ -37,8 +36,16 @@ class ConversationController extends Controller {
 			],
 			sort: { updated_at: "desc" }
 		};
-		const conversationQuery = { ...(id && { _id: id }), ...(req.user.role !== "admin" && { users: req.user._id }), ...(!id && { is_deleted: false, deleted_by: { $ne: req.user._id } }) };
-		const conversationsQuery = { ...(req.user.role !== "admin" && { users: req.user._id }), is_deleted: false, deleted_by: { $ne: req.user._id } };
+		const conversationQuery = {
+			...(id && { _id: id }),
+			...(req.user.role !== "admin" && { users: req.user._id }),
+			...(!id && { is_deleted: false, deleted_by: { $ne: req.user._id } })
+		};
+		const conversationsQuery = {
+			...(req.user.role !== "admin" && { users: req.user._id }),
+			is_deleted: false,
+			deleted_by: { $ne: req.user._id }
+		};
 
 		const conversationReadResponse = await conversationService.readMany(conversationQuery, options);
 		if (conversationReadResponse.error) return next(conversationReadResponse.errors);
@@ -52,7 +59,8 @@ class ConversationController extends Controller {
 			data: {
 				conversations: conversationsReadResponse.data,
 				conversation: conversationReadResponse.data[0]
-			}
+			},
+			query: req.query
 		});
 	}
 

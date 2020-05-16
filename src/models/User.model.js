@@ -67,10 +67,10 @@ const UserSchema = new mongoose.Schema({
 			validate: [(val) => val.length <= 500, "{PATH} exceeds the limit of 500 letter."]
 		},
 		social_accounts: {
-			dribbble: { type: String, trime: true },
-			twitter: { type: String, trime: true },
-			behance: { type: String, trime: true },
-			github: { type: String, trime: true }
+			dribbble: { type: String, trim: true },
+			twitter: { type: String, trim: true },
+			behance: { type: String, trim: true },
+			github: { type: String, trim: true }
 		},
 		attachments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Attachment" }]
 	},

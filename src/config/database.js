@@ -9,24 +9,25 @@ import mongoose from "mongoose";
 // https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/mongoose#Using_Mongoose_and_MongoDb_for_the_LocalLibrary
 //
 export default class MongoDBConnection {
-	constructor(onOpen, onError) {
-		this.onOpen = onOpen || (() => { console.log(blue.bold("✅  Conencted to the database")); });
-		this.onError = onError || ((error) => {
-			console.error(error);
-			console.log(`⛔️  ${red("MongoDB connection error")}.\n Please make sure MongoDB server is running.`);
-			process.exit();
-		});
+	constructor() {
+		if (!MongoDBConnection.instance) {
+			mongoose.Promise = global.Promise;
+			mongoose.set("useNewUrlParser", true);
+			mongoose.set("useFindAndModify", false);
+			mongoose.set("useCreateIndex", true);
+			mongoose.set("useUnifiedTopology", true);
+			mongoose.connect(process.env.MONGODB_URI);
+			mongoose.connection
+				.once("open", () => { console.log(blue.bold("✅  Connected to the database")); })
+				.on("error", (error) => {
+					console.error(error);
+					console.log(`⛔️  ${red("MongoDB connection error")}.\n Please make sure MongoDB server is running.`);
+					process.exit();
+				});
+			[this.db] = mongoose.connections;
+			MongoDBConnection.instance = this;
+		}
 
-		this.startConnection();
-	}
-
-	startConnection() {
-		mongoose.Promise = global.Promise;
-		mongoose.set("useNewUrlParser", true);
-		mongoose.set("useFindAndModify", false);
-		mongoose.set("useCreateIndex", true);
-		mongoose.set("useUnifiedTopology", true);
-		mongoose.connect(process.env.MONGODB_URI);
-		mongoose.connection.once("open", this.onOpen).on("error", this.onError);
+		return MongoDBConnection.instance;
 	}
 }

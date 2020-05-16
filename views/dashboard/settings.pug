@@ -176,6 +176,13 @@ block content
 								.input-with-icon-right
 									input#password-repeat.with-border(type='password', name="confirmPassword", placeholder="Repeat New Password" required, data-tippy, data-tippy-placement='top', title=`Should be exactly like new password field.`)
 									i.icon-feather-eye.icon-right.show-password(data-target="#password-repeat")
+					.row
+						.col-xl-12
+							.checkbox
+								input#loggingOutFromOtherDevices(type='checkbox', name="loggingOutFromOtherDevices")
+								label(for='loggingOutFromOtherDevices')
+									span.checkbox-icon
+									| Logout From Other Devices.
 				.footline
 					button.button.ripple-effect.big(type="submit" form="password-setting-form") Change Password
 

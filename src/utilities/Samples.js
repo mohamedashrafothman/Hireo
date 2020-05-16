@@ -23,7 +23,8 @@ class Samples {
 		this.categories = categories;
 		this.jobType = jobType;
 
-		this.connectMongoDB();
+		// Connecting to mongodb
+		new MongoDBConnection();
 
 		this.users = this.readJsonFiles(`${__dirname}/../samples/users.json`);
 		this.skills = this.readJsonFiles(`${__dirname}/../samples/skills.json`);
@@ -33,19 +34,6 @@ class Samples {
 		this.jobType = this.readJsonFiles(`${__dirname}/../samples/job_type.json`);
 
 		if (process.argv.includes("--drop")) { this.dropSamples(); } else { this.loadSamples(); }
-	}
-
-	connectMongoDB() {
-		new MongoDBConnection(
-			() => {
-				console.log(blue.bold("✅  Conencted to the database"));
-			},
-			(error) => {
-				console.error(error);
-				console.log(`⛔️  ${red("MongoDB connection error")}.\n Please make sure MongoDB server is running.`);
-				process.exit();
-			}
-		);
 	}
 
 	readJsonFiles(path) { return JSON.parse(fs.readFileSync(path, "utf-8")); }

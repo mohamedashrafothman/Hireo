@@ -1873,11 +1873,12 @@
 				}
 			});
 
-			// 4-listening to event logout user.
-			socket.on("user/logout", (data)=> { changeUserStatusIndicator(data); });
+			// 4-listening to event change status.
+			socket.on("user/change_active_status", (data)=> { changeUserStatusIndicator(data); });
 
-			// 5- listening to event login user.
-			socket.on("user/login", (data)=> { changeUserStatusIndicator(data); });
+			socket.on("user/logout_from_devices", function() {
+				location.reload();
+			});
 
 			// HELPER FUNCTIONS.
 			// ─────────────────────────────────────────────────────────────────

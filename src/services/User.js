@@ -65,10 +65,7 @@ export default class UserService extends Service {
 	}
 
 	async resetPassword(body, params) {
-		const existedUser = await this.readOne({
-			resetPasswordToken: params.token,
-			resetPasswordExpires: { $gt: Date.now() }
-		});
+		const existedUser = await this.readOne({ resetPasswordToken: params.token, resetPasswordExpires: { $gt: Date.now() } });
 		if (existedUser.error) return existedUser;
 		if (isEmpty(existedUser.data)) return { error: true, statusCode: 404, errors: ["Password reset token is invalid or has expired."] };
 

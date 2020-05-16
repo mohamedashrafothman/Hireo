@@ -409,10 +409,7 @@ class JobController extends Controller {
 			...applicationDeleteResponse.data.map((application) => application.attachment)
 		];
 		const attachmentDeleteResponse = await attachmentService.deleteMany({ _id: { $in: attachments_ids } });
-		if (attachmentDeleteResponse.error) {
-			if (attachmentDeleteResponse.statusCode === 404) return next();
-			return next(attachmentDeleteResponse.errors);
-		}
+		if (attachmentDeleteResponse.error) return next(attachmentDeleteResponse.errors);
 
 		const attachmentFilesDeleteResponse = await attachmentService.handelFilesForDirDeletion(
 			attachmentDeleteResponse.data.map((current) => current.path)

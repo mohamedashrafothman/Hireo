@@ -37,6 +37,8 @@ import ConversationService from "../services/Conversation";
 
 import indexRouter from "../routes/index.route";
 
+import DatabaseConnection from "./database";
+
 const MongoStore = connectMongo(session);
 const helper = new Helper();
 const messageService = new MessageService(Message);
@@ -58,10 +60,12 @@ const sessionMiddleware = session({
 	store: new MongoStore({
 		url: process.env.MONGODB_URI,
 		ttl: 60 * 60 * process.env.SESSION_TIMEOUT_IN_HOURS, // Time to remove session from database in hours.
+		collection: process.env.SESSION_DATABASE_COLLECTION_NAME,
 		resave: false,
 		autoReconnect: true,
 		autoRemove: "native",
-		autoRemoveInterval: 1
+		autoRemoveInterval: 1,
+		stringify: false
 	})
 });
 
@@ -249,4 +253,4 @@ app.use(
 //
 // ─── EXPORTING SERVER & APP INSTANCE ────────────────────────────────────────────
 //
-export { server, app };
+export { server, app, DatabaseConnection };

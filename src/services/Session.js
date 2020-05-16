@@ -1,6 +1,6 @@
 import Service from "../utilities/Service";
 
-export default class SkillService extends Service {
+export default class SessionService extends Service {
     constructor(model) {
         super(model);
     }

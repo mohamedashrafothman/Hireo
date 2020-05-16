@@ -11,6 +11,7 @@ import Controller from "../utilities/Controller";
 import User from "../models/User.model";
 import Email from "../models/Email.model";
 import Skill from "../models/Skill.model";
+import Session from "../models/Session.model";
 import Nationality from "../models/Nationality.model";
 import Attachment from "../models/Attachment.model";
 import Conversation from "../models/Conversation.model";
@@ -18,6 +19,7 @@ import Conversation from "../models/Conversation.model";
 import UserService from "../services/User";
 import EmailService from "../services/Email";
 import SkillService from "../services/Skill";
+import SessionService from "../services/Session";
 import NationalityService from "../services/Nationality";
 import AttachmentService from "../services/Attachment";
 import ConversationService from "../services/Conversation";
@@ -25,6 +27,7 @@ import ConversationService from "../services/Conversation";
 const userService = new UserService(User);
 const emailService = new EmailService(Email);
 const skillService = new SkillService(Skill);
+const sessionService = new SessionService(Session);
 const nationalitySerivce = new NationalityService(Nationality);
 const conversationService = new ConversationService(Conversation);
 const avatarAttachmentService = new AttachmentService(Attachment);
@@ -116,6 +119,8 @@ class UserController extends Controller {
 			return [
 				body("profile.description")
 					.notEmpty().withMessage("Description field can't be blank!")
+					.isLength({ max: 500 })
+					.withMessage("Description can't be more that 500 letter.")
 					.trim(),
 				body("profile.tagline")
 					.notEmpty().withMessage("Tagline field can't be blank!")
@@ -324,7 +329,7 @@ class UserController extends Controller {
 				if (!isEmpty(conversationsReadResponse.data)) {
 					const { io } = req.app.get("io");
 					conversationsReadResponse.data.forEach((conversation) => {
-						io.sockets.in(conversation._id).emit("user/login", {
+						io.sockets.in(conversation._id).emit("user/change_online_status", {
 							id: userUpdatedResponse.data._id,
 							is_active: userUpdatedResponse.data.is_active,
 							name: userUpdatedResponse.data.account.name
@@ -433,7 +438,7 @@ class UserController extends Controller {
 		if (!isEmpty(conversationsReadResponse.data)) {
 			const { io } = req.app.get("io");
 			conversationsReadResponse.data.forEach((conversation) => {
-				io.sockets.in(conversation._id).emit("user/logout", {
+				io.sockets.in(conversation._id).emit("user/change_online_status", {
 					id: userUpdateResponse.data._id,
 					is_active: userUpdateResponse.data.is_active,
 					name: userUpdateResponse.data.account.name
@@ -499,7 +504,7 @@ class UserController extends Controller {
 		if (!isEmpty(conversationsReadResponse.data)) {
 			const { io } = req.app.get("io");
 			conversationsReadResponse.data.forEach((conversation) => {
-				io.sockets.in(conversation._id).emit(userChangeAvailabilityResponse.data.is_active ? "user/login" : "user/logout", {
+				io.sockets.in(conversation._id).emit(userChangeAvailabilityResponse.data.is_active ? "user/change_online_status" : "user/change_online_status", {
 					id: userChangeAvailabilityResponse.data._id,
 					is_active: userChangeAvailabilityResponse.data.is_active,
 					name: userChangeAvailabilityResponse.data.account.name
@@ -694,7 +699,10 @@ class UserController extends Controller {
 			return res.redirect("back");
 		}
 
-		const userUpdatePasswordResponse = await userService.updatePassword(req.params.id, req.body);
+		const { id } = req.params;
+		const { io } = req.app.get("io");
+
+		const userUpdatePasswordResponse = await userService.updatePassword(id, req.body);
 		if (userUpdatePasswordResponse.error) {
 			if (userUpdatePasswordResponse.statusCode === 404) {
 				req.flash("error", userUpdatePasswordResponse.errors);
@@ -711,8 +719,20 @@ class UserController extends Controller {
 			email: userUpdatePasswordResponse.data.email,
 			sitename: process.env.SITE_NAME,
 		});
-		if (userUpdatePasswordEmailResponse.error) {
-			return next(userUpdatePasswordEmailResponse.errors);
+		if (userUpdatePasswordEmailResponse.error) return next(userUpdatePasswordEmailResponse.errors);
+
+		if (req.body.loggingOutFromOtherDevices) {
+			const sessionsReadResponse = await sessionService.deleteMany({ "session.passport.user": String(id) }, { pagination: false });
+			if (sessionsReadResponse.error) return next(sessionsReadResponse.errors);
+			sessionsReadResponse.data = sessionsReadResponse.data.map((data) => JSON.parse(JSON.stringify(data)));
+
+			// reload all other devices, using socket id.
+			const otherDevicesSockets = sessionsReadResponse.data
+				.map((current) => current.session.socketio)
+				.filter((current) => current !== req.session.socketio);
+			otherDevicesSockets.forEach((socket) => {
+				io.sockets.to(socket).emit("user/logout_from_devices");
+			});
 		}
 
 		req.flash("success", "successfully updated password");

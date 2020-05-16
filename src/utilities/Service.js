@@ -100,15 +100,14 @@ export default class Service {
 	async deleteMany(query, options) {
 		const items = await this.readMany(query, options);
 		if (items.error) return items;
-		if (!items.data.length) return { error: true, statusCode: 404, errors: new Error("Data not found") };
 
-		const [deleteErr] = await to(this.model.deleteMany(query));
-		if (deleteErr) {
+		const [deletedErr] = await to(this.model.deleteMany(query));
+		if (deletedErr) {
 			return {
 				error: true,
 				deleted: false,
 				statusCode: 500,
-				errors: deleteErr
+				errors: deletedErr
 			};
 		}
 

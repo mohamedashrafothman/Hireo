@@ -10,7 +10,7 @@ import UserController from "../controllers/User.controller";
 const userService = new UserService(User);
 
 //
-// ─── SERIALIZE AND DESERLIALZE ──────────────────────────────────────────────────
+// ─── SERIALIZE AND DESERIALIZE ──────────────────────────────────────────────────
 //
 passport.serializeUser((user, done) => {
 	done(null, user.id);

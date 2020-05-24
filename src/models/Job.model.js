@@ -47,7 +47,7 @@ const JobSchema = new mongoose.Schema({
 	is_active: { type: Boolean, default: 1 }, // 1 => active, 0 => not active
 	is_published: { type: Boolean, default: 1 }, // 1 => published, 0 => no published
 	refresh_count: { type: Number, default: 0 },
-	expiring_at: { type: Date, default: +new Date() + 1000 * 60 * 60 * 24 * Number(process.env.JOB_EXPERATION_TIME_IN_DAYS) } // 30 Days = (ms * sec * min * hours * days)
+	expiring_at: { type: Date, default: +new Date() + 1000 * 60 * 60 * 24 * Number(process.env.JOB_EXPIRATION_TIME_IN_DAYS) } // 30 Days = (ms * sec * min * hours * days)
 }, {
 	timestamps: {
 		createdAt: "created_at",

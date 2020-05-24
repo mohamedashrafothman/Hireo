@@ -143,7 +143,7 @@ class JobController extends Controller {
 		const storageEngine = attachmentService.initStorageEngine({
 			accept: ["application", "image"],
 			square: false,
-			fileHashName: true,
+			fileHashName: false,
 			upload_path: `${process.env.UPLOAD_STORAGE}/jobs/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${req.user._id}`,
 			upload_base_path: `/${req.user._id}`
 		});
@@ -653,17 +653,23 @@ class JobController extends Controller {
 				]
 			},
 			{
-				populate: [{
-					path: "created_by",
-					select: "_id rating email is_verified slug account.name account.picture account.picture_sm account.picture_md account.picture_lg profile.nationality",
-					populate: [
-						{ path: "profile.nationality", select: "name code -_id" },
-						{ path: "account.picture", select: "path -_id" },
-						{ path: "account.picture_sm", select: "path -_id" },
-						{ path: "account.picture_md", select: "path -_id" },
-						{ path: "account.picture_lg", select: "path -_id" }
-					]
-				}],
+				populate: [
+					{
+						path: "created_by",
+						select: "_id rating email is_verified slug account.name account.picture account.picture_sm account.picture_md account.picture_lg profile.nationality",
+						populate: [
+							{ path: "profile.nationality", select: "name code -_id" },
+							{ path: "account.picture", select: "path -_id" },
+							{ path: "account.picture_sm", select: "path -_id" },
+							{ path: "account.picture_md", select: "path -_id" },
+							{ path: "account.picture_lg", select: "path -_id" }
+						]
+					},
+					{
+						path: "attachments",
+						select: "_id path name extname base"
+					}
+				],
 				sort: { create_at: 1 },
 				limit: 4
 			}

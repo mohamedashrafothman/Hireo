@@ -66,6 +66,10 @@ export default class JobService extends Service {
 					path: "applications",
 					select: "created_by"
 				})
+				.populate({
+					path: "attachments",
+					select: "_id base extname path name"
+				})
 		);
 		if (jobErrors) return { error: true, statusCode: 500, errors: jobErrors };
 		if (isEmpty(job)) return { error: true, statusCode: 404, errors: ["Not Found!"] };

@@ -1,4 +1,5 @@
 extends ./layouts/_index_layout.pug
+include ./mixins/_attachment_box.pug
 
 block content
 
@@ -110,6 +111,12 @@ block content
 										i.icon-material-outline-access-time
 										span Date Posted
 										h5= moment(data.job.created_at).calendar()
+					// Sidebar Widget
+					.sidebar-widget
+						h3 Attachments
+						.attachments-container
+							each attachment, index in data.job.attachments
+								+attachment_box({attachment: attachment, user: data.job.created_by}, index)
 					// Sidebar Widget
 					.sidebar-widget
 						h3=(user && !_.isEqual(data.job.created_by._id, user._id)) ? "Bookmark or Share" : "Share"

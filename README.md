@@ -73,7 +73,7 @@ The below environment variables are needed to get the application up and running
 * `PASSWORD_RESET_TIME_LIMIT_IN_HOURS` - the amount of time a user has to reset their password if they go through the "Forgot Password" process.
 * `UPLOAD_STORAGE` - Attachment's upload folder path.
 * `ATTATCHMENT_MAX_SIZE_IN_MB` - Attachment maximum file size in MB.
-* `JOB_EXPERATION_TIME_IN_DAYS` - Job Module expiration time in days.
+* `JOB_EXPIRATION_TIME_IN_DAYS` - Job Module expiration time in days.
 * `LOCATION_RANGE_IN_KM` - Search location range in KM.
 
 ## Sample Data

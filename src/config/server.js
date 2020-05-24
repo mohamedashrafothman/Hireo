@@ -111,7 +111,7 @@ app.use(csrf({ cookie: true })); // csrf protection MUST be defined after cookie
 app.use(flash());
 app.use(i18n.init);
 app.use(back());
-app.use(loggerToMongo(process.env.MONGODB_URI, "logs", (req, res) => res.statusCode > 399));
+app.use(loggerToMongo(process.env.MONGODB_URI, "logs", (req, res) => res.statusCode < 399));
 app.use(async (req, res, next) => {
 	// pass the Globals to all responses.
 	const [categoriesErr, categories] = await to(

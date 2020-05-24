@@ -7,4 +7,4 @@ mixin attachment_box(data={attachment: {}, user: {}}, index=0)
 			|  File
 		if (data.user._id.toString() === user._id.toString())
 			a.remove-attachment(href=`/dashboard/settings/${data.user._id}/delete-attachment/${data.attachment._id}`, data-tippy, data-tippy-placement='top', title='Remove')
-			a.download-attachment(href=`/dashboard/settings/${data.user._id}/attachment/${data.attachment._id}/download`, data-tippy, data-tippy-placement='top', title='download')
+		a.download-attachment(href=`/dashboard/settings/${data.user._id}/attachment/${data.attachment._id}/download`, data-tippy, data-tippy-placement='top', title='download')

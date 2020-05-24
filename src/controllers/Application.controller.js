@@ -94,7 +94,7 @@ class ApplicationController extends Controller {
 		const storageEngine = attachmentService.initStorageEngine({
 			accept: ["application", "image"],
 			square: false,
-			fileHashName: true,
+			fileHashName: false,
 			upload_path: `${process.env.UPLOAD_STORAGE}/applications/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${req.params.id}/${req.user._id}`,
 			upload_base_path: `/${req.user._id}`
 		});

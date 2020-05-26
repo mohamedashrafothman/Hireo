@@ -116,7 +116,7 @@ block content
 													.uploadButton.margin-top-0
 														input#upload.uploadButton-input(type='file', name="attachments", accept='image/*, application/*', multiple=(data.user.profile.attachments.length >= 1) ? undefined : 'multiple')
 														label.uploadButton-button.ripple-effect(for='upload') Upload Files
-														span.uploadButton-file-name=`Maximum of ${(data.user.profile.attachments.length < 1) ? "2 files" : "1 file"} size: ${process.env.ATTATCHMENT_MAX_SIZE_IN_MB}MB each`
+														span.uploadButton-file-name=`Maximum of ${(data.user.profile.attachments.length < 1) ? "2 files" : "1 file"} size: ${process.env.ATTACHMENT_MAX_SIZE_IN_MB}MB each`
 							li
 								.row
 									.col-xl-6

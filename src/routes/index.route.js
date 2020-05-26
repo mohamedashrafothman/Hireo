@@ -4,6 +4,7 @@ import permission from "permission";
 import UserController from "../controllers/User.controller";
 import JobController from "../controllers/Job.controller";
 import ApplicationController from "../controllers/Application.controller";
+import PostController from "../controllers/Post.controller";
 import userRouter from "./user.route";
 import dashboardRouter from "./dashboard.route";
 
@@ -56,6 +57,12 @@ router
 		ApplicationController.validator("add application"),
 		ApplicationController.addApplication
 	);
+router
+	.route("/browse/posts")
+	.get(PostController.getAllPosts);
+router
+	.route("/post/:slug")
+	.get(PostController.getPostBySlug);
 
 //
 // ─── NESTING ROUTES ─────────────────────────────────────────────────────────────

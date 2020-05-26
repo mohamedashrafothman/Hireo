@@ -306,7 +306,7 @@ class JobController extends Controller {
 			if (jobResponse.error) return next(jobResponse.errors);
 			if (isEmpty(jobResponse.data)) return next();
 
-			return res.render("dashboard/jobs/add", {
+			return res.render("dashboard/jobs/edit", {
 				page_title: "Edit a Job",
 				data: {
 					job: jobResponse,
@@ -341,9 +341,7 @@ class JobController extends Controller {
 			{ $set: req.body }
 		);
 		if (jobUpdateResponse.error) {
-			if (jobUpdateResponse.statusCode === 404) {
-				return next();
-			}
+			if (jobUpdateResponse.statusCode === 404) return next();
 			return next(jobUpdateResponse.errors);
 		}
 

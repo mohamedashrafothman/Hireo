@@ -5,40 +5,28 @@ import mongoose from "mongoose";
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
 //
-const CategorySchema = new mongoose.Schema({
-	name: {
-		ar: {
-			type: String,
-			required: true,
-			unique: true,
-			trim: true,
-			index: true
-		},
-		en: {
-			type: String,
-			required: true,
-			unique: true,
-			trim: true,
-			index: true
-		}
-	},
-	description: {
-		ar: { type: String, required: true, index: true },
-		en: { type: String, required: true, index: true }
-	},
-	picture: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" },
-	parent: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
-	childs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
-	icon: { type: mongoose.Schema.Types.ObjectId, ref: "Icon" },
+const PostSchema = new mongoose.Schema({
+	title: { type: String, required: "Post title is required", index: true },
 	slug: {
 		type: String,
-		slug: "name.en",
+		slug: "title",
 		uniqueSlug: true,
 		index: true,
 		slugPaddingSize: 6
 	},
-	jobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
-	posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }]
+	tags: {
+		type: [String],
+		validate: [(val) => val.length <= 10, "{PATH} exceeds the limit of 10"],
+		index: true
+	},
+	content: { type: String, required: "Post content is required" },
+	category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+	status: { type: Number, default: 1 }, // 1 => published, 2 => Drafted.
+	created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+	thumbnail: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" },
+	thumbnail_sm: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" },
+	thumbnail_md: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" },
+	thumbnail_lg: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" }
 }, {
 	timestamps: {
 		createdAt: "created_at",
@@ -49,15 +37,15 @@ const CategorySchema = new mongoose.Schema({
 //
 // ─── SCHEMA PLUGIN ──────────────────────────────────────────────────────────────
 //
-CategorySchema.plugin(mongoosePagination);
-CategorySchema.plugin(slug);
+PostSchema.plugin(mongoosePagination);
+PostSchema.plugin(slug);
 
 //
 // ─── SCHEMA MODEL ───────────────────────────────────────────────────────────────
 //
-const Category = mongoose.model("Category", CategorySchema);
+const Post = mongoose.model("Post", PostSchema);
 
 //
 // ─── EXPORTING SCHEMA ───────────────────────────────────────────────────────────
 //
-export default Category;
+export default Post;

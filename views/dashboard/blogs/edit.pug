@@ -1,0 +1,99 @@
+extends ../../layouts/_dashboard_layout.pug
+include ../../mixins/_breadcrumb.pug
+
+block content
+	// Dashboard Headline
+	.dashboard-headline
+		h3=page_title
+		// Breadcrumbs
+		+breadcrumb(urlSegment)
+	// Row
+	.row
+		// Dashboard Box
+		.col-xl-12
+			.dashboard-box.margin-top-0
+				// Headline
+				.headline
+					h3
+						i.icon-line-awesome-newspaper-o.margin-right-10
+						| Posts Submission Form
+				form#posts-edit-form.content.with-padding.padding-bottom-0(action=`/dashboard/posts/edit/${data.post.slug}?_csrf=${csrfToken}`, method="POST", enctype="multipart/form-data")
+					.row
+						.col-md-4
+							.submit-field
+								h5 Post Title
+								input.with-border(type='text', name="title", value=(data.post && data.post["title"]) ? data.post["title"] : "", placeholder="e.g. 10 Easy Way to Find a Remote Job", required)
+						.col-md-4
+							.submit-field
+								h5 Post Category
+								select.selectpicker.with-border(name="category", data-size='7', title='Select Category', data-live-search='true', required)
+									each category, i in data.categories
+										optgroup(label=category.name.en, data-icon=`icon-${category.icon.type}-${category.icon.name}`,)
+											each child, i in category.childs
+												option(value=child._id, selected=(data.post && data.post["category"] && _.isEqual(child._id.toString(), data.post["category"].toString())) ? "selected" : undefined)=child.name.en
+						.col-md-4
+							.submit-field
+								h5
+									|Post Tags
+									i.help-icon(data-tippy, data-tippy-placement='right', title='Maximum of 10 tags')
+								.tags-container
+									.tags-input-container
+										input.tags-input.with-border(type='text', data-name="tags", placeholder='e.g. Tips, Recruiting, Marketing')
+										button.tags-input-button.ripple-effect(type="button")
+											i.icon-material-outline-add
+										.clearfix
+									.tags-list
+										if (data.post && data.post["tags"])
+											each tag, i in data.post["tags"]
+												if (tag !== "")
+													.tag
+														input(id=`tag-0-${i}`, type='checkbox', name=`tags[${i}]`, value=tag, checked="checked")
+														label(for=`tag-0-${i}`)=tag
+					.row
+						.col-md-12
+							.submit-field
+								h5 Post Content
+								textarea.with-border.tinymce(name="content", cols='30', rows='10')
+									=(data.post && data.post["content"]) ? data.post["content"] : ""
+					.row
+						.col-md-8
+							.submit-field
+								.row
+									.col-12
+										h5
+											|Post Thumbnail
+											i.help-icon(data-tippy, data-tippy-placement='right', title=`Maximum of 1 files, ${process.env.ATTACHMENT_MAX_SIZE_IN_MB}MB each`)
+									.col-12
+										.uploadButton
+											input#upload.uploadButton-input(name="thumbnail", type='file', accept='image/*')
+											label.uploadButton-button.ripple-effect(for='upload') Upload Files
+											span.uploadButton-file-name Image that might be helpful in showing your post as a thumbnail.
+						.col-md-4
+							.submit-field
+									.row
+										.col-12
+											h5
+												|Published
+												i.help-icon.margin-left-10(data-tippy, data-tippy-placement="top", title="If no, It won't appear in search and will be drafted.")
+										.col-12
+											.row
+												.col-6
+													.radio
+														input#status-input-true(name='status', type='radio', value="1", checked=(data.post && _.isEqual(Number(data.post["status"]), 1)) ? 'checked' : undefined)
+														label(for='status-input-true')
+															span.radio-label
+															| Yes
+												.col-6
+													.radio
+														input#status-input-false(name='status', type='radio', value="2", checked=(data.post && _.isEqual(Number(data.post["status"]), 2)) ? 'checked' : undefined)
+														label(for='status-input-false')
+															span.radio-label
+															| No
+		.col-xl-12
+			button.button.ripple-effect.big.margin-top-30(type="submit" form="posts-edit-form")
+				i.icon-feather-plus
+				|Edit a Post
+
+
+block append modals
+block append scripts

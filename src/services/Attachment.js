@@ -54,7 +54,7 @@ export default class AttachmentService extends Service {
 		}
 
 		filePaths.filter(Boolean).forEach(async (file) => {
-			const upload_path_array = process.env.UPLOAD_PATH.split("/").filter(Boolean);
+			const upload_path_array = process.env.UPLOAD_STORAGE.split("/").filter(Boolean);
 			const upload_path = upload_path_array.slice(0, upload_path_array.length - 1).join("/");
 
 			const filePath = path.join(__dirname, `../../${upload_path}`, url.parse(file).path);

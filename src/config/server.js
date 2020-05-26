@@ -100,7 +100,7 @@ app.use(favicon(path.join(__dirname, "../../public/build/images", "favicon.ico")
 app.use(compression());
 app.use(logger("dev"));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 io.use((socket, next) => { sessionMiddleware(socket.request, socket.request.res || {}, next); });
 app.use(cookieParser(process.env.SESSION_SECRET));
 app.use(sessionMiddleware);

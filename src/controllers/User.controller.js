@@ -753,7 +753,7 @@ class UserController extends Controller {
 			storage: storageEngine,
 			limits: {
 				files: 1, // allow only 1 file per request
-				fileSize: 1024 * 1024 * Number(process.env.ATTATCHMENT_MAX_SIZE_IN_MB), // 5 MB (max file size)
+				fileSize: 1024 * 1024 * Number(process.env.ATTACHMENT_MAX_SIZE_IN_MB), // 5 MB (max file size)
 			},
 			fileFilter: (request, file, cb) => {
 				// supported image file mimetypes
@@ -829,7 +829,7 @@ class UserController extends Controller {
 			storage: storageEngine,
 			limits: {
 				files: 2, // allow only 2 files per request
-				fileSize: 1024 * 1024 * Number(process.env.ATTATCHMENT_MAX_SIZE_IN_MB), // 5 MB (max file size)
+				fileSize: 1024 * 1024 * Number(process.env.ATTACHMENT_MAX_SIZE_IN_MB), // 5 MB (max file size)
 			},
 			fileFilter: (request, file, cb) => {
 				// supported image file mimetypes

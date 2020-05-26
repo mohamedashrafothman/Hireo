@@ -33,6 +33,18 @@
 								i.icon-material-outline-rate-review
 								|  Reviews
 					ul(data-submenu-title='Organize and Manage')
+						if (user && !_.isEqual(user.role, "freelancer"))
+							- var applications_pages_title = ["Manage All Posts", "Add New Post", "Edit a Post"];
+							li#applications-nav-item(class=(applications_pages_title.includes(page_title)) ? "active-submenu" : "")
+								a(href='#')
+									i.icon-line-awesome-newspaper-o
+									|  Blog Posts
+								ul
+									li#manage-all-posts-nav-item(class=(page_title === "Manage All Posts") ? "active" : "")
+										a(href='/dashboard/posts/list')
+											| Manage All Posts
+									li#add-new-post-nav-item(class=(page_title === "Add New Post" || page_title === "Edit a Post") ? "active" : "")
+										a(href='/dashboard/posts/add') Add New Post
 						if (user && !_.isEqual(user.role, "employer"))
 							- var applications_pages_title = ["Manage All Applications"];
 							li#applications-nav-item(class=(applications_pages_title.includes(page_title)) ? "active-submenu" : "")

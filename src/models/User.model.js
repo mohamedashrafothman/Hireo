@@ -80,6 +80,7 @@ const UserSchema = new mongoose.Schema({
 		job: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }]
 	},
 	jobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
+	posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
 	applications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Application" }],
 	google: String,
 	facebook: String,

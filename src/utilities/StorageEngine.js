@@ -23,7 +23,7 @@ export default class StorageEngine {
 			quality: 70,
 			square: true,
 			threshold: 500,
-			greyscale: false,
+			grayscale: false,
 			responsive: false,
 			fileHashName: true
 		};
@@ -40,7 +40,7 @@ export default class StorageEngine {
 		this.options = _.forIn(options, (value, key, object) => {
 			switch (key) {
 			case "square":
-			case "greyscale":
+			case "grayscale":
 			case "responsive":
 			case "fileHashName":
 				object[key] = _.isBoolean(value) ? value : DEFAULT_OPTIONS[key];
@@ -180,9 +180,9 @@ export default class StorageEngine {
 			// fetch the new image dimensions and crop
 			clone = clone.crop((clone.bitmap.width - square) / 2, (clone.bitmap.height - square) / 2, square, square);
 		}
-		// convert the image to greyscale if enabled
-		if (this.options.greyscale) {
-			clone = clone.greyscale();
+		// convert the image to grayscale if enabled
+		if (this.options.grayscale) {
+			clone = clone.grayscale();
 		}
 		// set the image output quality
 		clone = clone.quality(this.options.quality);

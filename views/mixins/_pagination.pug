@@ -1,4 +1,4 @@
-mixin pagination(baseUrl, page, pages, query)
+mixin pagination(baseUrl="#", page=1, pages=10, query={})
 	nav.pagination
 		ul
 			if (Number(page) > 1)

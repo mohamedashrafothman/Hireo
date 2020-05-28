@@ -33,20 +33,58 @@ class PostController extends Controller {
 				body("title").notEmpty().withMessage("Post title can't be empty!").trim(),
 				body("content").notEmpty().withMessage("Post content can't be empty!").trim(),
 				body("category").notEmpty().withMessage("Job category can't be empty!"),
-				body("tags").isArray({ min: 1, max: 10 }).withMessage("Tags count shall be between 1 and 10"),
+				body("tags").isArray({ min: 1, max: 10 }).withMessage("Tags count shall be 10 tag"),
 			];
 		default:
 			return [];
 		}
 	}
 
-	async getAllPosts(req, res) {
-		return res.json({
-			title: "index posts list"
+	async browseAllPosts(req, res, next) {
+		const [
+			recentPostsReadResponse,
+			mostViewedPostsReadResponse,
+			postsTagsReadResponse
+		] = await Promise.all([
+			postService.readMany({
+				...(req.query?.q && { $or: [{ title: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }, { content: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }] }),
+				...(req.query?.tags && req.query.tags.length && { tags: { $in: req.query.tags } })
+			}, {
+				select: "title tags content thumbnail _id created_by create_at",
+				populate: [{ path: "thumbnail.sm", select: "path name _id" }, { path: "thumbnail.md", select: "path name _id" }, { path: "thumbnail.lg", select: "path name _id" }],
+				...req.query
+			}),
+			postService.readMany({
+				...(req.query?.q && { $or: [{ title: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }, { content: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }] }),
+				...(req.query?.tags && req.query.tags.length && { tags: { $in: req.query.tags } })
+			}, {
+				select: "title tags content thumbnail _id created_by created_at",
+				populate: [{ path: "thumbnail.sm", select: "path name _id" }, { path: "thumbnail.md", select: "path name _id" }, { path: "thumbnail.lg", select: "path name _id" }],
+				sort: { "views.count": "desc" },
+				limit: 3
+			}),
+			postService.getTags({})
+		]);
+
+		if (recentPostsReadResponse.error) return next(recentPostsReadResponse.errors);
+		if (mostViewedPostsReadResponse.error) return next(mostViewedPostsReadResponse.errors);
+		if (postsTagsReadResponse.error) return next(postsTagsReadResponse.errors);
+
+		res.render("blog-list", {
+			title: "Browse Blog Posts",
+			...recentPostsReadResponse,
+			data: {
+				posts: {
+					recent: recentPostsReadResponse.data,
+					mostViewed: mostViewedPostsReadResponse.data
+				},
+				tags: postsTagsReadResponse.data
+			},
+			query: req.query
 		});
 	}
 
-	async getPostBySlug(req, res) {
+	async getPostPage(req, res) {
 		return res.json({
 			title: "get post by slug"
 		});
@@ -54,26 +92,11 @@ class PostController extends Controller {
 
 	async getPostsList(req, res, next) {
 		const query = {
-			...(req.query?.q && {
-				$or: [
-					{ title: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
-					{ content: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }
-				]
-			}),
+			...(req.query?.q && { $or: [{ title: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }, { content: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }] }),
 			...(req.user.role !== "admin" && { created_by: req.user._id })
 		};
 		const options = {
-			populate: [
-				{
-					path: "created_by",
-					populate: [
-						{ path: "account.picture", select: "-_id path" },
-						{ path: "account.picture_sm", select: "-_id path" },
-						{ path: "account.picture_md", select: "-_id path" },
-						{ path: "account.picture_lg", select: "-_id path" }
-					]
-				}
-			],
+			populate: [{ path: "created_by", populate: [{ path: "account.picture", select: "-_id path" }, { path: "account.picture_sm", select: "-_id path" }, { path: "account.picture_md", select: "-_id path" }, { path: "account.picture_lg", select: "-_id path" }] }],
 			...req.query
 		};
 
@@ -220,15 +243,15 @@ class PostController extends Controller {
 
 			req.body = {
 				...req.body,
-				thumbnail_lg: attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id : null,
-				thumbnail_md: attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_md\.(.+)$/i))[0]._id : null,
-				thumbnail_sm: attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_sm\.(.+)$/i))[0]._id : null,
-				thumbnail: attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id : savedAttachments[0]._id
+				"thumbnail.lg": attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id : null,
+				"thumbnail.md": attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_md\.(.+)$/i))[0]._id : null,
+				"thumbnail.sm": attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_sm\.(.+)$/i))[0]._id : null,
 			};
 		}
 
 		req.body = {
 			...req.body,
+			tags: req.body.tags.filter(Boolean), // remove null values from array
 			created_by: req.user._id
 		};
 
@@ -301,10 +324,9 @@ class PostController extends Controller {
 
 			req.body = {
 				...req.body,
-				thumbnail_lg: attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id : null,
-				thumbnail_md: attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_md\.(.+)$/i))[0]._id : null,
-				thumbnail_sm: attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_sm\.(.+)$/i))[0]._id : null,
-				thumbnail: attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id : savedAttachments[0]._id
+				"thumbnail.lg": attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id : null,
+				"thumbnail.md": attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_md\.(.+)$/i))[0]._id : null,
+				"thumbnail.sm": attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_sm\.(.+)$/i))[0]._id : null,
 			};
 		}
 
@@ -360,10 +382,9 @@ class PostController extends Controller {
 		if (userUpdateResponse.error) return next(userUpdateResponse.errors);
 
 		const attachments_ids = [
-			postDeleteResponse.data.thumbnail,
-			postDeleteResponse.data.thumbnail_lg,
-			postDeleteResponse.data.thumbnail_md,
-			postDeleteResponse.data.thumbnail_sm
+			postDeleteResponse.data.thumbnail.lg,
+			postDeleteResponse.data.thumbnail.md,
+			postDeleteResponse.data.thumbnail.sm
 		];
 
 		const attachmentDeleteResponse = await attachmentService.deleteMany({ _id: { $in: attachments_ids } });

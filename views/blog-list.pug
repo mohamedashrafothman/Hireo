@@ -1,0 +1,97 @@
+extends ./layouts/_index_layout.pug
+include ./mixins/_breadcrumb.pug
+include ./mixins/_pagination.pug
+include ./mixins/_blog_card_vertical.pug
+include ./mixins/_blog_card_horizontal.pug
+include ./mixins/_blog_card_horizontal_sm.pug
+
+block content
+	//
+		Content
+		==================================================
+	#titlebar.white.margin-bottom-30
+		.container
+			.row
+				.col-md-12
+					h2 Blog
+					span Featured Posts
+					// Breadcrumbs
+					+breadcrumb(urlSegment)
+	// Recent Blog Posts
+	.section.white.padding-top-0.padding-bottom-60.full-width-carousel-fix
+		.container
+			.row
+				.col-xl-12
+					.blog-carousel
+						+blog_card_vertical({}, 0)
+						+blog_card_vertical({}, 1)
+						+blog_card_vertical({}, 2)
+						+blog_card_vertical({}, 3)
+	// Recent Blog Posts / End
+	// Section
+	.section.gray.padding-bottom-30
+		.container
+			.row
+				.col-xl-8.col-lg-8
+					// Section Headline
+					.section-headline.margin-top-60.margin-bottom-35
+						h4 Recent Posts
+					// Blog Post
+					each post, i in data.posts.recent
+						+blog_card_horizontal(post, i)
+					// Pagination
+					.clearfix
+					if (hasNextPage || hasPrevPage)
+						.row
+							.col-md-12
+								// Pagination
+								.pagination-container.margin-top-10.margin-bottom-20
+									+pagination("/browse/posts", page, pages, query)
+						// Pagination / End
+				.col-xl-4.col-lg-4.content-left-offset
+					.sidebar-container.margin-top-65
+						// Location
+						.sidebar-widget.margin-bottom-40
+							.search-input
+									.input-flat-with-icon-left
+										form#search-input-form(action="", method="GET")
+											input.input-text(name='q', type='text', placeholder='Search', value=query.q)
+											button.autocomplete-button.ripple-effect(type="submit", form="search-input-form")
+												i.icon-material-outline-search.icon-right
+						// Widget
+						.sidebar-widget
+							h3 Most Viewed
+							ul.widget-tabs
+								// Post
+								each post, i in data.posts.mostViewed
+									li
+										+blog_card_horizontal_sm(post, i)
+						// Widget / End
+						// Widget
+						.sidebar-widget
+							h3 Social Profiles
+							.freelancer-socials.margin-top-25
+								ul
+									li
+										a(href='#', title='Dribbble', data-tippy, data-tippy-placement='top')
+											i.icon-brand-dribbble
+									li
+										a(href='#', title='Twitter', data-tippy, data-tippy-placement='top')
+											i.icon-brand-twitter
+									li
+										a(href='#', title='Behance', data-tippy, data-tippy-placement='top')
+											i.icon-brand-behance
+									li
+										a(href='#', title='GitHub', data-tippy, data-tippy-placement='top')
+											i.icon-brand-github
+						// Widget
+						.sidebar-widget
+							h3 Tags
+							.task-tags
+								each tag, i in data.tags
+									a(href=`/browse/posts?${qs.stringify(_.assignIn(query, qs.parse({tags: [tag.name]})))}`)
+										span=tag.name
+	// Section / End
+
+block append modals
+block append scripts

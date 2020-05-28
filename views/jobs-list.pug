@@ -1,5 +1,6 @@
 extends ./layouts/_index_layout.pug
 include ./mixins/_pagination.pug
+include ./mixins/_tag.pug
 
 block content
 	//
@@ -68,9 +69,7 @@ block content
 							.tags-container.tags-inner(data-simplebar='', data-inner-height="250")
 								.tags-list.margin-bottom-20.tags-container
 									each tag, i in data.tags
-										.tag
-											input(id=`tag-1-${i}`, type='checkbox', name=`tags[${i}]`, value=tag.name, checked=(query && query.tags && query.tags.includes(tag)) ? "selected" : undefined)
-											label(for=`tag-1-${i}`)=tag.name
+										+tag(tag, i, (query && query.tags && query.tags.includes(tag.name)))
 							.clearfix
 						.clearfix
 				// Sidebar Container / End

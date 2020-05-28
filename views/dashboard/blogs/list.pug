@@ -73,8 +73,6 @@ block content
 															span.dashboard-status-button.margin-bottom-0.gray Drafted
 														default
 															- break
-												div.job-listing-description.margin-top-0(style="display:none;")
-													| !{post.content}
 												// Job Listing Footer
 												.job-listing-footer
 													ul
@@ -124,3 +122,14 @@ block append modals
 							| Delete Now!
 	// Delete My Account Modal / End
 block append scripts
+	if (query.q)
+		script.
+			$(document).ready(function() {
+				$(".job-listing-title a").each(function(index, ele) {
+					$(ele).mark("#{query.q}", {element: "mark"}).filter(function(node, term, totalCounter, counter) {
+						if ($(term).find("mark").length) {
+							$(term).css({"display": "block"});
+						}
+					});
+				});
+			});

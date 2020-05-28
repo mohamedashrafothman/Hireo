@@ -1,0 +1,4 @@
+mixin tag(data={}, index=0, checked=false, number=1)
+	.tag
+		input(id=`tag-${number}-${index}`, type='checkbox', name=`tags[${index}]`, value=data.name, checked=checked ? "selected" : undefined)
+		label(for=`tag-${number}-${index}`)=data.name

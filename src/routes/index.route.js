@@ -59,10 +59,10 @@ router
 	);
 router
 	.route("/browse/posts")
-	.get(PostController.getAllPosts);
+	.get(PostController.browseAllPosts);
 router
 	.route("/post/:slug")
-	.get(PostController.getPostBySlug);
+	.get(PostController.getPostPage);
 
 //
 // ─── NESTING ROUTES ─────────────────────────────────────────────────────────────

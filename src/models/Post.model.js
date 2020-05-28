@@ -23,10 +23,19 @@ const PostSchema = new mongoose.Schema({
 	category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
 	status: { type: Number, default: 1 }, // 1 => published, 2 => Drafted.
 	created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-	thumbnail: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" },
-	thumbnail_sm: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" },
-	thumbnail_md: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" },
-	thumbnail_lg: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" }
+	thumbnail: {
+		sm: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" },
+		md: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" },
+		lg: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" }
+	},
+	views: {
+		count: { type: Number },
+		visitors: [{
+			ip: { type: String, max: 20, required: true },
+			user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+			visited_at: { type: Date, default: +new Date(), required: true }
+		}],
+	}
 }, {
 	timestamps: {
 		createdAt: "created_at",

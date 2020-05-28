@@ -14,6 +14,7 @@ import session from "express-session";
 import favicon from "serve-favicon";
 import passport from "passport";
 import socketio from "socket.io";
+import htmlToText from "html-to-text";
 import bodyParser from "body-parser";
 import compression from "compression";
 import connectMongo from "connect-mongo";
@@ -94,6 +95,7 @@ app.set("permission", {
 		status: 403
 	}
 });
+app.set("trust proxy", true); // to get user IP
 app.use(express.static(path.join(__dirname, "../../public/build")));
 app.use(express.static(path.join(__dirname, "../../public")));
 app.use(favicon(path.join(__dirname, "../../public/build/images", "favicon.ico")));
@@ -111,7 +113,7 @@ app.use(csrf({ cookie: true })); // csrf protection MUST be defined after cookie
 app.use(flash());
 app.use(i18n.init);
 app.use(back());
-app.use(loggerToMongo(process.env.MONGODB_URI, "logs", (req, res) => res.statusCode < 399));
+app.use(loggerToMongo(process.env.MONGODB_URI, "logs"));
 app.use(async (req, res, next) => {
 	// pass the Globals to all responses.
 	const [categoriesErr, categories] = await to(
@@ -171,6 +173,7 @@ app.use(async (req, res, next) => {
 	res.locals.siteName = process.env.SITE_NAME;
 	res.locals.csrfToken = req.csrfToken();
 	res.locals.categories = categories.data;
+	res.locals.htmlToText = htmlToText;
 	res.locals.urlSegment = helper.urlSegment(req);
 	res.locals.originalUrl = req.originalUrl;
 	res.locals.unSeenApplicationsCount = unSeenApplications.total;

@@ -28,7 +28,7 @@ const CategorySchema = new mongoose.Schema({
 	},
 	picture: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" },
 	parent: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
-	childs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
+	children: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
 	icon: { type: mongoose.Schema.Types.ObjectId, ref: "Icon" },
 	slug: {
 		type: String,

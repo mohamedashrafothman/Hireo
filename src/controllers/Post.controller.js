@@ -5,16 +5,19 @@ import Controller from "../utilities/Controller";
 
 import Post from "../models/Post.model";
 import User from "../models/User.model";
+import Device from "../models/Device.model";
 import Category from "../models/Category.model";
 import Attachment from "../models/Attachment.model";
 
 import PostService from "../services/Post";
 import UserService from "../services/User";
+import DeviceService from "../services/Device";
 import CategoryService from "../services/Category";
 import AttachmentService from "../services/Attachment";
 
 const postService = new PostService(Post);
 const userService = new UserService(User);
+const deviceService = new DeviceService(Device);
 const categoryService = new CategoryService(Category);
 const attachmentService = new AttachmentService(Attachment);
 
@@ -41,33 +44,25 @@ class PostController extends Controller {
 	}
 
 	async browseAllPosts(req, res, next) {
-		const [
-			recentPostsReadResponse,
-			mostViewedPostsReadResponse,
-			postsTagsReadResponse
-		] = await Promise.all([
-			postService.readMany({
-				...(req.query?.q && { $or: [{ title: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }, { content: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }] }),
-				...(req.query?.tags && req.query.tags.length && { tags: { $in: req.query.tags } })
-			}, {
-				select: "title tags content thumbnail _id created_by create_at",
-				populate: [{ path: "thumbnail.sm", select: "path name _id" }, { path: "thumbnail.md", select: "path name _id" }, { path: "thumbnail.lg", select: "path name _id" }],
-				...req.query
-			}),
-			postService.readMany({
-				...(req.query?.q && { $or: [{ title: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }, { content: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }] }),
-				...(req.query?.tags && req.query.tags.length && { tags: { $in: req.query.tags } })
-			}, {
-				select: "title tags content thumbnail _id created_by created_at",
-				populate: [{ path: "thumbnail.sm", select: "path name _id" }, { path: "thumbnail.md", select: "path name _id" }, { path: "thumbnail.lg", select: "path name _id" }],
-				sort: { "views.count": "desc" },
-				limit: 3
-			}),
-			postService.getTags({})
-		]);
+		const { query } = req;
 
+		const recentPostsReadResponse = await postService.readMany(
+			{
+				...(query?.q && { $or: [{ title: { $regex: query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }, { content: { $regex: query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }] }),
+				...(query?.tags && query.tags.length && { tags: { $in: query.tags } })
+			}, {
+				select: "title tags content thumbnail _id created_by created_at slug",
+				populate: [{ path: "category", select: "name" }, { path: "thumbnail.sm", select: "path name _id" }, { path: "thumbnail.md", select: "path name _id" }, { path: "thumbnail.lg", select: "path name _id" }],
+				...query
+			}
+		);
 		if (recentPostsReadResponse.error) return next(recentPostsReadResponse.errors);
-		if (mostViewedPostsReadResponse.error) return next(mostViewedPostsReadResponse.errors);
+
+		const getTrendingPostsByViewsResponse = await postService.getTrendingPostsByViews({ limit: 3, days: 30, query });
+		if (getTrendingPostsByViewsResponse.error) return next(getTrendingPostsByViewsResponse.errors);
+		const trends = getTrendingPostsByViewsResponse.data.map((item) => ({ views_count: item.views_count, zScore: item.zScore, ...item.post }));
+
+		const postsTagsReadResponse = await postService.getTags({});
 		if (postsTagsReadResponse.error) return next(postsTagsReadResponse.errors);
 
 		res.render("blog-list", {
@@ -76,17 +71,73 @@ class PostController extends Controller {
 			data: {
 				posts: {
 					recent: recentPostsReadResponse.data,
-					mostViewed: mostViewedPostsReadResponse.data
+					trends
 				},
 				tags: postsTagsReadResponse.data
 			},
-			query: req.query
+			query
 		});
 	}
 
-	async getPostPage(req, res) {
-		return res.json({
-			title: "get post by slug"
+	async getPostPage(req, res, next) {
+		const { slug } = req.params;
+		const getSinglePostBySlugResponse = await postService.getSinglePostPageBySlug(slug);
+		if (getSinglePostBySlugResponse.error) {
+			if (getSinglePostBySlugResponse.statusCode === 404) {
+				return next();
+			}
+			return next(getSinglePostBySlugResponse.errors);
+		}
+
+		const getTrendingPostsByViewsResponse = await postService.getTrendingPostsByViews({ limit: 3, days: 7 });
+		if (getTrendingPostsByViewsResponse.error) return next(getTrendingPostsByViewsResponse.errors);
+		const trends = getTrendingPostsByViewsResponse.data.map((item) => ({ views_count: item.views_count, zScore: item.zScore, ...item.post }));
+
+		const postsTagsReadResponse = await postService.getTags({});
+		if (postsTagsReadResponse.error) return next(postsTagsReadResponse.errors);
+
+		// checking for user views in last month.
+		const client_ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+		const deviceReadResponse = await deviceService.readMany(
+			{
+				post: getSinglePostBySlugResponse.data.post._id,
+				ip: client_ip,
+				"browser.name": req.useragent.browser,
+				created_at: {
+					$gte: new Date((new Date().getTime() - (1000 * 60 * 60 * 24 * 1))), // last day
+					$lte: new Date()
+				}
+			},
+			{ pagination: false }
+		);
+		if (deviceReadResponse.error) return next(deviceReadResponse.errors);
+
+		if (deviceReadResponse.data.length < 1) {
+			const devicesCreateResponse = await deviceService.create({
+				post: getSinglePostBySlugResponse.data.post._id,
+				ip: client_ip,
+				source: req.useragent.source,
+				browser: { name: req.useragent.browser, version: req.useragent.version },
+				os: req.useragent.os,
+				platform: req.useragent.platform
+			});
+			if (devicesCreateResponse.error) return next(devicesCreateResponse.errors);
+
+			const postUpdateResponse = await postService.updateOne(
+				{ _id: getSinglePostBySlugResponse.data.post._id },
+				{ $inc: { "views.count": 1 }, $addToSet: { "views.devices": devicesCreateResponse.data._id } }
+			);
+			if (postUpdateResponse.error) return next(postUpdateResponse.errors);
+		}
+
+		res.render("blog-single", {
+			page_title: "Blog",
+			page_subtitle: "Blog post page",
+			data: {
+				...getSinglePostBySlugResponse.data,
+				trends,
+				tags: postsTagsReadResponse.data
+			}
 		});
 	}
 
@@ -120,8 +171,8 @@ class PostController extends Controller {
 		const categoriesListResponse = await categoryService.readMany(
 			{ parent: { $size: 0 } },
 			{
-				select: "id childs icon name",
-				populate: [{ path: "childs", select: "name" }, { path: "icon", select: "name type -_id" }],
+				select: "id children icon name",
+				populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
 				pagination: false
 			}
 		);
@@ -141,8 +192,8 @@ class PostController extends Controller {
 		const categoriesListResponse = await categoryService.readMany(
 			{ parent: { $size: 0 } },
 			{
-				select: "id childs icon name",
-				populate: [{ path: "childs", select: "name" }, { path: "icon", select: "name type -_id" }],
+				select: "id children icon name",
+				populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
 				pagination: false
 			}
 		);
@@ -212,8 +263,8 @@ class PostController extends Controller {
 			const categoriesListResponse = await categoryService.readMany(
 				{ parent: { $size: 0 } },
 				{
-					select: "id childs icon name",
-					populate: [{ path: "childs", select: "name" }, { path: "icon", select: "name type -_id" }],
+					select: "id children icon name",
+					populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
 					pagination: false
 				}
 			);
@@ -285,8 +336,8 @@ class PostController extends Controller {
 			const categoriesListResponse = await categoryService.readMany(
 				{ parent: { $size: 0 } },
 				{
-					select: "id childs icon name",
-					populate: [{ path: "childs", select: "name" }, { path: "icon", select: "name type -_id" }],
+					select: "id children icon name",
+					populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
 					pagination: false
 				}
 			);
@@ -335,9 +386,15 @@ class PostController extends Controller {
 			created_by: req.user._id
 		};
 
+		const { tags } = req.body;
+		delete req.body.tags;
+
 		const postUpdateResponse = await postService.updateOne(
 			{ slug, ...(req.user.role !== "admin" && { created_at: req.user._id }) },
-			{ $set: req.body }
+			{
+				$set: req.body,
+				$addToSet: { tags }
+			}
 		);
 		if (postUpdateResponse.error) {
 			if (postUpdateResponse.statusCode === 404) return next();
@@ -394,6 +451,10 @@ class PostController extends Controller {
 			attachmentDeleteResponse.data.map((current) => current.path)
 		);
 		if (attachmentFilesDeleteResponse.error) return next(attachmentFilesDeleteResponse.errors);
+
+		// Delete all views documents
+		const devicesDeleteResponse = await deviceService.deleteMany({ post: postDeleteResponse.data._id });
+		if (devicesDeleteResponse.error) return next(devicesDeleteResponse.errors);
 
 		req.flash("success", `${postDeleteResponse.data.title} Blog Post has been deleted!`);
 		res.status(postDeleteResponse.statusCode).redirect("back");

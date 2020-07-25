@@ -6,13 +6,13 @@ import mongoose from "mongoose";
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
 //
 const IconSchema = new mongoose.Schema({
-    name: { type: String, index: true },
-    type: { type: String, index: true }
+	name: { type: String, index: true },
+	type: { type: String, index: true }
 }, {
-    timestamps: {
-        createdAt: "created_at",
-        updatedAt: "updated_at"
-    }
+	timestamps: {
+		createdAt: "created_at",
+		updatedAt: "updated_at"
+	}
 });
 
 //

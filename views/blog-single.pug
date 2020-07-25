@@ -1,0 +1,170 @@
+extends ./layouts/_index_layout.pug
+include ./mixins/_blog_card_horizontal_sm.pug
+include ./mixins/_blog_card_vertical.pug
+include ./mixins/_breadcrumb.pug
+
+block content
+
+	//
+		Content
+		==================================================
+	#titlebar.gradient
+		.container
+			.row
+				.col-md-12
+					h2=page_title
+					span=page_subtitle
+					// Breadcrumbs
+					+breadcrumb(urlSegment)
+	// Post Content
+	.container
+		.row
+			// Inner Content
+			.col-xl-8.col-lg-8
+				// Blog Post
+				.blog-post.single-post
+					// Blog Post Thumbnail
+					.blog-post-thumbnail
+						.blog-post-thumbnail-inner
+							if (data.post.category)
+								span.blog-item-tag=data.post.category.name.en
+							if (data.post.thumbnail && data.post.thumbnail.lg)
+								img(src=`/${data.post.thumbnail.lg.path}`, alt=`${data.post.title}'s image`)
+					// Blog Post Content
+					.blog-post-content
+						h3.margin-bottom-10=data.post.title
+						.blog-post-info-list.margin-bottom-20
+							a.blog-post-info(href=`/browse/posts?created_at=${data.post.created_at}`)=moment(data.post.created_at).format('LL')
+							a.blog-post-info(href='#comments') 5 Comments
+						.blog-post-document
+							| !{data.post.content}
+						// Share Buttons
+						.share-buttons.margin-top-25
+							.share-buttons-trigger
+								i.icon-feather-share-2
+							.share-buttons-content
+								span
+									| Interesting?
+									strong Share It!
+								ul.share-buttons-icons
+									li
+										a(href='#', target="_blank", data-button-color='#3b5998', title='Share on Facebook', data-tippy, data-tippy-placement='top')
+											i.icon-brand-facebook-f
+									li
+										a(href='#', target="_blank", data-button-color='#1da1f2', title='Share on Twitter', data-tippy, data-tippy-placement='top')
+											i.icon-brand-twitter
+									li
+										a(href='#', target="_blank", data-button-color='#dd4b39', title='Share on Google Plus', data-tippy, data-tippy-placement='top')
+											i.icon-brand-google-plus-g
+									li
+										a(href='#', target="_blank", data-button-color='#0077b5', title='Share on LinkedIn', data-tippy, data-tippy-placement='top')
+											i.icon-brand-linkedin-in
+				// Blog Post Content / End
+				if (data.prevPost || data.nextPost)
+					// Blog Nav
+					ul#posts-nav.margin-top-0.margin-bottom-40
+						if (data.prevPost)
+							li.next-post
+								a(href=`/post/${data.prevPost.slug}`)
+									span Next Post
+									strong=data.prevPost.title
+						if (data.nextPost)
+							li.prev-post
+								a(href=`/post/${data.nextPost.slug}`)
+									span Previous Post
+									strong=data.nextPost.title
+				if (data.relatedPosts.length)
+					// Related Posts
+					.row
+						// Headline
+						.col-xl-12
+							h3.margin-top-40.margin-bottom-35 Related Posts
+						each relatedPost, i in data.relatedPosts
+							// Blog Post Item
+							.col-xl-6
+								+blog_card_vertical(relatedPost, i)
+							// Blog post Item / End
+					// Related Posts / End
+				// Comments
+				if (!user)
+					.row.margin-top-50.margin-bottom-50
+						.col-12
+							.notification.info
+								span Please login to your account so you can leave a comment.
+						.col-12.col-md-6.offset-md-3.col-lg-5
+							a.button.ripple-effect.button-sliding-icon.full-width.big(href="/auth/login")
+								| login
+								i.icon-material-outline-arrow-right-alt
+				else
+					// Leave a Comment
+					.row
+						.col-xl-12
+							h3.margin-top-35.margin-bottom-30 Add Comment
+							// Form
+							form#add-comment(action=`/post/${data.post._id}/comments/add`, method='POST')
+								include ./partials/_csrf.pug
+								.row
+									.col-12
+										.submit-field
+											textarea.with-border(name='content', cols='30', rows='5', placeholder='Comment', required)
+									.col-12.col-md-6.col-lg-5
+										// Button
+										button.button.button-sliding-icon.full-width.ripple-effect.margin-bottom-40(type='submit', form='add-comment')
+											| Add Comment
+											i.icon-material-outline-arrow-right-alt
+					// Leave a Comment / End
+				.row
+					.col-xl-12
+						include ./sections/_comments.pug
+				// Comments / End
+			// Inner Content / End
+			.col-xl-4.col-lg-4.content-left-offset
+				.sidebar-container
+					// Location
+					.sidebar-widget.margin-bottom-40
+						.search-input
+								.input-flat-with-icon-left
+									form#search-input-form(action="/browse/posts", method="GET")
+										input.input-text(name='q', type='search', placeholder='Search')
+										button.autocomplete-button.ripple-effect(type="submit", form="search-input-form")
+											i.icon-material-outline-search.icon-right
+					// Widget
+					.sidebar-widget
+						h3 Trending Posts
+						ul.widget-tabs
+							each trendPost, i in data.trends
+								li
+									+blog_card_horizontal_sm(trendPost, i)
+					// Widget / End
+					// Widget
+					.sidebar-widget
+						h3 Social Profiles
+						.freelancer-socials.margin-top-25
+							ul
+								li
+									a(href='#', title='Dribbble', data-tippy-placement='top')
+										i.icon-brand-dribbble
+								li
+									a(href='#', title='Twitter', data-tippy-placement='top')
+										i.icon-brand-twitter
+								li
+									a(href='#', title='Behance', data-tippy-placement='top')
+										i.icon-brand-behance
+								li
+									a(href='#', title='GitHub', data-tippy-placement='top')
+										i.icon-brand-github
+					// Widget
+					.sidebar-widget
+						h3 Tags
+						form.tags-container#tags-form(action="/browse/posts", form="GET")
+							.tags-list
+								each tag, i in data.tags
+									.tag
+										input(id=`tag-0-${i}`, type='checkbox', name=`tags[]`, value=tag.name, onchange='(document.querySelector("#tags-form").submit())')
+										label(for=`tag-0-${i}`)=tag.name
+	// Spacer
+	.padding-top-40
+	// Spacer
+
+
+block append scripts

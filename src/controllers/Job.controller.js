@@ -60,7 +60,7 @@ class JobController extends Controller {
 					.notEmpty()
 					.withMessage("Job maximum salary can't be empty!")
 					.custom((value, { req }) => Number(value) > Number(req.body["salary.min"]))
-					.withMessage("Salary maxmum value can't be less than minimum value."),
+					.withMessage("Salary maximum value can't be less than minimum value."),
 				body("tags")
 					.optional()
 					.isArray({ min: 1, max: 10 })
@@ -117,8 +117,8 @@ class JobController extends Controller {
 		const categoriesListResponse = await categoryService.readMany(
 			{ parent: { $size: 0 } },
 			{
-				select: "id childs icon name",
-				populate: [{ path: "childs", select: "name" }, { path: "icon", select: "name type -_id" }],
+				select: "id children icon name",
+				populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
 				pagination: false
 			}
 		);
@@ -185,8 +185,8 @@ class JobController extends Controller {
 			const categoriesListResponse = await categoryService.readMany(
 				{ parent: { $size: 0 } },
 				{
-					select: "id childs icon name",
-					populate: [{ path: "childs", select: "name" }, { path: "icon", select: "name type -_id" }],
+					select: "id children icon name",
+					populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
 					pagination: false
 				}
 			);
@@ -248,8 +248,8 @@ class JobController extends Controller {
 		const categoriesListResponse = await categoryService.readMany(
 			{ parent: { $size: 0 } },
 			{
-				select: "id childs icon name",
-				populate: [{ path: "childs", select: "name" }, { path: "icon", select: "name type -_id" }],
+				select: "id children icon name",
+				populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
 				pagination: false
 			}
 		);
@@ -286,8 +286,8 @@ class JobController extends Controller {
 			const categoriesListResponse = await categoryService.readMany(
 				{ parent: { $size: 0 } },
 				{
-					select: "id childs icon name",
-					populate: [{ path: "childs", select: "name" }, { path: "icon", select: "name type -_id" }],
+					select: "id children icon name",
+					populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
 					pagination: false
 				}
 			);
@@ -336,9 +336,15 @@ class JobController extends Controller {
 			...(savedAttachments.length && { attachments: savedAttachments.map((attach) => attach._id) })
 		};
 
+		const { tags } = req.body;
+		delete req.body.tags;
+
 		const jobUpdateResponse = await jobService.updateOne(
 			{ slug: req.params.slug, ...(req.user.role !== "admin" && { created_by: req.user._id }) },
-			{ $set: req.body }
+			{
+				$set: req.body,
+				$addToSet: { tags }
+			}
 		);
 		if (jobUpdateResponse.error) {
 			if (jobUpdateResponse.statusCode === 404) return next();

@@ -1,7 +1,7 @@
 import slug from "mongoose-slug-updater";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import validator from "validator";
+import { isEmail } from "validator";
 import mongoosePagination from "mongoose-paginate-v2";
 import mongoose from "mongoose";
 
@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema({
 		index: true,
 		lowercase: true,
 		trim: true,
-		validate: [validator.isEmail, "Invalid Email Address"]
+		validate: [isEmail, "Invalid Email Address"]
 	},
 	account: {
 		name: {

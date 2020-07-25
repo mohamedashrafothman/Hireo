@@ -23,10 +23,47 @@ block content
 			.row
 				.col-xl-12
 					.blog-carousel
-						+blog_card_vertical({}, 0)
-						+blog_card_vertical({}, 1)
-						+blog_card_vertical({}, 2)
-						+blog_card_vertical({}, 3)
+						a.blog-compact-item-container(href='pages-blog-post.html')
+							.blog-compact-item
+								img(src='/images/blog-05a.jpg', alt='')
+								span.blog-item-tag Recruiting
+								.blog-compact-item-content
+									ul.blog-post-tags
+										li 28 April 2018
+									h3 12 Dog-Friendly Companies Hiring Now
+									p
+										| Compellingly embrace empowered e-business after user friendly intellectual capital. Interactively front-end.
+						a.blog-compact-item-container(href='pages-blog-post.html')
+							.blog-compact-item
+								img(src='/images/blog-05a.jpg', alt='')
+								span.blog-item-tag Recruiting
+								.blog-compact-item-content
+									ul.blog-post-tags
+										li 28 April 2018
+									h3 12 Dog-Friendly Companies Hiring Now
+									p
+										| Compellingly embrace empowered e-business after user friendly intellectual capital. Interactively front-end.
+						a.blog-compact-item-container(href='pages-blog-post.html')
+							.blog-compact-item
+								img(src='/images/blog-05a.jpg', alt='')
+								span.blog-item-tag Recruiting
+								.blog-compact-item-content
+									ul.blog-post-tags
+										li 28 April 2018
+									h3 12 Dog-Friendly Companies Hiring Now
+									p
+										| Compellingly embrace empowered e-business after user friendly intellectual capital. Interactively front-end.
+						a.blog-compact-item-container(href='pages-blog-post.html')
+							.blog-compact-item
+								img(src='/images/blog-05a.jpg', alt='')
+								span.blog-item-tag Recruiting
+								.blog-compact-item-content
+									ul.blog-post-tags
+										li 28 April 2018
+									h3 12 Dog-Friendly Companies Hiring Now
+									p
+										| Compellingly embrace empowered e-business after user friendly intellectual capital. Interactively front-end.
+
 	// Recent Blog Posts / End
 	// Section
 	.section.gray.padding-bottom-30
@@ -55,7 +92,7 @@ block content
 							.search-input
 									.input-flat-with-icon-left
 										form#search-input-form(action="", method="GET")
-											input.input-text(name='q', type='text', placeholder='Search', value=query.q)
+											input.input-text(name='q', type='search', placeholder='Search', value=query.q)
 											button.autocomplete-button.ripple-effect(type="submit", form="search-input-form")
 												i.icon-material-outline-search.icon-right
 						// Widget
@@ -63,9 +100,9 @@ block content
 							h3 Most Viewed
 							ul.widget-tabs
 								// Post
-								each post, i in data.posts.mostViewed
+								each trendPost, i in data.posts.trends
 									li
-										+blog_card_horizontal_sm(post, i)
+										+blog_card_horizontal_sm(trendPost, i)
 						// Widget / End
 						// Widget
 						.sidebar-widget
@@ -73,24 +110,26 @@ block content
 							.freelancer-socials.margin-top-25
 								ul
 									li
-										a(href='#', title='Dribbble', data-tippy, data-tippy-placement='top')
+										a(href='#', title='Dribbble', target="_blank" data-tippy, data-tippy-placement='top')
 											i.icon-brand-dribbble
 									li
-										a(href='#', title='Twitter', data-tippy, data-tippy-placement='top')
+										a(href='#', title='Twitter', target="_blank" data-tippy, data-tippy-placement='top')
 											i.icon-brand-twitter
 									li
-										a(href='#', title='Behance', data-tippy, data-tippy-placement='top')
+										a(href='#', title='Behance', target="_blank" data-tippy, data-tippy-placement='top')
 											i.icon-brand-behance
 									li
-										a(href='#', title='GitHub', data-tippy, data-tippy-placement='top')
+										a(href='#', title='GitHub', target="_blank" data-tippy, data-tippy-placement='top')
 											i.icon-brand-github
 						// Widget
 						.sidebar-widget
 							h3 Tags
-							.task-tags
-								each tag, i in data.tags
-									a(href=`/browse/posts?${qs.stringify(_.assignIn(query, qs.parse({tags: [tag.name]})))}`)
-										span=tag.name
+							form.tags-container#tags-form(action="/browse/posts", form="GET")
+								.tags-list
+									each tag, i in data.tags
+										.tag
+											input(id=`tag-0-${i}`, type='checkbox', name=`tags[]`, value=tag.name, checked=(query.tags && query.tags.includes(tag.name)) ? "checked" : undefined, onchange='(document.querySelector("#tags-form").submit())')
+											label(for=`tag-0-${i}`)=tag.name
 	// Section / End
 
 block append modals

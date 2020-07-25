@@ -118,4 +118,20 @@ export default class Service {
 			data: items.data
 		};
 	}
+
+	async constructPopulateConfigOption(level, path, options) {
+		let obj = { path };
+
+		while (level) {
+			if (level !== 1) {
+				obj.populate = { ...obj, ...options };
+			}
+
+			obj = { ...obj, ...options };
+
+			--level;
+		}
+
+		return obj;
+	}
 }

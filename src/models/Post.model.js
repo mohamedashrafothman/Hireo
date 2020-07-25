@@ -30,12 +30,9 @@ const PostSchema = new mongoose.Schema({
 	},
 	views: {
 		count: { type: Number },
-		visitors: [{
-			ip: { type: String, max: 20, required: true },
-			user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-			visited_at: { type: Date, default: +new Date(), required: true }
-		}],
-	}
+		devices: [{ type: mongoose.Schema.Types.ObjectId, ref: "Device" }],
+	},
+	comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }]
 }, {
 	timestamps: {
 		createdAt: "created_at",

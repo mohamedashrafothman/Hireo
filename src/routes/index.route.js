@@ -5,6 +5,7 @@ import UserController from "../controllers/User.controller";
 import JobController from "../controllers/Job.controller";
 import ApplicationController from "../controllers/Application.controller";
 import PostController from "../controllers/Post.controller";
+import CommentController from "../controllers/Comment.controller";
 import userRouter from "./user.route";
 import dashboardRouter from "./dashboard.route";
 
@@ -19,12 +20,16 @@ const router = app.Router();
 router
 	.route("/")
 	.get((req, res) => {
-		res.render("index", { page_title: "Home" });
+		res.render("index", {
+			page_title: "Home"
+		});
 	});
 router
 	.route("/lang/:lang")
 	.get((req, res) => {
-		const { lang } = req.params;
+		const {
+			lang
+		} = req.params;
 		i18n.setLocale(res, lang, true);
 		res.cookie("lang", lang);
 		res.redirect("back");
@@ -57,12 +62,17 @@ router
 		ApplicationController.validator("add application"),
 		ApplicationController.addApplication
 	);
+
 router
 	.route("/browse/posts")
 	.get(PostController.browseAllPosts);
 router
 	.route("/post/:slug")
 	.get(PostController.getPostPage);
+
+router
+	.route(["/post/:id/comments/add", "/post/:id/comments/add/:parent"])
+	.post(UserController.isAuthenticated, CommentController.validator("add comment"), CommentController.addComment);
 
 //
 // ─── NESTING ROUTES ─────────────────────────────────────────────────────────────

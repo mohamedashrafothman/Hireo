@@ -43,7 +43,7 @@ block content
 						select.selectpicker.default.with-border(multiple, name="categories[]", data-selected-text-format='count', data-size='7', title='All Categories')
 							each category, i in categories
 								optgroup(label=category.name.en, data-icon=`icon-${category.icon.type}-${category.icon.name}`,)
-									each child, i in category.childs
+									each child, i in category.children
 										option(value=child._id, selected=(query && query.categories && (query.categories.includes(child._id.toString()) || query.categories.includes(category._id.toString()))) ? "selected" : undefined)=child.name.en
 
 					// Job Types

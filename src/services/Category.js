@@ -17,7 +17,7 @@ export default class CategoryService extends Service {
 		if (createdUser.error) return createdUser;
 
 		if (body.parent) {
-			const updatedParent = await this.updateOne({ _id: body.parent }, { $addToSet: { childs: createdUser.data._id } });
+			const updatedParent = await this.updateOne({ _id: body.parent }, { $addToSet: { children: createdUser.data._id } });
 			if (updatedParent.error) return updatedParent;
 		}
 
@@ -28,7 +28,18 @@ export default class CategoryService extends Service {
 		const deletedCategories = await this.deleteMany({ $or: [{ _id: id }, { parent: id }] }, { pagination: false });
 		if (deletedCategories.error) return deletedCategories;
 
-		const updatedCategories = await this.updateMany({ $or: [{ childs: deletedCategories.data.map((category) => category._id) }, { parent: deletedCategories.data.map((category) => category._id) }] }, { $pull: { childs: deletedCategories.data.map((category) => category._id), parent: deletedCategories.data.map((category) => category._id) } },);
+		const updatedCategories = await this.updateMany({
+			$or: [{
+				children: deletedCategories.data.map((category) => category._id)
+			}, {
+				parent: deletedCategories.data.map((category) => category._id)
+			}]
+		}, {
+			$pull: {
+				children: deletedCategories.data.map((category) => category._id),
+				parent: deletedCategories.data.map((category) => category._id)
+			}
+		});
 		if (updatedCategories.error) return updatedCategories;
 
 		return deletedCategories;
@@ -38,7 +49,7 @@ export default class CategoryService extends Service {
 		const [err, categories] = await to(
 			this.model
 				.findOne({ slug })
-				.populate("parent childs icon picture")
+				.populate("parent children icon picture")
 		);
 		if (err) return { error: true, statusCode: 500, errors: err };
 		if (!categories) return { error: true, statusCode: 404, errors: ["Not Found"] };

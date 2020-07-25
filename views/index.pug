@@ -35,7 +35,7 @@ block content
 							select.selectpicker.default(name="categories[]", data-selected-text-format='count', data-size='7', title='All Categories', data-live-search='true', multiple)
 								each category, i in categories
 									optgroup(label=category.name.en, data-icon=`icon-${category.icon.type}-${category.icon.name}`)
-										each child, i in category.childs
+										each child, i in category.children
 											option(value=child._id)=child.name.en
 
 						// Button

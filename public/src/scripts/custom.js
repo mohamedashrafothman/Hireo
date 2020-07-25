@@ -1675,12 +1675,25 @@
 		(function () {
 			tinymce.init({
 				selector: ".tinymce",
-				plugins: 'print preview powerpaste casechange importcss tinydrive searchreplace autolink autosave save directionality advcode visualblocks visualchars fullscreen image link media mediaembed codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists checklist wordcount tinymcespellchecker a11ychecker imagetools textpattern noneditable help formatpainter permanentpen pageembed charmap mentions quickbars linkchecker emoticons advtable',
+				plugins: 'print preview importcss tinydrive searchreplace autolink autosave save directionality visualblocks visualchars fullscreen image link media codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
 				mobile: {
-					plugins: 'print preview powerpaste casechange importcss tinydrive searchreplace autolink autosave save directionality advcode visualblocks visualchars fullscreen image link media mediaembed codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists checklist wordcount tinymcespellchecker a11ychecker textpattern noneditable help formatpainter pageembed charmap mentions quickbars linkchecker emoticons advtable'
+					plugins: 'print preview importcss tinydrive searchreplace autolink autosave save directionality visualblocks visualchars fullscreen image link media codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount textpattern noneditable help charmap quickbars emoticons'
 				},
+				codesample_languages: [
+					{text: 'HTML/XML', value: 'markup'},
+					{text: 'JavaScript', value: 'javascript'},
+					{text: 'CSS', value: 'css'},
+					{text: 'PHP', value: 'php'},
+					{text: 'Ruby', value: 'ruby'},
+					{text: 'Python', value: 'python'},
+					{text: 'Java', value: 'java'},
+					{text: 'C', value: 'c'},
+					{text: 'C#', value: 'csharp'},
+					{text: 'C++', value: 'cpp'}
+				],
+				codesample_content_css: "http://ourcodeworld.com/material/css/prism.css",
 				menubar: 'file edit view insert format tools table tc help',
-				toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed link anchor codesample | a11ycheck ltr rtl',
+				toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media link anchor codesample | a11ycheck ltr rtl',
 				autosave_ask_before_unload: true,
 				autosave_interval: "30s",
 				autosave_prefix: "{path}{query}-{id}-",
@@ -1696,7 +1709,7 @@
 				toolbar_mode: 'sliding',
 				spellchecker_dialog: true,
 				content_style: ".mymention{ color: gray; }",
-				contextmenu: "link image imagetools table configurepermanentpen",
+				contextmenu: "link image imagetools table configur",
 				a11y_advanced_options: true,
 			});
 		})();
@@ -2067,6 +2080,7 @@
 				}
 			}
 		})();
+
 		// ------------------ End Document ------------------ //
 	});
 })(this.jQuery);

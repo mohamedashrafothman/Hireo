@@ -56,7 +56,7 @@ export default class JobService extends Service {
 				})
 				.populate({
 					path: "category",
-					select: "name parent childs"
+					select: "name parent children"
 				})
 				.populate({
 					path: "type",

@@ -1,0 +1,8 @@
+include ../mixins/_comments.pug
+
+section.comments#comments
+	h3.margin-top-45.margin-bottom-0
+		| Comments
+		span.comments-amount (5)
+	if (data.post.comments.length)
+		+comments(data.post.comments)

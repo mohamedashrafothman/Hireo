@@ -1,6 +1,6 @@
 mixin blog_card_horizontal_sm(data={}, index=0)
 	// .active
-	a(href=``, class=`widget-content ${(index < 1) ? "active" : ""}`)
+	a(href=`/post/${data.slug}`, class=`widget-content ${(index < 1) ? "active" : ""}`)
 		if (data.thumbnail && data.thumbnail.md)
 			img(src=`/${data.thumbnail.md.path}`, alt='')
 		.widget-text

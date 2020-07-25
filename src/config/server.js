@@ -14,6 +14,7 @@ import session from "express-session";
 import favicon from "serve-favicon";
 import passport from "passport";
 import socketio from "socket.io";
+import userAgent from "express-useragent";
 import htmlToText from "html-to-text";
 import bodyParser from "body-parser";
 import compression from "compression";
@@ -121,8 +122,8 @@ app.use(async (req, res, next) => {
 			{ parent: { $size: 0 } },
 			{
 				pagination: false,
-				select: "name description slug childs picture icon",
-				populate: [{ path: "picture", select: "path name" }, { path: "childs", select: "name parent" }, { path: "icon", select: "name type -_id" }],
+				select: "name description slug children picture icon",
+				populate: [{ path: "picture", select: "path name" }, { path: "children", select: "name parent" }, { path: "icon", select: "name type -_id" }],
 				limit: 8
 			}
 		)
@@ -195,6 +196,8 @@ app.use((req, res, next) => {
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	next();
 });
+// attach browser information to express application.
+app.use(userAgent.express());
 
 
 //

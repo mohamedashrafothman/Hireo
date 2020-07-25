@@ -1,11 +1,14 @@
-mixin blog_card_vertical(data={}, index=0)
-	a.blog-compact-item-container(href='pages-blog-post.html')
+mixin blog_card_vertical(data={}, index=0, reg=new RegExp("<\s*p[^>]*>(.*?)<\s*/\s*p>", "gi"))
+	a.blog-compact-item-container(href=`/post/${data.slug}`)
 		.blog-compact-item
-			img(src='/images/blog-05a.jpg', alt='')
-			span.blog-item-tag Recruiting
+			if (data.thumbnail && data.thumbnail.md)
+				img(src=`/${data.thumbnail.md.path}`, alt=`${data.title}'s thumbnail`)
+			span.blog-item-tag=data.category.name.en
 			.blog-compact-item-content
 				ul.blog-post-tags
-					li 28 April 2018
-				h3 12 Dog-Friendly Companies Hiring Now
+					li=moment(data.created_at).format("LL")
+				h3=data.title
 				p
-					| Compellingly embrace empowered e-business after user friendly intellectual capital. Interactively front-end.
+					|!{htmlToText.fromString(data.content.match(reg).join("").split(".").slice(0, 2).join("."), { ignoreHref: true })}
+					if (data.content.match(reg).join("").split(".").length >= 2)
+						| ...

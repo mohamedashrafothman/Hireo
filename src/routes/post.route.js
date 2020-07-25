@@ -34,6 +34,7 @@ router
 router
 	.route("/delete/:id")
 	.get(PostsController.deletePost);
+
 //
 // ─── EXPORTING ROUTER ───────────────────────────────────────────────────────────
 //

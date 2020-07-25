@@ -1,0 +1,21 @@
+mixin comments(comments)
+	ul
+		each comment, i in comments
+			li
+				.avatar
+					if (comment.created_by.account.picture || comment.created_by.account.picture_md)
+						img(src=(!comment.created_by.account.picture) ? `/${comment.created_by.account.picture_md.path}` : `/${comment.created_by.account.picture.path}`, alt=comment.created_by.account.name)
+					else
+						img(src=comment.created_by.gravatar(70), alt='')
+				.comment-content
+					.arrow-comment
+					.comment-by
+						=comment.created_by.account.name
+						span.date=moment(comment.created_at).format("LL")
+						if (level <= 1)
+							a.reply(href='#')
+								i.fa.fa-reply
+								|  Reply
+					p=comment.content
+				if (comment.children.length)
+					+comments(comment.children)

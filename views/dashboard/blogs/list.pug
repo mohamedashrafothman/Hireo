@@ -33,7 +33,7 @@ block content
 								.search-input
 									.input-flat-with-icon-left
 										form#search-input-form(action="", method="GET")
-											input.input-text.autocomplete(name='q', type='text', placeholder='Search', value=query.q)
+											input.input-text.autocomplete(name='q', type='search', placeholder='Search', value=query.q)
 											button.autocomplete-button.ripple-effect(type="submit", form="search-input-form")
 												i.icon-material-outline-search.icon-right
 				.content
@@ -65,7 +65,7 @@ block content
 											// Details
 											.job-listing-description
 												h3.job-listing-title
-													a(href=`/job/${post.slug}`)=post.title
+													a(href=`/post/${post.slug}`)=post.title
 													case post.status
 														when 1
 															span.dashboard-status-button.margin-bottom-0.green Published

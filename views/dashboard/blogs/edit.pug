@@ -29,7 +29,7 @@ block content
 								select.selectpicker.with-border(name="category", data-size='7', title='Select Category', data-live-search='true', required)
 									each category, i in data.categories
 										optgroup(label=category.name.en, data-icon=`icon-${category.icon.type}-${category.icon.name}`,)
-											each child, i in category.childs
+											each child, i in category.children
 												option(value=child._id, selected=(data.post && data.post["category"] && _.isEqual(child._id.toString(), data.post["category"].toString())) ? "selected" : undefined)=child.name.en
 						.col-md-4
 							.submit-field

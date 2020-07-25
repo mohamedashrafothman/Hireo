@@ -36,8 +36,8 @@ block content
 								.accordion-body.js-accordion-body(style='display: none;')
 									// Accordion Content
 									.accordion-body__contents=category.description.en
-									if (category.childs.length)
-										each sub_category, index_2 in category.childs
+									if (category.children.length)
+										each sub_category, index_2 in category.children
 											// Sub Accordion Container
 											.accordion.js-accordion
 												// Sub Accordion
@@ -81,8 +81,8 @@ block content
 								.accordion-body.js-accordion-body(style='display: none;')
 									// Accordion Content
 									.accordion-body__contents=category.description.en
-									if (category.childs.length)
-										each sub_category, index_2 in category.childs
+									if (category.children.length)
+										each sub_category, index_2 in category.children
 											// Sub Accordion Container
 											.accordion.js-accordion
 												// Sub Accordion
@@ -128,7 +128,7 @@ block append modals
 						// Button
 						button.button.red.margin-top-35.full-width.ripple-effect(type="submit" form=`delete-category-form-${index_1+1}`)
 							| Delete Now!
-		each sub_category, index_2 in category.childs
+		each sub_category, index_2 in category.children
 			.zoom-anim-dialog.dialog-with-tabs.mfp-hide(id=`small-dialog-${index_1+1}-${index_2+1}`)
 				// Tabs
 				.sign-in-form

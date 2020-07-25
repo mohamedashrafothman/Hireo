@@ -91,7 +91,7 @@ class CategoryController extends Controller {
 	async getCategoryList(req, res, next) {
 		const categoryReadResponse = await categoryService.readMany(
 			{ parent: { $size: 0 } },
-			{ populate: "childs icon" }
+			{ populate: "children icon" }
 		);
 		if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
@@ -212,7 +212,6 @@ class CategoryController extends Controller {
 			}
 			req.body = { ...req.body, picture: savedAttachments[0]._id };
 		}
-
 
 		const categoryCreationResponse = await categoryService.addCategory(req.body);
 		if (categoryCreationResponse.error) {

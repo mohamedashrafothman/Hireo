@@ -9,7 +9,7 @@
             "ar": "Software Engineer, Web / Mobile Developer \u0026 More."
         },
         "parent": [],
-        "childs": [
+        "children": [
             "5d83a4ce0a5639277863bad5",
             "5d83a4fc0a5639277863bad9",
             "5d83a5250a5639277863badd",
@@ -34,7 +34,7 @@
             "ar": "Data Specialist / Scientist, Data Analyst \u0026 More."
         },
         "parent": [],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T15:42:15.694Z",
         "updated_at": "2019-09-20T02:49:20.105Z",
         "slug": "data-science-and-analytics",
@@ -51,7 +51,7 @@
             "ar": "Auditor, Accountant, Financial Analyst \u0026 More."
         },
         "parent": [],
-        "childs": [
+        "children": [
             "5d84404097e21a2af089b10c",
             "5d84408797e21a2af089b110",
             "5d8440c697e21a2af089b114",
@@ -79,7 +79,7 @@
             "ar": "Copywriter, Creative Writer, Translator \u0026 More."
         },
         "parent": [],
-        "childs": [
+        "children": [
             "5d83a76c232dbc1e3429c7f3",
             "5d83a78e232dbc1e3429c7f7",
             "5d83a7be232dbc1e3429c7fb",
@@ -103,7 +103,7 @@
             "ar": "Brand Manager, Marketing Coordinator \u0026 More."
         },
         "parent": [],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T15:45:26.669Z",
         "updated_at": "2019-09-20T02:52:59.015Z",
         "slug": "sales-and-marketing",
@@ -120,7 +120,7 @@
             "ar": "Creative Director, Web Designer \u0026 More."
         },
         "parent": [],
-        "childs": [
+        "children": [
             "5d83a8d1232dbc1e3429c80e",
             "5d83a917232dbc1e3429c812",
             "5d83a93d232dbc1e3429c816",
@@ -147,7 +147,7 @@
             "ar": "Marketing Analyst, Social Profile Admin \u0026 More."
         },
         "parent": [],
-        "childs": [
+        "children": [
             "5d84edecc526a729b01a4367",
             "5d84ee3bc526a729b01a436b",
             "5d84ee67c526a729b01a436f",
@@ -172,7 +172,7 @@
             "ar": "Advisor, Coach, Education Coordinator \u0026 More."
         },
         "parent": [],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T15:48:18.046Z",
         "updated_at": "2019-09-20T02:55:27.544Z",
         "slug": "education-and-training",
@@ -191,7 +191,7 @@
         "parent": [
             "5d83a1940a5639277863baaa"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T15:56:21.638Z",
         "updated_at": "2019-09-19T15:56:21.638Z",
         "slug": "desktop-application-development"
@@ -209,7 +209,7 @@
         "parent": [
             "5d83a1940a5639277863baaa"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T15:56:53.524Z",
         "updated_at": "2019-09-19T15:56:53.524Z",
         "slug": "games-development"
@@ -227,7 +227,7 @@
         "parent": [
             "5d83a1940a5639277863baaa"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T15:57:21.673Z",
         "updated_at": "2019-09-19T15:57:21.673Z",
         "slug": "mobile-application-development"
@@ -245,7 +245,7 @@
         "parent": [
             "5d83a1940a5639277863baaa"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T15:57:53.213Z",
         "updated_at": "2019-09-19T15:57:53.213Z",
         "slug": "database-development"
@@ -263,7 +263,7 @@
         "parent": [
             "5d83a2720a5639277863bab6"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:06:04.035Z",
         "updated_at": "2019-09-19T16:06:04.035Z",
         "slug": "article-and-blog-writing"
@@ -281,7 +281,7 @@
         "parent": [
             "5d83a2720a5639277863bab6"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:06:38.938Z",
         "updated_at": "2019-09-19T16:06:38.938Z",
         "slug": "cv-writing-and-cover-letters"
@@ -299,7 +299,7 @@
         "parent": [
             "5d83a2720a5639277863bab6"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:07:26.732Z",
         "updated_at": "2019-09-19T16:07:45.763Z",
         "slug": "translation"
@@ -317,7 +317,7 @@
         "parent": [
             "5d83a2720a5639277863bab6"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:08:38.490Z",
         "updated_at": "2019-09-19T16:08:38.490Z",
         "slug": "user-guides-and-manuals"
@@ -335,7 +335,7 @@
         "parent": [
             "5d83a2720a5639277863bab6"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:09:03.819Z",
         "updated_at": "2019-09-19T16:09:03.819Z",
         "slug": "reports"
@@ -353,7 +353,7 @@
         "parent": [
             "5d83a2720a5639277863bab6"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:09:49.558Z",
         "updated_at": "2019-09-19T16:09:49.558Z",
         "slug": "speech-writing"
@@ -371,7 +371,7 @@
         "parent": [
             "5d83a2d50a5639277863babe"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:12:01.866Z",
         "updated_at": "2019-09-19T16:12:01.866Z",
         "slug": "advers"
@@ -389,7 +389,7 @@
         "parent": [
             "5d83a2d50a5639277863babe"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:13:11.298Z",
         "updated_at": "2019-09-19T16:13:11.298Z",
         "slug": "banner-ads"
@@ -407,7 +407,7 @@
         "parent": [
             "5d83a2d50a5639277863babe"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:13:49.823Z",
         "updated_at": "2019-09-19T16:13:49.823Z",
         "slug": "flyers-and-posters"
@@ -425,7 +425,7 @@
         "parent": [
             "5d83a2d50a5639277863babe"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:14:17.775Z",
         "updated_at": "2019-09-19T16:14:17.775Z",
         "slug": "illusturations"
@@ -443,7 +443,7 @@
         "parent": [
             "5d83a2d50a5639277863babe"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:14:48.514Z",
         "updated_at": "2019-09-19T16:14:48.514Z",
         "slug": "infographics"
@@ -461,7 +461,7 @@
         "parent": [
             "5d83a2d50a5639277863babe"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:15:48.962Z",
         "updated_at": "2019-09-19T16:15:48.962Z",
         "slug": "invetations"
@@ -479,7 +479,7 @@
         "parent": [
             "5d83a2d50a5639277863babe"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:16:10.764Z",
         "updated_at": "2019-09-19T16:16:10.764Z",
         "slug": "logo-design"
@@ -497,7 +497,7 @@
         "parent": [
             "5d83a2d50a5639277863babe"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:16:42.340Z",
         "updated_at": "2019-09-19T16:16:42.340Z",
         "slug": "photoshop-editing"
@@ -515,7 +515,7 @@
         "parent": [
             "5d83a2d50a5639277863babe"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-19T16:17:14.410Z",
         "updated_at": "2019-09-19T16:17:14.410Z",
         "slug": "web-and-mobile-design"
@@ -533,7 +533,7 @@
         "parent": [
             "5d83a1940a5639277863baaa"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T02:18:45.693Z",
         "updated_at": "2019-09-20T02:18:45.693Z",
         "slug": "web-application-development"
@@ -551,7 +551,7 @@
         "parent": [
             "5d83a2180a5639277863bab2"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T02:58:08.367Z",
         "updated_at": "2019-09-20T02:58:08.367Z",
         "slug": "administrative-services"
@@ -569,7 +569,7 @@
         "parent": [
             "5d83a2180a5639277863bab2"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T02:59:19.177Z",
         "updated_at": "2019-09-20T02:59:19.177Z",
         "slug": "business-plans"
@@ -587,7 +587,7 @@
         "parent": [
             "5d83a2180a5639277863bab2"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T03:00:22.913Z",
         "updated_at": "2019-09-20T03:00:22.913Z",
         "slug": "feasibility-studies"
@@ -605,7 +605,7 @@
         "parent": [
             "5d83a2180a5639277863bab2"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T03:01:31.117Z",
         "updated_at": "2019-09-20T03:01:31.117Z",
         "slug": "financial-consultancy"
@@ -623,7 +623,7 @@
         "parent": [
             "5d83a2180a5639277863bab2"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T03:02:32.677Z",
         "updated_at": "2019-09-20T03:02:32.677Z",
         "slug": "human-resources-and-carrier-consultancy"
@@ -641,7 +641,7 @@
         "parent": [
             "5d83a2180a5639277863bab2"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T03:03:21.980Z",
         "updated_at": "2019-09-20T03:03:21.980Z",
         "slug": "it-consultancy"
@@ -659,7 +659,7 @@
         "parent": [
             "5d83a2180a5639277863bab2"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T03:04:20.983Z",
         "updated_at": "2019-09-20T03:04:20.983Z",
         "slug": "legal-consultancy"
@@ -677,7 +677,7 @@
         "parent": [
             "5d83a2180a5639277863bab2"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T03:05:03.833Z",
         "updated_at": "2019-09-20T03:05:03.833Z",
         "slug": "market-research"
@@ -695,7 +695,7 @@
         "parent": [
             "5d83a2180a5639277863bab2"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T03:05:49.608Z",
         "updated_at": "2019-09-20T03:05:49.608Z",
         "slug": "marketing-strategy"
@@ -713,7 +713,7 @@
         "parent": [
             "5d83a2180a5639277863bab2"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T03:06:37.277Z",
         "updated_at": "2019-09-20T03:06:37.277Z",
         "slug": "social-media-consultancy"
@@ -731,7 +731,7 @@
         "parent": [
             "5d83a31a0a5639277863bac4"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T15:19:09.032Z",
         "updated_at": "2019-09-20T15:19:09.032Z",
         "slug": "digital-marketing-expert"
@@ -749,7 +749,7 @@
         "parent": [
             "5d83a31a0a5639277863bac4"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T15:20:27.749Z",
         "updated_at": "2019-09-20T15:20:27.749Z",
         "slug": "influencer-marketing"
@@ -767,7 +767,7 @@
         "parent": [
             "5d83a31a0a5639277863bac4"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T15:21:11.989Z",
         "updated_at": "2019-09-20T15:21:11.989Z",
         "slug": "sem-search-engine-marketing"
@@ -785,7 +785,7 @@
         "parent": [
             "5d83a31a0a5639277863bac4"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T15:21:54.767Z",
         "updated_at": "2019-09-20T15:21:54.767Z",
         "slug": "seo-search-engine-optimization"
@@ -803,7 +803,7 @@
         "parent": [
             "5d83a31a0a5639277863bac4"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T15:23:13.216Z",
         "updated_at": "2019-09-20T15:23:13.216Z",
         "slug": "social-media-account-manager"
@@ -821,7 +821,7 @@
         "parent": [
             "5d83a31a0a5639277863bac4"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T15:23:50.078Z",
         "updated_at": "2019-09-20T15:23:50.078Z",
         "slug": "web-analytics"
@@ -839,7 +839,7 @@
         "parent": [
             "5d83a31a0a5639277863bac4"
         ],
-        "childs": [],
+        "children": [],
         "created_at": "2019-09-20T15:25:04.978Z",
         "updated_at": "2019-09-20T15:25:04.978Z",
         "slug": "website-content-editor"

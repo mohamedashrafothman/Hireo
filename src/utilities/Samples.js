@@ -2,122 +2,115 @@ import dotenv from "dotenv";
 
 import fs from "fs";
 import to from "await-to-js";
+import glob from "glob";
+import path from "path";
 import { blue, red } from "chalk";
+import { upperFirst, camelCase } from "lodash";
 import MongoDBConnection from "../config/database";
 
-import User        from "../models/User.model";
-import Icon        from "../models/Icon.model";
-import Skill       from "../models/Skill.model";
-import Category    from "../models/Category.model";
+import User from "../models/User.model";
+import Icon from "../models/Icon.model";
+import Skill from "../models/Skill.model";
+import Category from "../models/Category.model";
 import Nationality from "../models/Nationality.model";
-import JobType     from "../models/Job_type.model";
+import JobType from "../models/Job_type.model";
 
-dotenv.config({ path: `${__dirname}/../../.env` });
+dotenv.config({
+	path: `${__dirname}/../../.env`,
+});
 
 class Samples {
-	constructor(users, skills, nationalities, icons, categories, jobType) {
-		this.users = users;
-		this.skills = skills;
-		this.nationalities = nationalities;
-		this.icons = icons;
-		this.categories = categories;
-		this.jobType = jobType;
-
+	constructor() {
+		this.files = [];
+		this.schemas = {
+			User,
+			Icon,
+			Skill,
+			Category,
+			Nationality,
+			JobType,
+		};
 		// Connecting to mongodb
 		new MongoDBConnection();
-
-		this.users = this.readJsonFiles(`${__dirname}/../samples/users.json`);
-		this.skills = this.readJsonFiles(`${__dirname}/../samples/skills.json`);
-		this.nationalities = this.readJsonFiles(`${__dirname}/../samples/nationalities.json`);
-		this.icons = this.readJsonFiles(`${__dirname}/../samples/icons.json`);
-		this.categories = this.readJsonFiles(`${__dirname}/../samples/categories.json`);
-		this.jobType = this.readJsonFiles(`${__dirname}/../samples/job_type.json`);
-
-		if (process.argv.includes("--drop")) { this.dropSamples(); } else { this.loadSamples(); }
+		// getting all sample json files.
+		glob(`${__dirname}/../samples/*.json`, {}, async (err, files) => {
+			// exiting the process if there is an error.
+			if (err) {
+				console.log(err);
+				process.exit();
+			}
+			// handling/reshaping each file data.
+			await this.asyncForEach(files, async (file) => {
+				const file_extension = path.extname(file);
+				const file_name = path.basename(file, file_extension);
+				const file_schema = upperFirst(camelCase(file_name));
+				const file_data = JSON.parse(fs.readFileSync(file, "utf-8"));
+				this.files = [
+					...this.files,
+					{
+						file_extension,
+						file_name,
+						file_schema,
+						file_data,
+					},
+				];
+			});
+			if (process.argv.includes("--drop")) {
+				// calling drop data function if there is --drop argument flag.
+				this.dropSamples(() => {
+					console.log(`✅  ${blue("Data Deleted.")}`);
+					process.exit();
+				});
+			} else {
+				// calling load data function.
+				this.loadSamples(() => {
+					console.log(`✅  ${blue("Done!")}`);
+					process.exit();
+				});
+			}
+		});
 	}
 
-	readJsonFiles(path) { return JSON.parse(fs.readFileSync(path, "utf-8")); }
+	async dropSamples(cb) {
+		await this.asyncForEach(this.files, async (file) => {
+			const [err] = await to(
+				this.schemas[file.file_schema].deleteMany({})
+			);
+			if (err) {
+				console.log(err);
+				process.exit();
+			}
+		});
 
-	async dropSamples() {
-		const [removeUsersError] = await to(User.deleteMany({}));
-		if (removeUsersError) {
-			console.log(removeUsersError);
-			process.exit();
-		}
-
-		const [removeSkillsError] = await to(Skill.deleteMany({}));
-		if (removeSkillsError) {
-			console.log(removeSkillsError);
-			process.exit();
-		}
-
-		const [removeNationalitiesError] = await to(Nationality.deleteMany({}));
-		if (removeNationalitiesError) {
-			console.log(removeNationalitiesError);
-			process.exit();
-		}
-
-		const [removeIconsError] = await to(Icon.deleteMany({}));
-		if (removeIconsError) {
-			console.log(removeIconsError);
-			process.exit();
-		}
-
-		const [removeCategoriesError] = await to(Category.deleteMany({}));
-		if (removeCategoriesError) {
-			console.log(removeCategoriesError);
-			process.exit();
-		}
-
-		const [removeJobTypeError] = await to(JobType.deleteMany({}));
-		if (removeJobTypeError) {
-			console.log(removeJobTypeError);
-			process.exit();
-		}
-
-		console.log(`✅  ${blue("Data Deleted.")}`);
-		process.exit();
+		if (cb) return cb();
 	}
 
-	async loadSamples() {
-		const [saveUsersError] = await to(User.insertMany(this.users));
-		if (saveUsersError) {
-			console.log(red(`⛔️  Error! The Error info is below but if you are importing sample data make sure to drop the existing database first with.\n\n\t ${blue("npm run blowitallaway")}\n\n\n`));
-			console.log(saveUsersError);
-		}
+	async loadSamples(cb) {
+		await this.asyncForEach(this.files, async (file) => {
+			const [err] = await to(
+				this.schemas[file.file_schema].insertMany(file.file_data)
+			);
+			if (err) {
+				console.log(
+					red(
+						`⛔️  Error! The Error info is below but if you are importing sample data make sure to drop the existing database first with.\n\n\t ${blue(
+							"npm run samples:drop"
+						)}\n\n\n`
+					)
+				);
+				console.log(err);
+			}
+		});
 
-		const [saveSkillsError] = await to(Skill.insertMany(this.skills));
-		if (saveSkillsError) {
-			console.log(red(`⛔️  Error! The Error info is below but if you are importing sample data make sure to drop the existing database first with.\n\n\t ${blue("npm run blowitallaway")}\n\n\n`));
-			console.log(saveSkillsError);
-		}
+		if (cb) return cb();
+	}
 
-		const [saveNationalitiesError] = await to(Nationality.insertMany(this.nationalities));
-		if (saveNationalitiesError) {
-			console.log(red(`⛔️  Error! The Error info is below but if you are importing sample data make sure to drop the existing database first with.\n\n\t ${blue("npm run blowitallaway")}\n\n\n`));
-			console.log(saveNationalitiesError);
+	async asyncForEach(array, cb) {
+		// eslint-disable-next-line no-plusplus
+		for (let i = 0; i < array.length; i++) {
+			// eslint-disable-next-line no-await-in-loop
+			await cb(array[i], i, array);
 		}
-
-		const [saveIconsError] = await to(Icon.insertMany(this.icons));
-		if (saveIconsError) {
-			console.log(red(`⛔️  Error! The Error info is below but if you are importing sample data make sure to drop the existing database first with.\n\n\t ${blue("npm run blowitallaway")}\n\n\n`));
-			console.log(saveIconsError);
-		}
-
-		const [saveCategoriesError] = await to(Category.insertMany(this.categories));
-		if (saveCategoriesError) {
-			console.log(red(`⛔️  Error! The Error info is below but if you are importing sample data make sure to drop the existing database first with.\n\n\t ${blue("npm run blowitallaway")}\n\n\n`));
-			console.log(saveCategoriesError);
-		}
-
-		const [saveJobTypeError] = await to(JobType.insertMany(this.jobType));
-		if (saveJobTypeError) {
-			console.log(red(`⛔️  Error! The Error info is below but if you are importing sample data make sure to drop the existing database first with.\n\n\t ${blue("npm run blowitallaway")}\n\n\n`));
-			console.log(saveJobTypeError);
-		}
-
-		console.log(`✅  ${blue("Done!")}`);
-		process.exit();
 	}
 }
 

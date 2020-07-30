@@ -1,0 +1,7 @@
+mixin categories_dropdown(categories = [])
+	ul.dropdown-nav.dropdown-nav-large
+		each category,index in categories
+			li
+				a(href=`/browse/jobs?categories[]=${category._id}`)=category.name.en
+				if (!_.isEmpty(category.children))
+					+categories_dropdown(category.children)

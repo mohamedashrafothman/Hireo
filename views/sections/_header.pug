@@ -1,3 +1,5 @@
+include ../mixins/_categories_dropdown.pug
+
 // Header
 #header
 	.container
@@ -15,17 +17,7 @@
 					if (categories)
 						li
 							a(href='#') Categories
-							ul.dropdown-nav.dropdown-nav-large
-								each category,index in categories
-									li
-										if (!_.isEmpty(category.children))
-											a(href=`/browse/jobs?categories[]=${category._id}`)=category.name.en
-											ul.dropdown-nav.dropdown-nav-large
-												each sub_category, index_2 in category.children
-													li
-														a(href=`/browse/jobs?categories[]=${sub_category._id}`)=sub_category.name.en
-										else
-											a(href=`/browse/jobs?categories[]=${category._id}`)=category.name.en
+							+categories_dropdown(categories)
 					li
 						- const for_freelancers_pages = ["Browse Companies", "Browse Jobs"];
 						a(href='#', class=(for_freelancers_pages.includes(page_title)) ? "current" : "") Find Work

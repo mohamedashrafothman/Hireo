@@ -14,7 +14,12 @@ export default class EmailService extends Service {
 	}
 
 	_HTMLGenerator(options = {}) {
-		return juice(pug.renderFile(`${process.cwd()}/views/emails/${options.filename}.pug`, options));
+		return juice(
+			pug.renderFile(
+				`${process.cwd()}/views/emails/${options.filename}.pug`,
+				options
+			)
+		);
 	}
 
 	_transporter(options) {
@@ -25,25 +30,27 @@ export default class EmailService extends Service {
 			to: options.to.email,
 			subject: options.subject,
 			html,
-			text
+			text,
 		};
-		return nodemailer.createTransport({
-			host: String(process.env.MAIL_HOST),
-			port: Number(process.env.MAIL_PORT),
-			secure: false, // true for 465, false for other ports
-			auth: {
-				user: String(process.env.MAIL_USER), // generated ethereal user
-				pass: String(process.env.MAIL_PASS) // generated ethereal password
-			},
-			tls: {
-				rejectUnautherized: false
-			}
-		}).sendMail(this.mailOptions);
+		return nodemailer
+			.createTransport({
+				host: String(process.env.MAIL_HOST),
+				port: Number(process.env.MAIL_PORT),
+				secure: false, // true for 465, false for other ports
+				auth: {
+					user: String(process.env.MAIL_USER), // generated ethereal user
+					pass: String(process.env.MAIL_PASS), // generated ethereal password
+				},
+				tls: {
+					rejectUnautherized: false,
+				},
+			})
+			.sendMail(this.mailOptions);
 	}
 
 	async send(data) {
 		const [sendEmailError] = await to(this._transporter(data));
-		if (sendEmailError) return { error: true, statusCode: 500, errors: sendEmailError };
+		if (sendEmailError) { return { error: true, statusCode: 500, errors: sendEmailError }; }
 
 		const [err, createdEmail] = await to(this.create(this.mailOptions));
 		if (err) return { error: true, statusCode: 500, errors: err };

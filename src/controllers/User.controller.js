@@ -28,7 +28,7 @@ const userService = new UserService(User);
 const emailService = new EmailService(Email);
 const skillService = new SkillService(Skill);
 const sessionService = new SessionService(Session);
-const nationalitySerivce = new NationalityService(Nationality);
+const nationalityService = new NationalityService(Nationality);
 const conversationService = new ConversationService(Conversation);
 const avatarAttachmentService = new AttachmentService(Attachment);
 const profileInfoAttachmentService = new AttachmentService(Attachment);
@@ -54,7 +54,7 @@ class UserController extends Controller {
 					.trim()
 					.escape(),
 				body("account.username")
-					.notEmpty().withMessage("You must supply a usernema!")
+					.notEmpty().withMessage("You must supply a username!")
 					.trim()
 					.escape(),
 				body("password")
@@ -150,25 +150,16 @@ class UserController extends Controller {
 	}
 
 	async isLoggedIn(req, res, next) {
-		// checking fo user if loged in, if so return to home page
+		// checking fo user if logged in, if so return to home page
 		if (req.user) return res.redirect("/");
 		next();
 	}
 
-	async getRegisteration(req, res) {
+	async getRegistration(req, res) {
 		res.render("auth/register", { page_title: "register" });
 	}
 
-	async getLogin(req, res, next) {
-		if (req.user) {
-			const userLoggingOutResponse = await userService.logout(req.user);
-			if (userLoggingOutResponse.error) {
-				return next(userLoggingOutResponse.errors);
-			}
-			req.logout();
-			req.user = null;
-		}
-
+	async getLogin(req, res) {
 		res.render("auth/login", { page_title: "login" });
 	}
 
@@ -257,7 +248,7 @@ class UserController extends Controller {
 		});
 		if (userValidateEmailResponse.error) return next(userValidateEmailResponse.errors);
 
-		req.flash("success", "You are registerd, Check your E-mail address to verify your account before you login.");
+		req.flash("success", "You are registration process, Check your E-mail address to verify your account before you login.");
 		res.status(userValidateEmailResponse.statusCode).redirect("/");
 	}
 
@@ -412,7 +403,7 @@ class UserController extends Controller {
 			to: userResetPasswordResponse.data,
 			from: String(process.env.MAIL_SENDER),
 			email: userResetPasswordResponse.data.email,
-			sitename: process.env.SITE_NAME,
+			siteName: process.env.SITE_NAME,
 		});
 		if (userResetPasswordEmailResponse.error) {
 			return next(userResetPasswordEmailResponse.errors);
@@ -678,7 +669,7 @@ class UserController extends Controller {
 		const { data: skills, error: skillsError, errors: skillsErrors } = await skillService.readMany({}, { pagination: false, select: "_id name" });
 		if (skillsError) return next(skillsErrors);
 
-		const { data: nations, error: nationsError, errors: nationsErrors } = await nationalitySerivce.readMany({}, { pagination: false, select: "_id name" });
+		const { data: nations, error: nationsError, errors: nationsErrors } = await nationalityService.readMany({}, { pagination: false, select: "_id name" });
 		if (nationsError) return next(nationsErrors);
 
 
@@ -717,7 +708,7 @@ class UserController extends Controller {
 			to: userUpdatePasswordResponse.data,
 			from: String(process.env.MAIL_SENDER),
 			email: userUpdatePasswordResponse.data.email,
-			sitename: process.env.SITE_NAME,
+			siteName: process.env.SITE_NAME,
 		});
 		if (userUpdatePasswordEmailResponse.error) return next(userUpdatePasswordEmailResponse.errors);
 

@@ -74,7 +74,7 @@ gulp.task("pug", () => gulp
 			pretty: config.is_prod,
 			data: {
 				lang: "en",
-				sitename: {
+				siteName: {
 					en: "Hireo",
 					ar: "Hireo"
 				}

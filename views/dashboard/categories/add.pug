@@ -17,7 +17,7 @@ block content
 				.headline
 					h3
 						i.icon-feather-folder-plus.margin-right-10
-						| Categories Submition form
+						| Categories Submitting form
 				form#categories-add-form.content.with-padding.padding-bottom-0(action=`/dashboard/categories/add?_csrf=${csrfToken}`, method="POST", enctype="multipart/form-data")
 					.row
 						.col-md-4
@@ -38,7 +38,7 @@ block content
 								select.selectpicker.with-border(name="parent", value=(data && data.old && data.old["parent"]) ? data.old["parent"] : "", data-size='4', title='Select Parent Category', data-live-search='true')
 									if (data && data.categories)
 										each category, i in data.categories
-											option(value=category._id, selected=(data && data.old && data.old["parent"] && _.isEqual(category._id.toString(), data.old["parent"].toString())) ? "selected" : undefined)=category.name.en
+											option(value=category._id, data-icon=`${(category.icon ? "icon-"+category.icon.type+"-"+category.icon.name : undefined)}`, selected=(data && data.old && data.old["parent"] && _.isEqual(category._id.toString(), data.old["parent"].toString())) ? "selected" : undefined)=category.name.en
 						.col-md-6
 							.submit-field
 								h5 Category Description

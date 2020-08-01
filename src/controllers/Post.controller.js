@@ -305,13 +305,9 @@ class PostController extends Controller {
 
 	async getAddPosts(req, res, next) {
 		const categoriesListResponse = await categoryService.readMany(
-			{ parent: { $size: 0 } },
+			{ parent: { $exists: false } },
 			{
 				select: "id children icon name",
-				populate: [
-					{ path: "children", select: "name" },
-					{ path: "icon", select: "name type -_id" },
-				],
 				pagination: false,
 			}
 		);
@@ -331,13 +327,9 @@ class PostController extends Controller {
 		const { slug } = req.params;
 
 		const categoriesListResponse = await categoryService.readMany(
-			{ parent: { $size: 0 } },
+			{ parent: { $exists: false } },
 			{
 				select: "id children icon name",
-				populate: [
-					{ path: "children", select: "name" },
-					{ path: "icon", select: "name type -_id" },
-				],
 				pagination: false,
 			}
 		);
@@ -414,13 +406,9 @@ class PostController extends Controller {
 			const err = errors.array();
 			req.flash("error", err);
 			const categoriesListResponse = await categoryService.readMany(
-				{ parent: { $size: 0 } },
+				{ parent: { $exists: false } },
 				{
 					select: "id children icon name",
-					populate: [
-						{ path: "children", select: "name" },
-						{ path: "icon", select: "name type -_id" },
-					],
 					pagination: false,
 				}
 			);
@@ -509,13 +497,9 @@ class PostController extends Controller {
 			req.flash("error", err);
 
 			const categoriesListResponse = await categoryService.readMany(
-				{ parent: { $size: 0 } },
+				{ parent: { $exists: false } },
 				{
 					select: "id children icon name",
-					populate: [
-						{ path: "children", select: "name" },
-						{ path: "icon", select: "name type -_id" },
-					],
 					pagination: false,
 				}
 			);

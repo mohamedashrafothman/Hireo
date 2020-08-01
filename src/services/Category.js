@@ -1,69 +1,67 @@
-import to from "await-to-js";
 import { isEmpty } from "lodash";
 import Service from "../utilities/Service";
 
 export default class CategoryService extends Service {
 	constructor(model) {
 		super(model);
-		this.getEditCategoryData = this.getEditCategoryData.bind(this);
 	}
 
 	async addCategory(body) {
 		const existedCategory = await this.readOne({ "name.en": body["name.en"] });
 		if (existedCategory.error) return existedCategory;
-		if (!isEmpty(existedCategory.data)) return { error: true, statusCode: 202, errors: ["This category already exist."] };
+		if (!isEmpty(existedCategory.data)) {
+			return { error: true, statusCode: 202, errors: ["This category already exist."] };
+		}
 
 		const createdUser = await this.create(body);
 		if (createdUser.error) return createdUser;
 
 		if (body.parent) {
-			const updatedParent = await this.updateOne({ _id: body.parent }, { $addToSet: { children: createdUser.data._id } });
+			const updatedParent = await this.updateOne(
+				{ _id: body.parent },
+				{ $addToSet: { children: createdUser.data._id } }
+			);
 			if (updatedParent.error) return updatedParent;
 		}
 
 		return createdUser;
 	}
 
-	async deleteCategory(id) {
-		const deletedCategories = await this.deleteMany({ $or: [{ _id: id }, { parent: id }] }, { pagination: false });
-		if (deletedCategories.error) return deletedCategories;
+	async deleteCategory(query) {
+		const readCategoryResponse = await this.readOne(query);
+		if (readCategoryResponse.error) return readCategoryResponse;
+		if (isEmpty(readCategoryResponse.data)) {
+			return { error: true, statusCode: 404, errors: ["category not found."] };
+		}
 
-		const updatedCategories = await this.updateMany({
-			$or: [{
-				children: deletedCategories.data.map((category) => category._id)
-			}, {
-				parent: deletedCategories.data.map((category) => category._id)
-			}]
-		}, {
-			$pull: {
-				children: deletedCategories.data.map((category) => category._id),
-				parent: deletedCategories.data.map((category) => category._id)
+		if (!readCategoryResponse.data.children.length) {
+			const deleteCategoryResponse = await this.deleteOne(query);
+			if (deleteCategoryResponse.data?.parent?.children.length <= 1) {
+				await this.deleteCategory(deleteCategoryResponse.data?.parent);
 			}
-		});
-		if (updatedCategories.error) return updatedCategories;
+			return deleteCategoryResponse;
+		}
 
-		return deletedCategories;
-	}
-
-	async getEditCategoryData(slug) {
-		const [err, categories] = await to(
-			this.model
-				.findOne({ slug })
-				.populate("parent children icon picture")
+		const updateCategoryResponse = await this.updateOne(
+			query,
+			{
+				$set: {
+					"description.en": ".xX This category has been deleted Xx.",
+					"description.ar": ".xX This category has been deleted Xx.",
+					is_deleted: true,
+				},
+			}
 		);
-		if (err) return { error: true, statusCode: 500, errors: err };
-		if (!categories) return { error: true, statusCode: 404, errors: ["Not Found"] };
-		return { error: false, statusCode: 200, data: categories };
+		return updateCategoryResponse;
 	}
 
-	async editCategory(slug, body) {
-		const existedCategory = await this.readOne({ slug });
-		// console.log(existedCategory);
+	async editCategory(query, body) {
+		const existedCategory = await this.readOne(query);
 		if (existedCategory.error) return existedCategory;
 		if (isEmpty(existedCategory.data)) return { error: true, statusCode: 404, errors: ["Not Found"] };
 
-		const updatedCategory = await this.updateOne({ slug }, { $set: body });
-		if (updatedCategory.error) return updatedCategory;
+		const updatedCategory = await this.updateOne(query, { $set: body });
+
 		return updatedCategory;
 	}
 }

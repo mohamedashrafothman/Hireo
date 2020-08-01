@@ -48,7 +48,6 @@ const categoryService = new CategoryService(Category);
 const applicationService = new ApplicationService(Application);
 const conversationService = new ConversationService(Conversation);
 
-
 //
 // ─── APP INSTANCE ───────────────────────────────────────────────────────────────
 //
@@ -70,7 +69,6 @@ const sessionMiddleware = session({
 		stringify: false
 	})
 });
-
 
 //
 // ─── MIDDLEWARE FUNCTIONS ───────────────────────────────────────────────────────
@@ -117,17 +115,7 @@ app.use(back());
 app.use(loggerToMongo(process.env.MONGODB_URI, "logs"));
 app.use(async (req, res, next) => {
 	// pass the Globals to all responses.
-	const [categoriesErr, categories] = await to(
-		categoryService.readMany(
-			{ parent: { $size: 0 } },
-			{
-				pagination: false,
-				select: "name description slug children picture icon",
-				populate: [{ path: "picture", select: "path name" }, { path: "children", select: "name parent" }, { path: "icon", select: "name type -_id" }],
-				limit: 8
-			}
-		)
-	);
+	const [categoriesErr, categories] = await to(categoryService.readMany({ parent: { $exists: false } }, { pagination: false }));
 	if (categoriesErr) return next(categoriesErr);
 	if (categories.error) return next(categories.errors);
 
@@ -161,7 +149,6 @@ app.use(async (req, res, next) => {
 		res.locals.unReadMessages = messageReadResponse.data;
 		res.locals.conversations = conversationReadResponse.data;
 	}
-
 
 	res.locals._ = _;
 	res.locals.h = helper;
@@ -199,7 +186,6 @@ app.use((req, res, next) => {
 // attach browser information to express application.
 app.use(userAgent.express());
 
-
 //
 // ─── WEBSOCKET ──────────────────────────────────────────────────────────────────
 // The WebSocket is an advanced technology that makes it possible to open a two-way interactive communication session
@@ -209,7 +195,6 @@ app.use(userAgent.express());
 // Sharing websocket instance to all express app.
 app.set("io", new Socket(io));
 
-
 //
 // ─── ROUTES ─────────────────────────────────────────────────────────────────────
 // A route is a section of Express code that associates an HTTP verb (GET, POST, PUT, DELETE, etc.),
@@ -218,13 +203,11 @@ app.set("io", new Socket(io));
 //
 app.use("/", indexRouter);
 
-
 //
 // ─── CRON ───────────────────────────────────────────────────────────────────────
 // Cron is a tool that allows you to execute something on a schedule.
 // This is typically done using the cron syntax.
 new CronJobs();
-
 
 //
 // ─── ERROR HANDLING ─────────────────────────────────────────────────────────────
@@ -240,7 +223,6 @@ app.use((req, res, next) => {
 	next(err);
 });
 
-
 // handling errors based on environment [development, production].
 app.use(
 	_.isEqual(process.env.NODE_ENV.trim(), "development")
@@ -254,7 +236,6 @@ app.use(
 			});
 		}
 );
-
 
 //
 // ─── EXPORTING SERVER & APP INSTANCE ────────────────────────────────────────────

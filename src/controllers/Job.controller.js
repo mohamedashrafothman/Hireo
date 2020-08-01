@@ -131,12 +131,8 @@ class JobController extends Controller {
 
 	async getAddJob(req, res, next) {
 		const categoriesListResponse = await categoryService.readMany(
-			{ parent: { $size: 0 } },
-			{
-				select: "id children icon name",
-				populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
-				pagination: false
-			}
+			{ parent: { $exists: false }, is_deleted: false },
+			{ pagination: false }
 		);
 		if (categoriesListResponse.error) return next(categoriesListResponse.errors);
 
@@ -199,12 +195,8 @@ class JobController extends Controller {
 			const err = errors.array();
 			req.flash("error", err);
 			const categoriesListResponse = await categoryService.readMany(
-				{ parent: { $size: 0 } },
-				{
-					select: "id children icon name",
-					populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
-					pagination: false
-				}
+				{ parent: { $exists: false }, is_deleted: false },
+				{ pagination: false }
 			);
 			if (categoriesListResponse.error) return next(categoriesListResponse.errors);
 
@@ -262,12 +254,8 @@ class JobController extends Controller {
 
 	async getEdit(req, res, next) {
 		const categoriesListResponse = await categoryService.readMany(
-			{ parent: { $size: 0 } },
-			{
-				select: "id children icon name",
-				populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
-				pagination: false
-			}
+			{ parent: { $exists: false }, is_deleted: false },
+			{ pagination: false }
 		);
 		if (categoriesListResponse.error) return next(categoriesListResponse.errors);
 
@@ -300,12 +288,8 @@ class JobController extends Controller {
 			const err = errors.array();
 			req.flash("error", err);
 			const categoriesListResponse = await categoryService.readMany(
-				{ parent: { $size: 0 } },
-				{
-					select: "id children icon name",
-					populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
-					pagination: false
-				}
+				{ parent: { $exists: false }, is_deleted: false },
+				{ pagination: false }
 			);
 			if (categoriesListResponse.error) return next(categoriesListResponse.errors);
 
@@ -522,12 +506,12 @@ class JobController extends Controller {
 				...(
 					req.query.categories
 					&& req.query.categories.length
-					&& { $or: [{ _id: { $in: req.query.categories } }, { parent: { $elemMatch: { $in: req.query.categories } } }] }
+					&& { $or: [{ _id: { $in: req.query.categories } }, { parent: { $in: req.query.categories } }] }
 				)
 			},
 			{ select: "_id", pagination: false }
 		);
-		if (categoryReadResponse.error) return next(categoryReadResponse.erros);
+		if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
 		const query = {
 			is_published: true,
@@ -599,7 +583,6 @@ class JobController extends Controller {
 			...req.query
 		};
 
-
 		const jobReadResponse = await this.service.readMany(query, options);
 		if (jobReadResponse.error) return next(jobReadResponse.errors);
 		// return res.json(jobReadResponse);
@@ -650,12 +633,12 @@ class JobController extends Controller {
 			{
 				$or: [
 					{ _id: jobReadBySlugResponse.data.category._id },
-					{ parent: { $elemMatch: { $in: jobReadBySlugResponse.data.category.parent } } }
+					{ parent: { $in: jobReadBySlugResponse.data.category.parent } }
 				]
 			},
 			{ select: "_id", pagination: false }
 		);
-		if (categoryService.error) return next(categoryReadResponse.errors);
+		if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
 		const jobRelatedResponse = await this.service.readMany(
 			{

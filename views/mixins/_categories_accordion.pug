@@ -1,0 +1,28 @@
+include ./_categories_delete_modal.pug
+
+mixin categories_accordion(categories = [])
+	each category, i in categories
+		.accordion.js-accordion
+			// Accordion Item
+			.accordion__item.js-accordion-item
+				.accordion-header.js-accordion-header
+					.accordion-header__name
+						if category.icon
+							span(class=`icon-${category.icon.type}-${category.icon.name}`)
+						a(href="#")=category.name.en
+					//  Buttons
+					.accordion-header__buttons
+						if !category.is_deleted
+							a.button.ripple-effect.icon(href=`/dashboard/categories/edit/${category.slug}`, data-tippy-placement="top", data-tippy, title="Edit")
+								i.icon-feather-edit
+							a.button.ripple-effect.popup-with-zoom-anim.icon(href=`#small-dialog-${category.slug}`, data-tippy-placement="top", data-tippy, title="Delete")
+								i.icon-feather-trash-2
+						a.button.ripple-effect.icon(href=`/browse/jobs?categories[]=${category._id}`, data-tippy-placement="top", data-tippy, title="Show")
+							i.icon-feather-eye
+				// Accordion Body
+				.accordion-body.js-accordion-body(style='display: none;')
+					// Accordion Content
+					.accordion-body__contents=category.description.en
+					if (category.children.length)
+						+categories_accordion(category.children)
+			+categories_delete_modal(category)

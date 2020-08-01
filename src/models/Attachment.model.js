@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import mongoosePagination from "mongoose-paginate-v2";
 
+import AttachmentService from "../services/Attachment";
+
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
 //
@@ -21,6 +23,29 @@ const AttachmentSchema = new mongoose.Schema({
 // ─── SCHEMA PLUGINS ─────────────────────────────────────────────────────────────
 //
 AttachmentSchema.plugin(mongoosePagination);
+
+async function preDeleteOneMethod(next) {
+	// Initializing needed services.
+	const attachmentService = new AttachmentService(this.model);
+
+	// Get deleted store document.
+	const attachmentReadResponse = await attachmentService.readMany(this.getQuery());
+	if (attachmentReadResponse.error) {
+		return next(attachmentReadResponse.errors);
+	}
+
+	// Calling attachment service deleteOne method on store attachment.
+	const attachmentFilesDeleteResponse = await attachmentService.handelFilesForDirDeletion(
+		attachmentReadResponse.data.map((attachment) => attachment.path)
+	);
+	if (attachmentFilesDeleteResponse.error) {
+		return next(attachmentFilesDeleteResponse.errors);
+	}
+
+	next();
+}
+
+AttachmentSchema.pre("deleteOne", preDeleteOneMethod);
 
 //
 // ─── SCHEMA MODEL ───────────────────────────────────────────────────────────────

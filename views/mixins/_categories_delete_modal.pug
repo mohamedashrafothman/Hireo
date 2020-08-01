@@ -1,0 +1,20 @@
+mixin categories_delete_modal(category={})
+	.zoom-anim-dialog.dialog-with-tabs.mfp-hide(id=`small-dialog-${category.slug}`)
+		// Tabs
+		.sign-in-form
+			ul.popup-tabs-nav
+				li
+					a(href=`tab-${category.slug}`)= `Delete ${category.name.en} Category`
+			.popup-tabs-container
+				// Tab
+				.popup-tab-content(id=`tab-${category.slug}`)
+					// Welcome Text
+					.welcome-text
+						h3 Are You sure you want to delete this category?
+						p This action can't be undo.
+					// Form
+					form(id=`delete-category-form-${category.slug}` method="GET" action=`/dashboard/categories/delete/${category._id}`)
+						include ../partials/_csrf.pug
+					// Button
+					button.button.red.margin-top-35.full-width.ripple-effect(type="submit" form=`delete-category-form-${category.slug}`)
+						| Delete Now!

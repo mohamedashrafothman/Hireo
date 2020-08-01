@@ -5,42 +5,44 @@ import mongoose from "mongoose";
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
 //
-const SkillSchema = new mongoose.Schema({
-	name: {
-		ar: {
-			type: String,
-			required: true,
-			unique: true,
-			index: true,
-			trim: true
+const SkillSchema = new mongoose.Schema(
+	{
+		name: {
+			ar: {
+				type: String,
+				required: true,
+				unique: true,
+				index: true,
+				trim: true,
+			},
+			en: {
+				type: String,
+				required: true,
+				unique: true,
+				index: true,
+				trim: true,
+			},
 		},
-		en: {
+		description: {
+			ar: { type: String, required: true, index: true },
+			en: { type: String, required: true, index: true },
+		},
+		slug: {
 			type: String,
-			required: true,
-			unique: true,
+			slug: "name.en",
+			uniqueSlug: true,
 			index: true,
-			trim: true
-		}
+			slugPaddingSize: 6,
+		},
+		users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 	},
-	description: {
-		ar: { type: String, required: true, index: true },
-		en: { type: String, required: true, index: true }
-	},
-	slug: {
-		type: String,
-		slug: "name.en",
-		uniqueSlug: true,
-		index: true,
-		slugPaddingSize: 6
-	},
-	users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
-}, {
-	timestamps: {
-		createdAt: "created_at",
-		updatedAt: "updated_at"
+	{
+		timestamps: {
+			createdAt: "created_at",
+			updatedAt: "updated_at",
+		},
 	}
-});
-
+);
 
 //
 // ─── SCHEMA PLUGIN ──────────────────────────────────────────────────────────────
@@ -48,12 +50,10 @@ const SkillSchema = new mongoose.Schema({
 SkillSchema.plugin(mongoosePagination);
 SkillSchema.plugin(slug);
 
-
 //
 // ─── SCHEMA MODEL ───────────────────────────────────────────────────────────────
 //
 const Skill = mongoose.model("Skill", SkillSchema);
-
 
 //
 // ─── EXPORTING SCHEMA ───────────────────────────────────────────────────────────

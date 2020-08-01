@@ -1,29 +1,30 @@
 import multer from "multer";
+import { isEmpty } from "lodash";
 import { body, validationResult } from "express-validator";
 import Controller from "../utilities/Controller";
 
-import CategoryService from "../services/Category";
 import IconService from "../services/Icon";
+import CategoryService from "../services/Category";
 import AttachmentService from "../services/Attachment";
 
-import Category from "../models/Category.model";
 import Icon from "../models/Icon.model";
+import Category from "../models/Category.model";
 import Attachment from "../models/Attachment.model";
 
-const categoryService = new CategoryService(Category);
 const iconService = new IconService(Icon);
+const categoryService = new CategoryService(Category);
 const attachmentService = new AttachmentService(Attachment);
 
 class CategoryController extends Controller {
 	constructor(service) {
 		super(service);
-		this.getAddCategory = this.getAddCategory.bind(this);
-		this.getEditCategory = this.getEditCategory.bind(this);
-		this.getCategoryList = this.getCategoryList.bind(this);
 		this.uploadImage = this.uploadImage.bind(this);
 		this.addCategory = this.addCategory.bind(this);
 		this.editCategory = this.editCategory.bind(this);
+		this.getAddCategory = this.getAddCategory.bind(this);
 		this.deleteCategory = this.deleteCategory.bind(this);
+		this.getEditCategory = this.getEditCategory.bind(this);
+		this.getCategoryList = this.getCategoryList.bind(this);
 	}
 
 	validator(method) {
@@ -31,27 +32,20 @@ class CategoryController extends Controller {
 		case "add category":
 		case "edit category":
 			return [
-				body("name.en")
-					.notEmpty()
-					.withMessage("Skill english name can't be empty!")
-					.trim()
-					.escape(),
-				body("name.ar")
-					.notEmpty()
-					.withMessage("Skill arabic name can't be empty!")
-					.trim()
-					.escape(),
+				body("name.en").notEmpty().withMessage("Skill english name can't be empty!").trim(),
+				body("name.ar").notEmpty().withMessage("Skill arabic name can't be empty!").trim(),
 				body("description.en")
 					.notEmpty()
 					.withMessage("Skill english description can't be empty!")
-					.trim()
-					.escape(),
+					.trim(),
 				body("description.ar")
 					.notEmpty()
 					.withMessage("Skill arabic description can't be empty!")
-					.trim()
-					.escape(),
-				body("icon").if((value, { req }) => !req.body.parent).notEmpty().withMessage("For parent categories you must add an icon."),
+					.trim(),
+				body("icon")
+					.if((value, { req }) => !req.body.parent)
+					.notEmpty()
+					.withMessage("For parent categories you must add an icon."),
 			];
 		default:
 			return [];
@@ -59,42 +53,33 @@ class CategoryController extends Controller {
 	}
 
 	async getAddCategory(req, res, next) {
-		const categoryReadResponse = await this.service.readMany(
-			{ parent: { $size: 0 } },
-			{ pagination: false }
-		);
+		const categoryReadResponse = await this.service.readMany({ is_deleted: false }, { pagination: false, sort: { created_at: "asc" } });
 		if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
-		const iconReadResponse = await iconService.readMany(
-			{},
-			{ pagination: false }
-		);
+		const iconReadResponse = await iconService.readMany({}, { pagination: false });
 		if (iconReadResponse.error) return next(iconReadResponse.errors);
 
 		res.render("dashboard/categories/add", {
 			page_title: "Add a Category",
 			data: {
 				categories: categoryReadResponse.data,
-				icons: iconReadResponse.data
-			}
+				icons: iconReadResponse.data,
+			},
 		});
 	}
 
 	async getEditCategory(req, res, next) {
-		const { slug } = req.params;
-		const categoryReadResponse = await this.service.getEditCategoryData(slug);
+		const categoryReadResponse = await this.service.readOne({ slug: req.params.slug, is_deleted: false });
 		if (categoryReadResponse.error) return next(categoryReadResponse.errors);
+		if (isEmpty(categoryReadResponse.data)) return next();
 
 		const categoriesReadResponse = await this.service.readMany(
-			{ parent: { $size: 0 }, _id: { $ne: categoryReadResponse.data._id } },
-			{ pagination: false }
+			{ _id: { $ne: categoryReadResponse.data._id } },
+			{ pagination: false, sort: { created_at: "asc" } }
 		);
 		if (categoriesReadResponse.error) return next(categoriesReadResponse.errors);
 
-		const iconsReadResponse = await iconService.readMany(
-			{},
-			{ pagination: false }
-		);
+		const iconsReadResponse = await iconService.readMany({}, { pagination: false });
 		if (iconsReadResponse.error) return next(iconsReadResponse.errors);
 
 		res.render("dashboard/categories/edit", {
@@ -103,22 +88,22 @@ class CategoryController extends Controller {
 				category: categoryReadResponse.data,
 				categories: categoriesReadResponse.data,
 				icons: iconsReadResponse.data,
-			}
+			},
 		});
 	}
 
 	async getCategoryList(req, res, next) {
 		const categoryReadResponse = await this.service.readMany(
-			{ parent: { $size: 0 } },
-			{ populate: "children icon" }
+			{ parent: { $exists: false } },
+			{ pagination: false, sort: { created_at: "asc" } }
 		);
 		if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
 		res.render("dashboard/categories/list", {
 			page_title: "Manage All Categories",
 			data: {
-				categories: categoryReadResponse.data
-			}
+				categories: categoryReadResponse.data,
+			},
 		});
 	}
 
@@ -129,7 +114,7 @@ class CategoryController extends Controller {
 			quality: 50,
 			fileHashName: true,
 			upload_path: `${process.env.UPLOAD_STORAGE}/categories`,
-			upload_base_path: ""
+			upload_base_path: "",
 		});
 
 		const imageUpload = multer({
@@ -139,7 +124,7 @@ class CategoryController extends Controller {
 				fileSize: 1024 * 1024 * Number(process.env.ATTACHMENT_MAX_SIZE_IN_MB), // 5 MB (max file size)
 			},
 			fileFilter: (request, file, cb) => {
-				// supported image file mimetypes
+				// supported image file mimeTypes
 				const isFileTypeValid = file.mimetype.startsWith(storageEngine.options.accept);
 				if (isFileTypeValid) {
 					// allow supported image files
@@ -148,21 +133,18 @@ class CategoryController extends Controller {
 					// throw error for invalid files
 					cb(new Error("That fileType isn't allowed! "));
 				}
-			}
+			},
 		});
 
 		imageUpload.single("picture")(req, res, async (err) => {
 			if (err) {
 				const categoryReadResponse = await this.service.readMany(
-					{ parent: { $size: 0 } },
-					{ pagination: false }
+					{ parent: { $exists: false } },
+					{ pagination: false, sort: { created_at: "asc" } }
 				);
 				if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
-				const iconReadResponse = await iconService.readMany(
-					{},
-					{ pagination: false }
-				);
+				const iconReadResponse = await iconService.readMany({}, { pagination: false });
 				if (iconReadResponse.error) return next(iconReadResponse.errors);
 
 				req.flash("error", err.message);
@@ -171,7 +153,7 @@ class CategoryController extends Controller {
 					data: {
 						old: req.body,
 						categories: categoryReadResponse.data,
-						icons: iconReadResponse.data
+						icons: iconReadResponse.data,
 					},
 					flashes: req.flash(),
 				});
@@ -182,26 +164,15 @@ class CategoryController extends Controller {
 	}
 
 	async addCategory(req, res, next) {
-		if (req.body.parent) {
-			if (req.body.icon) delete req.body.icon;
-			if (req.file) delete req.file;
-			if (req.body.file) delete req.body.file;
-		}
 		if (!req.body.parent) delete req.body.parent;
 		if (!req.body.icon) delete req.body.icon;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			const categoryReadResponse = await this.service.readMany(
-				{ parent: { $size: 0 } },
-				{ pagination: false }
-			);
+			const categoryReadResponse = await this.service.readMany({}, { pagination: false, sort: { created_at: "asc" } });
 			if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
-			const iconReadResponse = await iconService.readMany(
-				{},
-				{ pagination: false }
-			);
+			const iconReadResponse = await iconService.readMany({}, { pagination: false });
 			if (iconReadResponse.error) return next(iconReadResponse.errors);
 
 			const err = errors.array();
@@ -211,7 +182,7 @@ class CategoryController extends Controller {
 				data: {
 					old: req.body,
 					categories: categoryReadResponse.data,
-					icons: iconReadResponse.data
+					icons: iconReadResponse.data,
 				},
 				flashes: req.flash(),
 			});
@@ -246,26 +217,15 @@ class CategoryController extends Controller {
 	}
 
 	async editCategory(req, res, next) {
-		if (req.body.parent) {
-			if (req.body.icon) delete req.body.icon;
-			if (req.file) delete req.file;
-			if (req.body.file) delete req.body.file;
-		}
 		if (!req.body.parent) delete req.body.parent;
 		if (!req.body.icon) delete req.body.icon;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			const categoryReadResponse = await this.service.readMany(
-				{ parent: { $size: 0 } },
-				{ pagination: false }
-			);
+			const categoryReadResponse = await this.service.readMany({}, { pagination: false, sort: { created_at: "asc" } });
 			if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
-			const iconReadResponse = await iconService.readMany(
-				{},
-				{ pagination: false }
-			);
+			const iconReadResponse = await iconService.readMany({}, { pagination: false });
 			if (iconReadResponse.error) return next(iconReadResponse.errors);
 
 			const err = errors.array();
@@ -275,7 +235,7 @@ class CategoryController extends Controller {
 				data: {
 					old: req.body,
 					categories: categoryReadResponse.data,
-					icons: iconReadResponse.data
+					icons: iconReadResponse.data,
 				},
 				flashes: req.flash(),
 			});
@@ -296,9 +256,7 @@ class CategoryController extends Controller {
 			req.body = { ...req.body, picture: savedAttachments[0]._id };
 		}
 
-		if (req.body.parent) delete req.body.parent;
-
-		const categoryUpdateResponse = await this.service.editCategory(req.params.slug, req.body);
+		const categoryUpdateResponse = await this.service.editCategory({ slug: req.params.slug }, req.body);
 		if (categoryUpdateResponse.error) return next(categoryUpdateResponse.errors);
 
 		req.flash("success", "successfully updated category.");
@@ -306,27 +264,8 @@ class CategoryController extends Controller {
 	}
 
 	async deleteCategory(req, res, next) {
-		const { id } = req.params;
-		const categoryDeletionResponse = await this.service.deleteCategory(id);
+		const categoryDeletionResponse = await this.service.deleteCategory({ _id: req.params.id });
 		if (categoryDeletionResponse.error) return next(categoryDeletionResponse.errors);
-
-		// return res.json(categoryDeletionResponse.data.filter((attach) => attach.picture).map((attach) => attach.picture));
-
-		const categoryAttachmentDeleteIds = categoryDeletionResponse.data.filter((attach) => attach.picture).map((attach) => attach.picture);
-		if (categoryAttachmentDeleteIds.length) {
-			// Remove any attachments belongs to category from attachment colection.
-			const categoryAttachmentDeleteRespose = await attachmentService.deleteMany(
-				{ _id: { $in: categoryAttachmentDeleteIds } },
-				{ pagination: false }
-			);
-			if (categoryAttachmentDeleteRespose.error) return next(categoryAttachmentDeleteRespose.errors);
-
-			// Remove any attachments belongs to category from project folder directory.
-			const categoryAttachmentDeleteFilesResponse = await attachmentService.handelFilesForDirDeletion(
-				categoryAttachmentDeleteRespose.data.map((attach) => attach.path)
-			);
-			if (categoryAttachmentDeleteFilesResponse.error) return next(categoryAttachmentDeleteFilesResponse.errors);
-		}
 
 		req.flash("success", "Category successfully deleted");
 		res.status(categoryDeletionResponse.statusCode).redirect("/dashboard/categories/list");

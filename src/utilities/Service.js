@@ -1,20 +1,6 @@
 import { isEmpty } from "lodash";
 import to from "await-to-js";
 
-/**
- * TODO: Update all wrap regular (non-JSONP) responses with the following properties:
-		code,		- Contains the HTTP response status code as an integer.
-		status, 	- Contains the text: “success”, “fail”, or “error”. Where “fail” is for HTTP status
-						response values from 500-599, “error” is for statuses 400-499, and “success” is for everything
-						else (e.g. 1XX, 2XX and 3XX responses).
-		message, 	- Only used for “fail” and “error” statuses to contain the error message. For
-						internationalization (i18n) purposes, this could contain a message number or code, either alone
-						or contained within delimiters.
-		data 		- That contains the response body. In the case of “error” or “fail” statuses, this contains the
-						cause, or exception name.
- */
-
-
 export default class Service {
 	constructor(model) {
 		this.model = model;

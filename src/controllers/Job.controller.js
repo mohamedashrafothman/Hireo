@@ -1,6 +1,6 @@
 import multer from "multer";
 import { isEmpty } from "lodash";
-import { body, validationResult, sanitizeBody } from "express-validator";
+import { body, validationResult } from "express-validator";
 
 import Controller from "../utilities/Controller";
 import Helper from "../utilities/Helper";
@@ -31,6 +31,17 @@ const helper = new Helper();
 class JobController extends Controller {
 	constructor(service) {
 		super(service);
+		this.getJobsLists = this.getJobsLists.bind(this);
+		this.getAddJob = this.getAddJob.bind(this);
+		this.uploadAttachments = this.uploadAttachments.bind(this);
+		this.addJob = this.addJob.bind(this);
+		this.getEdit = this.getEdit.bind(this);
+		this.editJob = this.editJob.bind(this);
+		this.deleteJob = this.deleteJob.bind(this);
+		this.refreshJob = this.refreshJob.bind(this);
+		this.getAllJobApplications = this.getAllJobApplications.bind(this);
+		this.browseAllJobs = this.browseAllJobs.bind(this);
+		this.getJobPage = this.getJobPage.bind(this);
 	}
 
 	validator(method) {
@@ -38,12 +49,11 @@ class JobController extends Controller {
 		case "add job":
 		case "edit job":
 			return [
-				sanitizeBody("title"),
-				sanitizeBody("location.address"),
-				sanitizeBody("description"),
 				body("title")
 					.notEmpty()
-					.withMessage("Job title can't be empty!"),
+					.withMessage("Job title can't be empty!")
+					.trim()
+					.escape(),
 				body("type")
 					.notEmpty()
 					.withMessage("Job type can't be empty!"),
@@ -52,7 +62,9 @@ class JobController extends Controller {
 					.withMessage("Job category can't be empty!"),
 				body("location.address")
 					.notEmpty()
-					.withMessage("Job location can't be empty!"),
+					.withMessage("Job location can't be empty!")
+					.trim()
+					.escape(),
 				body("salary.min")
 					.notEmpty()
 					.withMessage("Job minimum salary can't be empty!"),
@@ -65,6 +77,10 @@ class JobController extends Controller {
 					.optional()
 					.isArray({ min: 1, max: 10 })
 					.withMessage("Skills count shall be between 1 and 10"),
+				body("description")
+					.optional()
+					.trim()
+					.escape(),
 			];
 		default:
 			return [];
@@ -97,7 +113,7 @@ class JobController extends Controller {
 			...req.query
 		};
 
-		const jobsListResponse = await jobService.readMany(query, options);
+		const jobsListResponse = await this.service.readMany(query, options);
 		if (jobsListResponse.error) return next(jobsListResponse.errors);
 
 		if (!jobsListResponse.data.length && jobsListResponse.offset === undefined && jobsListResponse.page !== 1) {
@@ -225,7 +241,7 @@ class JobController extends Controller {
 			...(savedAttachments.length && { attachments: savedAttachments.map((attach) => attach._id) })
 		};
 
-		const jobCreationResponse = await jobService.create(req.body);
+		const jobCreationResponse = await this.service.create(req.body);
 		if (jobCreationResponse.error) return next(jobCreationResponse.errors);
 
 		const categoryUpdatedResponse = await categoryService.updateOne(
@@ -261,7 +277,7 @@ class JobController extends Controller {
 		);
 		if (jobTypeListResponse.error) return next(jobTypeListResponse.errors);
 
-		const jobResponse = await jobService.readOne({
+		const jobResponse = await this.service.readOne({
 			slug: req.params.slug,
 			...(req.user.role !== "admin" && { created_by: req.user._id })
 		});
@@ -299,7 +315,7 @@ class JobController extends Controller {
 			);
 			if (jobTypeListResponse.error) return next(jobTypeListResponse.errors);
 
-			const jobResponse = await jobService.readOne({
+			const jobResponse = await this.service.readOne({
 				slug: req.params.slug,
 				...(req.user.role !== "admin" && { created_by: req.user._id })
 			});
@@ -339,7 +355,7 @@ class JobController extends Controller {
 		const { tags } = req.body;
 		delete req.body.tags;
 
-		const jobUpdateResponse = await jobService.updateOne(
+		const jobUpdateResponse = await this.service.updateOne(
 			{ slug: req.params.slug, ...(req.user.role !== "admin" && { created_by: req.user._id }) },
 			{
 				$set: req.body,
@@ -368,7 +384,7 @@ class JobController extends Controller {
 	}
 
 	async deleteJob(req, res, next) {
-		const jobDeleteResponse = await jobService.deleteOne({ _id: req.params.id });
+		const jobDeleteResponse = await this.service.deleteOne({ _id: req.params.id });
 		if (jobDeleteResponse.error) {
 			if (jobDeleteResponse.statusCode === 404) return next();
 			return next(jobDeleteResponse.errors);
@@ -425,7 +441,7 @@ class JobController extends Controller {
 	}
 
 	async refreshJob(req, res, next) {
-		const jobUpdateResponse = await jobService.updateOne(
+		const jobUpdateResponse = await this.service.updateOne(
 			{
 				_id: req.params.id,
 				status: 3,
@@ -446,7 +462,7 @@ class JobController extends Controller {
 	}
 
 	async getAllJobApplications(req, res, next) {
-		const jobReadResponse = await jobService.readOne({ slug: req.params.slug });
+		const jobReadResponse = await this.service.readOne({ slug: req.params.slug });
 		if (jobReadResponse.error) return next(jobReadResponse.errors);
 		if (isEmpty(jobReadResponse.data)) return next();
 
@@ -584,7 +600,7 @@ class JobController extends Controller {
 		};
 
 
-		const jobReadResponse = await jobService.readMany(query, options);
+		const jobReadResponse = await this.service.readMany(query, options);
 		if (jobReadResponse.error) return next(jobReadResponse.errors);
 		// return res.json(jobReadResponse);
 
@@ -599,10 +615,10 @@ class JobController extends Controller {
 		);
 		if (jobTypeReadResponse.error) return next(jobTypeReadResponse.errors);
 
-		const jobTagsResponse = await jobService.getTags({});
+		const jobTagsResponse = await this.service.getTags({});
 		if (jobTagsResponse.error) return next(jobTagsResponse.errors);
 
-		const jobMinMaxResponse = await jobService.getMinMax({});
+		const jobMinMaxResponse = await this.service.getMinMax({});
 		if (jobMinMaxResponse.error) return next(jobMinMaxResponse.errors);
 
 		res.render("jobs-list", {
@@ -624,7 +640,7 @@ class JobController extends Controller {
 		const old = req.session.data?.old || null;
 		req.session.data = null;
 
-		const jobReadBySlugResponse = await jobService.getBySlug(req.params.slug, req.user);
+		const jobReadBySlugResponse = await this.service.getBySlug(req.params.slug, req.user);
 		if (jobReadBySlugResponse.error) {
 			if (jobReadBySlugResponse.statusCode === 404) return next();
 			return next(jobReadBySlugResponse.errors);
@@ -641,7 +657,7 @@ class JobController extends Controller {
 		);
 		if (categoryService.error) return next(categoryReadResponse.errors);
 
-		const jobRelatedResponse = await jobService.readMany(
+		const jobRelatedResponse = await this.service.readMany(
 			{
 				_id: { $ne: jobReadBySlugResponse.data._id },
 				$or: [

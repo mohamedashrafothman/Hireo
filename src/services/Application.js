@@ -10,7 +10,6 @@ const jobService = new JobService(Job);
 export default class ApplicationService extends Service {
 	constructor(model) {
 		super(model);
-
 		this.isAppliedBefore = this.isAppliedBefore.bind(this);
 	}
 

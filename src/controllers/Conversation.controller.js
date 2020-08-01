@@ -13,6 +13,8 @@ const conversationService = new ConversationService(Conversation);
 class ConversationController extends Controller {
 	constructor(service) {
 		super(service);
+		this.getAllConversations = this.getAllConversations.bind(this);
+		this.deleteConversation = this.deleteConversation.bind(this);
 	}
 
 	async getAllConversations(req, res, next) {
@@ -22,7 +24,8 @@ class ConversationController extends Controller {
 				{
 					path: "users",
 					select: "is_active email account",
-					populate: "account.picture account.picture_sm account.picture_md account.picture_lg"
+					populate:
+						"account.picture account.picture_sm account.picture_md account.picture_lg",
 				},
 				{
 					path: "messages",
@@ -30,37 +33,51 @@ class ConversationController extends Controller {
 					options: { sort: { created_at: "desc" } },
 					populate: {
 						path: "user",
-						populate: "account.picture account.picture_sm account.picture_md account.picture_lg"
-					}
-				}
+						populate:
+							"account.picture account.picture_sm account.picture_md account.picture_lg",
+					},
+				},
 			],
-			sort: { updated_at: "desc" }
+			sort: { updated_at: "desc" },
 		};
 		const conversationQuery = {
 			...(id && { _id: id }),
 			...(req.user.role !== "admin" && { users: req.user._id }),
-			...(!id && { is_deleted: false, deleted_by: { $ne: req.user._id } })
+			...(!id && {
+				is_deleted: false,
+				deleted_by: { $ne: req.user._id },
+			}),
 		};
 		const conversationsQuery = {
 			...(req.user.role !== "admin" && { users: req.user._id }),
 			is_deleted: false,
-			deleted_by: { $ne: req.user._id }
+			deleted_by: { $ne: req.user._id },
 		};
 
-		const conversationReadResponse = await conversationService.readMany(conversationQuery, options);
-		if (conversationReadResponse.error) return next(conversationReadResponse.errors);
+		const conversationReadResponse = await this.service.readMany(
+			conversationQuery,
+			options
+		);
+		if (conversationReadResponse.error) {
+			return next(conversationReadResponse.errors);
+		}
 
-		const conversationsReadResponse = await conversationService.readMany(conversationsQuery, options);
-		if (conversationsReadResponse.error) return next(conversationsReadResponse.errors);
+		const conversationsReadResponse = await this.service.readMany(
+			conversationsQuery,
+			options
+		);
+		if (conversationsReadResponse.error) {
+			return next(conversationsReadResponse.errors);
+		}
 
 		res.render("dashboard/messages", {
 			page_title: "Messages",
 			...conversationsReadResponse,
 			data: {
 				conversations: conversationsReadResponse.data,
-				conversation: conversationReadResponse.data[0]
+				conversation: conversationReadResponse.data[0],
 			},
-			query: req.query
+			query: req.query,
 		});
 	}
 
@@ -69,28 +86,44 @@ class ConversationController extends Controller {
 		const query = { _id: conversation, users: req.user._id };
 
 		// Check if conversation found.
-		const conversationReadResponse = await conversationService.readOne(query);
-		if (conversationReadResponse.error) return next(conversationReadResponse.errors);
+		const conversationReadResponse = await this.service.readOne(query);
+		if (conversationReadResponse.error) {
+			return next(conversationReadResponse.errors);
+		}
 		if (isEmpty(conversationReadResponse.data)) return next();
 
 		// Update conversation status.
-		const conversationUpdateResponse = await conversationService.updateOne(
-			query,
-			{
-				...(conversationReadResponse.data.deleted_by.length >= 1 && { $set: { is_deleted: true } }),
-				...(conversationReadResponse.data.deleted_by.length <= 1 && { $addToSet: { deleted_by: req.user._id } })
-			}
-		);
-		if (conversationUpdateResponse.error) return next(conversationUpdateResponse.errors);
+		const conversationUpdateResponse = await this.service.updateOne(query, {
+			...(conversationReadResponse.data.deleted_by.length >= 1 && {
+				$set: { is_deleted: true },
+			}),
+			...(conversationReadResponse.data.deleted_by.length <= 1 && {
+				$addToSet: { deleted_by: req.user._id },
+			}),
+		});
+		if (conversationUpdateResponse.error) {
+			return next(conversationUpdateResponse.errors);
+		}
 
 		// Update all messages belongs to the deleted conversation.
 		const messagesUpdateResponse = await messageService.updateMany(
-			{ conversation: conversationReadResponse.data._id, created_at: { $lt: new Date() } },
-			{ ...(conversationReadResponse.data.deleted_by.length >= 1 && { $set: { is_deleted: true } }) }
+			{
+				conversation: conversationReadResponse.data._id,
+				created_at: { $lt: new Date() },
+			},
+			{
+				...(conversationReadResponse.data.deleted_by.length >= 1 && {
+					$set: { is_deleted: true },
+				}),
+			}
 		);
-		if (messagesUpdateResponse.error) return next(messagesUpdateResponse.errors);
+		if (messagesUpdateResponse.error) {
+			return next(messagesUpdateResponse.errors);
+		}
 
-		res.status(conversationUpdateResponse.statusCode).redirect("/dashboard/conversations");
+		res.status(conversationUpdateResponse.statusCode).redirect(
+			"/dashboard/conversations"
+		);
 	}
 }
 

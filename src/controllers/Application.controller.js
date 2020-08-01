@@ -1,7 +1,7 @@
 import path from "path";
 import { isEmpty } from "lodash";
 import multer from "multer";
-import { body, validationResult, sanitizeBody } from "express-validator";
+import { body, validationResult } from "express-validator";
 
 import Controller from "../utilities/Controller";
 
@@ -23,6 +23,13 @@ const applicationService = new ApplicationService(Application);
 class ApplicationController extends Controller {
 	constructor(service) {
 		super(service);
+		this.getApplicationsList = this.getApplicationsList.bind(this);
+		this.uploadAttachments = this.uploadAttachments.bind(this);
+		this.isAppliedBefore = this.isAppliedBefore.bind(this);
+		this.addApplication = this.addApplication.bind(this);
+		this.changeStatus = this.changeStatus.bind(this);
+		this.downloadAttachment = this.downloadAttachment.bind(this);
+		this.withdrawApplication = this.withdrawApplication.bind(this);
 	}
 
 	validator(method) {
@@ -30,7 +37,6 @@ class ApplicationController extends Controller {
 		case "add application":
 		case "edit application":
 			return [
-				sanitizeBody("name"),
 				body("name")
 					.notEmpty()
 					.withMessage("Name can't be empty!")
@@ -41,7 +47,8 @@ class ApplicationController extends Controller {
 					.withMessage("Email must supply an E-mail.")
 					.isEmail()
 					.withMessage("Email must be in an E-mail format.")
-					.trim(),
+					.trim()
+					.normalizeEmail(),
 			];
 		default:
 			return [];
@@ -74,7 +81,7 @@ class ApplicationController extends Controller {
 			...req.query
 		};
 
-		const applicationReadResponse = await applicationService.readMany(query, options);
+		const applicationReadResponse = await this.service.readMany(query, options);
 		if (applicationReadResponse.error) return next(applicationReadResponse.errors);
 
 		if (!applicationReadResponse.data.length && applicationReadResponse.offset === undefined && applicationReadResponse.page !== 1) {
@@ -129,7 +136,7 @@ class ApplicationController extends Controller {
 	}
 
 	async isAppliedBefore(req, res, next) {
-		const isAppliedBeforeResponse = await applicationService.isAppliedBefore(req.params.id, req.user._id);
+		const isAppliedBeforeResponse = await this.service.isAppliedBefore(req.params.id, req.user._id);
 		if (isAppliedBeforeResponse.error) return next(isAppliedBeforeResponse.errors);
 		if (isAppliedBeforeResponse.data.isAppliedBefore) {
 			req.flash("info", "You can't add more than one application to the job.");
@@ -170,7 +177,7 @@ class ApplicationController extends Controller {
 			...(savedAttachments.length && { attachment: savedAttachments.map((attach) => attach._id) })
 		};
 
-		const applicationCreationResponse = await applicationService.create(req.body);
+		const applicationCreationResponse = await this.service.create(req.body);
 		if (applicationCreationResponse.error) return next(applicationCreationResponse.errors);
 
 		const jobUpdateResponse = await jobService.updateOne(
@@ -192,7 +199,7 @@ class ApplicationController extends Controller {
 	async changeStatus(req, res, next) {
 		const { application, job, status } = req.params;
 
-		const applicationUpdateResponse = await applicationService.updateOne(
+		const applicationUpdateResponse = await this.service.updateOne(
 			{ _id: application, job },
 			{ $set: { status } }
 		);
@@ -202,7 +209,7 @@ class ApplicationController extends Controller {
 		}
 
 		if (status === 4) {
-			const applicationRejectResponse = await applicationService.updateMany(
+			const applicationRejectResponse = await this.service.updateMany(
 				{
 					_id: { $ne: application },
 					job,
@@ -259,7 +266,7 @@ class ApplicationController extends Controller {
 	async withdrawApplication(req, res, next) {
 		const { id } = req.params;
 
-		const applicationUpdateResponse = await applicationService.updateOne(
+		const applicationUpdateResponse = await this.service.updateOne(
 			{ _id: id, status: 1 },
 			{ $set: { status: 2 } }
 		);

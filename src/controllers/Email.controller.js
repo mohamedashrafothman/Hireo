@@ -5,9 +5,9 @@ import EmailService from "../services/Email";
 const emailService = new EmailService(Email);
 
 class EmailController extends Controller {
-    constructor(service) {
-        super(service);
-    }
+	constructor(service) {
+		super(service);
+	}
 }
 
 export default new EmailController(emailService);

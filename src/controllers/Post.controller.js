@@ -1,6 +1,6 @@
 import multer from "multer";
 import { isEmpty } from "lodash";
-import { body, validationResult, sanitizeBody } from "express-validator";
+import { body, validationResult } from "express-validator";
 import Controller from "../utilities/Controller";
 
 import Post from "../models/Post.model";
@@ -24,6 +24,15 @@ const attachmentService = new AttachmentService(Attachment);
 class PostController extends Controller {
 	constructor(service) {
 		super(service);
+		this.browseAllPosts = this.browseAllPosts.bind(this);
+		this.getPostPage = this.getPostPage.bind(this);
+		this.getPostsList = this.getPostsList.bind(this);
+		this.getAddPosts = this.getAddPosts.bind(this);
+		this.getEditPosts = this.getEditPosts.bind(this);
+		this.uploadAttachment = this.uploadAttachment.bind(this);
+		this.addPost = this.addPost.bind(this);
+		this.editPost = this.editPost.bind(this);
+		this.deletePost = this.deletePost.bind(this);
 	}
 
 	validator(method) {
@@ -31,12 +40,22 @@ class PostController extends Controller {
 		case "add post":
 		case "edit post":
 			return [
-				sanitizeBody("title"),
-				sanitizeBody("content"),
-				body("title").notEmpty().withMessage("Post title can't be empty!").trim(),
-				body("content").notEmpty().withMessage("Post content can't be empty!").trim(),
-				body("category").notEmpty().withMessage("Job category can't be empty!"),
-				body("tags").isArray({ min: 1, max: 10 }).withMessage("Tags count shall be 10 tag"),
+				body("title")
+					.notEmpty()
+					.withMessage("Post title can't be empty!")
+					.trim()
+					.escape(),
+				body("content")
+					.notEmpty()
+					.withMessage("Post content can't be empty!")
+					.trim()
+					.escape(),
+				body("category")
+					.notEmpty()
+					.withMessage("Job category can't be empty!"),
+				body("tags")
+					.isArray({ min: 1, max: 10 })
+					.withMessage("Tags count shall be 10 tag"),
 			];
 		default:
 			return [];
@@ -46,24 +65,67 @@ class PostController extends Controller {
 	async browseAllPosts(req, res, next) {
 		const { query } = req;
 
-		const recentPostsReadResponse = await postService.readMany(
+		const recentPostsReadResponse = await this.service.readMany(
 			{
-				...(query?.q && { $or: [{ title: { $regex: query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }, { content: { $regex: query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }] }),
-				...(query?.tags && query.tags.length && { tags: { $in: query.tags } })
-			}, {
-				select: "title tags content thumbnail _id created_by created_at slug",
-				populate: [{ path: "category", select: "name" }, { path: "thumbnail.sm", select: "path name _id" }, { path: "thumbnail.md", select: "path name _id" }, { path: "thumbnail.lg", select: "path name _id" }],
-				...query
+				...(query?.q && {
+					$or: [
+						{
+							title: {
+								$regex:
+									query.q
+										.split(" ")
+										.filter(Boolean)
+										.join("|") || "",
+								$options: "i",
+							},
+						},
+						{
+							content: {
+								$regex:
+									query.q
+										.split(" ")
+										.filter(Boolean)
+										.join("|") || "",
+								$options: "i",
+							},
+						},
+					],
+				}),
+				...(query?.tags
+					&& query.tags.length && { tags: { $in: query.tags } }),
+			},
+			{
+				select:
+					"title tags content thumbnail _id created_by created_at slug",
+				populate: [
+					{ path: "category", select: "name" },
+					{ path: "thumbnail.sm", select: "path name _id" },
+					{ path: "thumbnail.md", select: "path name _id" },
+					{ path: "thumbnail.lg", select: "path name _id" },
+				],
+				...query,
 			}
 		);
-		if (recentPostsReadResponse.error) return next(recentPostsReadResponse.errors);
+		if (recentPostsReadResponse.error) {
+			return next(recentPostsReadResponse.errors);
+		}
 
-		const getTrendingPostsByViewsResponse = await postService.getTrendingPostsByViews({ limit: 3, days: 30, query });
-		if (getTrendingPostsByViewsResponse.error) return next(getTrendingPostsByViewsResponse.errors);
-		const trends = getTrendingPostsByViewsResponse.data.map((item) => ({ views_count: item.views_count, zScore: item.zScore, ...item.post }));
+		const getTrendingPostsByViewsResponse = await this.service.getTrendingPostsByViews(
+			{ limit: 3, days: 30, query }
+		);
+		if (getTrendingPostsByViewsResponse.error) {
+			return next(getTrendingPostsByViewsResponse.errors);
+		}
+		const trends = getTrendingPostsByViewsResponse.data.map((item) => ({
+			views_count: item.views_count,
+			zScore: item.zScore,
+			...item.post,
+		}));
 
-		const postsTagsReadResponse = await postService.getTags({});
-		if (postsTagsReadResponse.error) return next(postsTagsReadResponse.errors);
+		const postsTagsReadResponse = await this.service.getTags({});
+		if (postsTagsReadResponse.error) {
+			return next(postsTagsReadResponse.errors);
+		}
 
 		res.render("blog-list", {
 			title: "Browse Blog Posts",
@@ -71,17 +133,19 @@ class PostController extends Controller {
 			data: {
 				posts: {
 					recent: recentPostsReadResponse.data,
-					trends
+					trends,
 				},
-				tags: postsTagsReadResponse.data
+				tags: postsTagsReadResponse.data,
 			},
-			query
+			query,
 		});
 	}
 
 	async getPostPage(req, res, next) {
 		const { slug } = req.params;
-		const getSinglePostBySlugResponse = await postService.getSinglePostPageBySlug(slug);
+		const getSinglePostBySlugResponse = await this.service.getSinglePostPageBySlug(
+			slug
+		);
 		if (getSinglePostBySlugResponse.error) {
 			if (getSinglePostBySlugResponse.statusCode === 404) {
 				return next();
@@ -89,24 +153,36 @@ class PostController extends Controller {
 			return next(getSinglePostBySlugResponse.errors);
 		}
 
-		const getTrendingPostsByViewsResponse = await postService.getTrendingPostsByViews({ limit: 3, days: 7 });
-		if (getTrendingPostsByViewsResponse.error) return next(getTrendingPostsByViewsResponse.errors);
-		const trends = getTrendingPostsByViewsResponse.data.map((item) => ({ views_count: item.views_count, zScore: item.zScore, ...item.post }));
+		const getTrendingPostsByViewsResponse = await this.service.getTrendingPostsByViews(
+			{ limit: 3, days: 7 }
+		);
+		if (getTrendingPostsByViewsResponse.error) {
+			return next(getTrendingPostsByViewsResponse.errors);
+		}
+		const trends = getTrendingPostsByViewsResponse.data.map((item) => ({
+			views_count: item.views_count,
+			zScore: item.zScore,
+			...item.post,
+		}));
 
-		const postsTagsReadResponse = await postService.getTags({});
-		if (postsTagsReadResponse.error) return next(postsTagsReadResponse.errors);
+		const postsTagsReadResponse = await this.service.getTags({});
+		if (postsTagsReadResponse.error) {
+			return next(postsTagsReadResponse.errors);
+		}
 
 		// checking for user views in last month.
-		const client_ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+		const client_ip =			req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 		const deviceReadResponse = await deviceService.readMany(
 			{
 				post: getSinglePostBySlugResponse.data.post._id,
 				ip: client_ip,
 				"browser.name": req.useragent.browser,
 				created_at: {
-					$gte: new Date((new Date().getTime() - (1000 * 60 * 60 * 24 * 1))), // last day
-					$lte: new Date()
-				}
+					$gte: new Date(
+						new Date().getTime() - 1000 * 60 * 60 * 24 * 1
+					), // last day
+					$lte: new Date(),
+				},
 			},
 			{ pagination: false }
 		);
@@ -117,17 +193,29 @@ class PostController extends Controller {
 				post: getSinglePostBySlugResponse.data.post._id,
 				ip: client_ip,
 				source: req.useragent.source,
-				browser: { name: req.useragent.browser, version: req.useragent.version },
+				browser: {
+					name: req.useragent.browser,
+					version: req.useragent.version,
+				},
 				os: req.useragent.os,
-				platform: req.useragent.platform
+				platform: req.useragent.platform,
 			});
-			if (devicesCreateResponse.error) return next(devicesCreateResponse.errors);
+			if (devicesCreateResponse.error) {
+				return next(devicesCreateResponse.errors);
+			}
 
-			const postUpdateResponse = await postService.updateOne(
+			const postUpdateResponse = await this.service.updateOne(
 				{ _id: getSinglePostBySlugResponse.data.post._id },
-				{ $inc: { "views.count": 1 }, $addToSet: { "views.devices": devicesCreateResponse.data._id } }
+				{
+					$inc: { "views.count": 1 },
+					$addToSet: {
+						"views.devices": devicesCreateResponse.data._id,
+					},
+				}
 			);
-			if (postUpdateResponse.error) return next(postUpdateResponse.errors);
+			if (postUpdateResponse.error) {
+				return next(postUpdateResponse.errors);
+			}
 		}
 
 		res.render("blog-single", {
@@ -136,34 +224,82 @@ class PostController extends Controller {
 			data: {
 				...getSinglePostBySlugResponse.data,
 				trends,
-				tags: postsTagsReadResponse.data
-			}
+				tags: postsTagsReadResponse.data,
+			},
 		});
 	}
 
 	async getPostsList(req, res, next) {
 		const query = {
-			...(req.query?.q && { $or: [{ title: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }, { content: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } }] }),
-			...(req.user.role !== "admin" && { created_by: req.user._id })
+			...(req.query?.q && {
+				$or: [
+					{
+						title: {
+							$regex:
+								req.query.q
+									.split(" ")
+									.filter(Boolean)
+									.join("|") || "",
+							$options: "i",
+						},
+					},
+					{
+						content: {
+							$regex:
+								req.query.q
+									.split(" ")
+									.filter(Boolean)
+									.join("|") || "",
+							$options: "i",
+						},
+					},
+				],
+			}),
+			...(req.user.role !== "admin" && { created_by: req.user._id }),
 		};
 		const options = {
-			populate: [{ path: "created_by", populate: [{ path: "account.picture", select: "-_id path" }, { path: "account.picture_sm", select: "-_id path" }, { path: "account.picture_md", select: "-_id path" }, { path: "account.picture_lg", select: "-_id path" }] }],
-			...req.query
+			populate: [
+				{
+					path: "created_by",
+					populate: [
+						{ path: "account.picture", select: "-_id path" },
+						{ path: "account.picture_sm", select: "-_id path" },
+						{ path: "account.picture_md", select: "-_id path" },
+						{ path: "account.picture_lg", select: "-_id path" },
+					],
+				},
+			],
+			...req.query,
 		};
 
-		const postsReadResponse = await postService.readMany(query, options);
+		const postsReadResponse = await this.service.readMany(query, options);
 		if (postsReadResponse.error) return next(postsReadResponse.errors);
 
-		if (!postsReadResponse.data.length && postsReadResponse.offset === undefined && postsReadResponse.page !== 1) {
-			req.flash("info", `Hey! you asked for page ${req.query.page || 1}. But that dosen't exist. So i put you on page ${postsReadResponse.pages}.`);
-			return res.status(postsReadResponse.statusCode).redirect(`/dashboard/jobs/list?page=${postsReadResponse.pages}`);
+		if (
+			!postsReadResponse.data.length
+			&& postsReadResponse.offset === undefined
+			&& postsReadResponse.page !== 1
+		) {
+			req.flash(
+				"info",
+				`Hey! you asked for page ${
+					req.query.page || 1
+				}. But that doesn't exist. So i put you on page ${
+					postsReadResponse.pages
+				}.`
+			);
+			return res
+				.status(postsReadResponse.statusCode)
+				.redirect(
+					`/dashboard/jobs/list?page=${postsReadResponse.pages}`
+				);
 		}
 
 		res.render("dashboard/blogs/list", {
 			page_title: "Manage All Posts",
 			...postsReadResponse,
 			data: { posts: postsReadResponse.data },
-			query: req.query
+			query: req.query,
 		});
 	}
 
@@ -172,17 +308,22 @@ class PostController extends Controller {
 			{ parent: { $size: 0 } },
 			{
 				select: "id children icon name",
-				populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
-				pagination: false
+				populate: [
+					{ path: "children", select: "name" },
+					{ path: "icon", select: "name type -_id" },
+				],
+				pagination: false,
 			}
 		);
-		if (categoriesListResponse.error) return next(categoriesListResponse.errors);
+		if (categoriesListResponse.error) {
+			return next(categoriesListResponse.errors);
+		}
 
 		res.render("dashboard/blogs/add", {
 			page_title: "Add New Post",
 			data: {
-				categories: categoriesListResponse.data
-			}
+				categories: categoriesListResponse.data,
+			},
 		});
 	}
 
@@ -193,15 +334,20 @@ class PostController extends Controller {
 			{ parent: { $size: 0 } },
 			{
 				select: "id children icon name",
-				populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
-				pagination: false
+				populate: [
+					{ path: "children", select: "name" },
+					{ path: "icon", select: "name type -_id" },
+				],
+				pagination: false,
 			}
 		);
-		if (categoriesListResponse.error) return next(categoriesListResponse.errors);
+		if (categoriesListResponse.error) {
+			return next(categoriesListResponse.errors);
+		}
 
-		const postReadResponse = await postService.readOne({
+		const postReadResponse = await this.service.readOne({
 			slug,
-			...(req.user.role !== "admin" && { created_by: req.user._id })
+			...(req.user.role !== "admin" && { created_by: req.user._id }),
 		});
 		if (postReadResponse.error) return next(postReadResponse.errors);
 		if (isEmpty(postReadResponse.data)) return next();
@@ -210,8 +356,8 @@ class PostController extends Controller {
 			page_title: "Edit a Post",
 			data: {
 				categories: categoriesListResponse.data,
-				post: postReadResponse.data
-			}
+				post: postReadResponse.data,
+			},
 		});
 	}
 
@@ -222,19 +368,26 @@ class PostController extends Controller {
 			responsive: true,
 			fileHashName: true,
 			quality: 2,
-			upload_path: `${process.env.UPLOAD_STORAGE}/posts/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${req.user._id}`,
-			upload_base_path: `/${req.user._id}`
+			upload_path: `${
+				process.env.UPLOAD_STORAGE
+			}/posts/${new Date().getFullYear()}/${
+				new Date().getMonth() + 1
+			}/${new Date().getDate()}/${req.user._id}`,
+			upload_base_path: `/${req.user._id}`,
 		});
 
 		const attachmentUpload = multer({
 			storage: storageEngine,
 			limits: {
 				files: 1, // allow only 2 files per request
-				fileSize: 1024 * 1024 * Number(process.env.ATTACHMENT_MAX_SIZE_IN_MB), // 5 MB (max file size)
+				fileSize:
+					1024 * 1024 * Number(process.env.ATTACHMENT_MAX_SIZE_IN_MB), // 5 MB (max file size)
 			},
 			fileFilter: (request, file, cb) => {
-				// supported image file mimetypes
-				const isFileTypeValid = storageEngine.options.accept.includes(file.mimetype.split("/")[0]);
+				// supported image file mimeTypes
+				const isFileTypeValid = storageEngine.options.accept.includes(
+					file.mimetype.split("/")[0]
+				);
 				if (isFileTypeValid) {
 					// allow supported image files
 					cb(null, true);
@@ -242,7 +395,7 @@ class PostController extends Controller {
 					// throw error for invalid files
 					cb(new Error("That fileType isn't allowed! "));
 				}
-			}
+			},
 		});
 
 		attachmentUpload.array("thumbnail")(req, res, async (err) => {
@@ -264,49 +417,69 @@ class PostController extends Controller {
 				{ parent: { $size: 0 } },
 				{
 					select: "id children icon name",
-					populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
-					pagination: false
+					populate: [
+						{ path: "children", select: "name" },
+						{ path: "icon", select: "name type -_id" },
+					],
+					pagination: false,
 				}
 			);
-			if (categoriesListResponse.error) return next(categoriesListResponse.errors);
+			if (categoriesListResponse.error) {
+				return next(categoriesListResponse.errors);
+			}
 
 			return res.render("dashboard/blogs/add", {
 				page_title: "Add new Post",
 				data: {
 					old: req.body,
-					categories: categoriesListResponse.data
-				}
+					categories: categoriesListResponse.data,
+				},
 			});
 		}
 
 		const savedAttachments = [];
 		if (req.body.files.length) {
 			const port = req.app.get("port");
-			const base = `${req.protocol}://${req.hostname}${port ? `:${port}` : ""}`;
+			const base = `${req.protocol}://${req.hostname}${
+				port ? `:${port}` : ""
+			}`;
 
-			const files = attachmentService.handelFilesForDBCreation(req.body.files, base)[0];
+			const files = attachmentService.handelFilesForDBCreation(
+				req.body.files,
+				base
+			)[0];
 
 			for (let i = 0; i < files.length; i++) {
-				const fileCreationResponse = await attachmentService.create(files[i]);
-				if (fileCreationResponse.error) return next(fileCreationResponse.errors);
+				const fileCreationResponse = await attachmentService.create(
+					files[i]
+				);
+				if (fileCreationResponse.error) {
+					return next(fileCreationResponse.errors);
+				}
 				savedAttachments.push(fileCreationResponse.data);
 			}
 
 			req.body = {
 				...req.body,
-				"thumbnail.lg": attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id : null,
-				"thumbnail.md": attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_md\.(.+)$/i))[0]._id : null,
-				"thumbnail.sm": attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_sm\.(.+)$/i))[0]._id : null,
+				"thumbnail.lg": attachmentService.options.responsive
+					? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id
+					: null,
+				"thumbnail.md": attachmentService.options.responsive
+					? savedAttachments.filter((file) => file.path.match(/^(.+?)_md\.(.+)$/i))[0]._id
+					: null,
+				"thumbnail.sm": attachmentService.options.responsive
+					? savedAttachments.filter((file) => file.path.match(/^(.+?)_sm\.(.+)$/i))[0]._id
+					: null,
 			};
 		}
 
 		req.body = {
 			...req.body,
 			tags: req.body.tags.filter(Boolean), // remove null values from array
-			created_by: req.user._id
+			created_by: req.user._id,
 		};
 
-		const postCreateResponse = await postService.create(req.body);
+		const postCreateResponse = await this.service.create(req.body);
 		if (postCreateResponse.error) return next(postCreateResponse.errors);
 
 		const categoryUpdatedResponse = await categoryService.updateOne(
@@ -322,7 +495,9 @@ class PostController extends Controller {
 		if (updatedUserResponse.error) return updatedUserResponse;
 
 		req.flash("success", "New Post added successfully");
-		res.status(postCreateResponse.statusCode).redirect("/dashboard/posts/list");
+		res.status(postCreateResponse.statusCode).redirect(
+			"/dashboard/posts/list"
+		);
 	}
 
 	async editPost(req, res, next) {
@@ -337,15 +512,20 @@ class PostController extends Controller {
 				{ parent: { $size: 0 } },
 				{
 					select: "id children icon name",
-					populate: [{ path: "children", select: "name" }, { path: "icon", select: "name type -_id" }],
-					pagination: false
+					populate: [
+						{ path: "children", select: "name" },
+						{ path: "icon", select: "name type -_id" },
+					],
+					pagination: false,
 				}
 			);
-			if (categoriesListResponse.error) return next(categoriesListResponse.errors);
+			if (categoriesListResponse.error) {
+				return next(categoriesListResponse.errors);
+			}
 
-			const postReadResponse = await postService.readOne({
+			const postReadResponse = await this.service.readOne({
 				slug,
-				...(req.user.role !== "admin" && { created_by: req.user._id })
+				...(req.user.role !== "admin" && { created_by: req.user._id }),
 			});
 			if (postReadResponse.error) return next(postReadResponse.errors);
 			if (isEmpty(postReadResponse.data)) return next();
@@ -355,45 +535,63 @@ class PostController extends Controller {
 				data: {
 					old: req.body,
 					post: postReadResponse.data,
-					categories: categoriesListResponse.data
-				}
+					categories: categoriesListResponse.data,
+				},
 			});
 		}
 
 		const savedAttachments = [];
 		if (req.body.files.length) {
 			const port = req.app.get("port");
-			const base = `${req.protocol}://${req.hostname}${port ? `:${port}` : ""}`;
+			const base = `${req.protocol}://${req.hostname}${
+				port ? `:${port}` : ""
+			}`;
 
-			const files = attachmentService.handelFilesForDBCreation(req.body.files, base)[0];
+			const files = attachmentService.handelFilesForDBCreation(
+				req.body.files,
+				base
+			)[0];
 
 			for (let i = 0; i < files.length; i++) {
-				const fileCreationResponse = await attachmentService.create(files[i]);
-				if (fileCreationResponse.error) return next(fileCreationResponse.errors);
+				const fileCreationResponse = await attachmentService.create(
+					files[i]
+				);
+				if (fileCreationResponse.error) {
+					return next(fileCreationResponse.errors);
+				}
 				savedAttachments.push(fileCreationResponse.data);
 			}
 
 			req.body = {
 				...req.body,
-				"thumbnail.lg": attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id : null,
-				"thumbnail.md": attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_md\.(.+)$/i))[0]._id : null,
-				"thumbnail.sm": attachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_sm\.(.+)$/i))[0]._id : null,
+				"thumbnail.lg": attachmentService.options.responsive
+					? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id
+					: null,
+				"thumbnail.md": attachmentService.options.responsive
+					? savedAttachments.filter((file) => file.path.match(/^(.+?)_md\.(.+)$/i))[0]._id
+					: null,
+				"thumbnail.sm": attachmentService.options.responsive
+					? savedAttachments.filter((file) => file.path.match(/^(.+?)_sm\.(.+)$/i))[0]._id
+					: null,
 			};
 		}
 
 		req.body = {
 			...req.body,
-			created_by: req.user._id
+			created_by: req.user._id,
 		};
 
 		const { tags } = req.body;
 		delete req.body.tags;
 
-		const postUpdateResponse = await postService.updateOne(
-			{ slug, ...(req.user.role !== "admin" && { created_at: req.user._id }) },
+		const postUpdateResponse = await this.service.updateOne(
+			{
+				slug,
+				...(req.user.role !== "admin" && { created_at: req.user._id }),
+			},
 			{
 				$set: req.body,
-				$addToSet: { tags }
+				$addToSet: { tags },
 			}
 		);
 		if (postUpdateResponse.error) {
@@ -405,7 +603,9 @@ class PostController extends Controller {
 			{ _id: postUpdateResponse.data.category },
 			{ $addToSet: { posts: postUpdateResponse.data._id } }
 		);
-		if (categoryUpdateResponse.error) return next(categoryUpdateResponse.errors);
+		if (categoryUpdateResponse.error) {
+			return next(categoryUpdateResponse.errors);
+		}
 
 		const userUpdateResponse = await userService.updateOne(
 			{ _id: req.user._id },
@@ -413,14 +613,19 @@ class PostController extends Controller {
 		);
 		if (userUpdateResponse.error) return next(userUpdateResponse.errors);
 
-		req.flash("success", `successfully updated ${postUpdateResponse.data.title} data.`);
-		res.status(postUpdateResponse.statusCode).redirect("/dashboard/posts/list");
+		req.flash(
+			"success",
+			`successfully updated ${postUpdateResponse.data.title} data.`
+		);
+		res.status(postUpdateResponse.statusCode).redirect(
+			"/dashboard/posts/list"
+		);
 	}
 
 	async deletePost(req, res, next) {
 		const { id } = req.params;
 
-		const postDeleteResponse = await postService.deleteOne({ _id: id });
+		const postDeleteResponse = await this.service.deleteOne({ _id: id });
 		if (postDeleteResponse.error) {
 			if (postDeleteResponse.statusCode === 404) return next();
 			return next(postDeleteResponse.errors);
@@ -430,7 +635,9 @@ class PostController extends Controller {
 			{ _id: postDeleteResponse.data.category },
 			{ $pull: { posts: postDeleteResponse.data._id } }
 		);
-		if (categoryUpdateResponse.error) return next(categoryUpdateResponse.errors);
+		if (categoryUpdateResponse.error) {
+			return next(categoryUpdateResponse.errors);
+		}
 
 		const userUpdateResponse = await userService.updateOne(
 			{ _id: postDeleteResponse.data.created_by },
@@ -441,22 +648,35 @@ class PostController extends Controller {
 		const attachments_ids = [
 			postDeleteResponse.data.thumbnail.lg,
 			postDeleteResponse.data.thumbnail.md,
-			postDeleteResponse.data.thumbnail.sm
+			postDeleteResponse.data.thumbnail.sm,
 		];
 
-		const attachmentDeleteResponse = await attachmentService.deleteMany({ _id: { $in: attachments_ids } });
-		if (attachmentDeleteResponse.error) return next(attachmentDeleteResponse.errors);
+		const attachmentDeleteResponse = await attachmentService.deleteMany({
+			_id: { $in: attachments_ids },
+		});
+		if (attachmentDeleteResponse.error) {
+			return next(attachmentDeleteResponse.errors);
+		}
 
 		const attachmentFilesDeleteResponse = await attachmentService.handelFilesForDirDeletion(
 			attachmentDeleteResponse.data.map((current) => current.path)
 		);
-		if (attachmentFilesDeleteResponse.error) return next(attachmentFilesDeleteResponse.errors);
+		if (attachmentFilesDeleteResponse.error) {
+			return next(attachmentFilesDeleteResponse.errors);
+		}
 
 		// Delete all views documents
-		const devicesDeleteResponse = await deviceService.deleteMany({ post: postDeleteResponse.data._id });
-		if (devicesDeleteResponse.error) return next(devicesDeleteResponse.errors);
+		const devicesDeleteResponse = await deviceService.deleteMany({
+			post: postDeleteResponse.data._id,
+		});
+		if (devicesDeleteResponse.error) {
+			return next(devicesDeleteResponse.errors);
+		}
 
-		req.flash("success", `${postDeleteResponse.data.title} Blog Post has been deleted!`);
+		req.flash(
+			"success",
+			`${postDeleteResponse.data.title} Blog Post has been deleted!`
+		);
 		res.status(postDeleteResponse.statusCode).redirect("back");
 	}
 }

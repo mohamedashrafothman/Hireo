@@ -1,4 +1,4 @@
-import { body, validationResult, sanitizeBody } from "express-validator";
+import { body, validationResult } from "express-validator";
 import { assignIn, isEmpty } from "lodash";
 import qs from "qs";
 import to from "await-to-js";
@@ -36,6 +36,30 @@ const profileInfoAttachmentService = new AttachmentService(Attachment);
 class UserController extends Controller {
 	constructor(service) {
 		super(service);
+		this.getOauthUnlink = this.getOauthUnlink.bind(this);
+		this.getUserProfilePage = this.getUserProfilePage.bind(this);
+		this.registerUser = this.registerUser.bind(this);
+		this.verifyUser = this.verifyUser.bind(this);
+		this.loginUser = this.loginUser.bind(this);
+		this.forgotPassword = this.forgotPassword.bind(this);
+		this.resetPassword = this.resetPassword.bind(this);
+		this.logoutUser = this.logoutUser.bind(this);
+		this.deleteUser = this.deleteUser.bind(this);
+		this.changeAvailabilityStatus = this.changeAvailabilityStatus.bind(this);
+		this.passportLocalStrategy = this.passportLocalStrategy.bind(this);
+		this.passportGoogleStrategy = this.passportGoogleStrategy.bind(this);
+		this.passportFacebookStrategy = this.passportFacebookStrategy.bind(this);
+		this.getSettings = this.getSettings.bind(this);
+		this.updatePassword = this.updatePassword.bind(this);
+		this.updateAccountInfo = this.updateAccountInfo.bind(this);
+		this.updateProfileInfo = this.updateProfileInfo.bind(this);
+		this.removeProfileAttachment = this.removeProfileAttachment.bind(this);
+		this.bookmarkUser = this.bookmarkUser.bind(this);
+		this.getBookmarkList = this.getBookmarkList.bind(this);
+		this.usersList = this.usersList.bind(this);
+		this.changeVerificationStatus = this.changeVerificationStatus.bind(this);
+		this.getCompaniesByFirstLetter = this.getCompaniesByFirstLetter.bind(this);
+		this.getFreelancers = this.getFreelancers.bind(this);
 	}
 
 	validator(method) {
@@ -46,7 +70,8 @@ class UserController extends Controller {
 					.notEmpty().withMessage("Email must supply an E-mail.")
 					.isEmail()
 					.withMessage("Email must be in an E-mail format.")
-					.trim(),
+					.trim()
+					.normalizeEmail(),
 				body("role")
 					.notEmpty().withMessage("You must choose an account type!"),
 				body("account.name")
@@ -66,10 +91,7 @@ class UserController extends Controller {
 				body("confirmPassword")
 					.notEmpty().withMessage("Confirm password cannot be blank!")
 					.custom((value, { req }) => (value === req.body.password))
-					.withMessage("Your passwords don't match!"),
-				sanitizeBody("email"),
-				sanitizeBody("account.name"),
-				sanitizeBody("account.username"),
+					.withMessage("Your passwords don't match!")
 			];
 		case "login":
 			return [
@@ -77,10 +99,10 @@ class UserController extends Controller {
 					.notEmpty().withMessage("You must be supply an Email!")
 					.isEmail()
 					.withMessage("Email must be in an E-mail format.")
-					.trim(),
+					.trim()
+					.normalizeEmail(),
 				body("password").notEmpty().withMessage("Password cannot be Blank!"),
-				body("remember").optional().toBoolean(),
-				sanitizeBody("email")
+				body("remember").optional().toBoolean()
 			];
 		case "forgot password":
 			return [
@@ -88,8 +110,8 @@ class UserController extends Controller {
 					.notEmpty().withMessage("You must be supply an Email!")
 					.isEmail()
 					.withMessage("Email must be in an E-mail format.")
-					.trim(),
-				sanitizeBody("email")
+					.trim()
+					.normalizeEmail()
 			];
 		case "reset password":
 			return [
@@ -108,12 +130,12 @@ class UserController extends Controller {
 			return [
 				body("account.name")
 					.notEmpty().withMessage("Name field can't be blank.")
-					.trim(),
+					.trim()
+					.escape(),
 				body("account.username")
 					.notEmpty().withMessage("Username field can't be blank.")
-					.trim(),
-				sanitizeBody("account.name"),
-				sanitizeBody("account.username")
+					.trim()
+					.escape(),
 			];
 		case "profile info":
 			return [
@@ -121,24 +143,24 @@ class UserController extends Controller {
 					.notEmpty().withMessage("Description field can't be blank!")
 					.isLength({ max: 500 })
 					.withMessage("Description can't be more that 500 letter.")
-					.trim(),
+					.trim()
+					.escape(),
 				body("profile.tagline")
 					.notEmpty().withMessage("Tagline field can't be blank!")
-					.trim(),
+					.trim()
+					.escape(),
 				body("profile.nationality")
 					.notEmpty().withMessage("Nationality field can't be blank!"),
 				body("profile.hourly_rate")
 					.if((value, { req }) => (req.user.role !== "admin" || req.user.role !== "employer"))
-					.notEmpty().withMessage("Hourly Rate field can't be balnk!")
+					.notEmpty().withMessage("Hourly Rate field can't be blank!")
 					.isInt({ min: 5, max: 300 })
 					.withMessage("Hourly Rate shall be between 5$ and 200$"),
 				body("profile.skills")
 					.if((value, { req }) => (req.user.role !== "admin" || req.user.role !== "employer"))
 					.notEmpty().withMessage("Skills field can't be blank!")
 					.isArray({ min: 1, max: 10 })
-					.withMessage("Skills count shall be between 1 and 10"),
-				sanitizeBody("profile.description"),
-				sanitizeBody("profile.tagline"),
+					.withMessage("Skills count shall be between 1 and 10")
 			];
 		default:
 			return [];
@@ -173,7 +195,7 @@ class UserController extends Controller {
 
 	async getOauthUnlink(req, res, next) {
 		const { provider } = req.params;
-		const userUnlinkResponse = await userService.updateOne(
+		const userUnlinkResponse = await this.service.updateOne(
 			{ _id: "5e60390a9557170448f39503" },
 			{
 				$set: {
@@ -196,7 +218,7 @@ class UserController extends Controller {
 		const old = (req.session.data && req.session.data.old) ? req.session.data.old : null;
 		req.session.data = null;
 
-		const userBySlugResponse = await userService.getUserBySlug(req.params.slug);
+		const userBySlugResponse = await this.service.getUserBySlug(req.params.slug);
 		if (userBySlugResponse.error) {
 			if (userBySlugResponse.statusCode === 404) return next();
 			return next(userBySlugResponse.errors);
@@ -230,7 +252,7 @@ class UserController extends Controller {
 			});
 		}
 
-		const userRegisterResponse = await userService.register(req.body);
+		const userRegisterResponse = await this.service.register(req.body);
 		if (userRegisterResponse.error) {
 			if (userRegisterResponse.statusCode === 202) {
 				req.flash("error", userRegisterResponse.errors);
@@ -253,7 +275,7 @@ class UserController extends Controller {
 	}
 
 	async verifyUser(req, res, next) {
-		const userVerifyResponse = await userService.verify(req.params);
+		const userVerifyResponse = await this.service.verify(req.params);
 		if (userVerifyResponse.error) {
 			if (userVerifyResponse.statusCode === 404) {
 				req.flash("error", userVerifyResponse.errors);
@@ -305,11 +327,11 @@ class UserController extends Controller {
 				}
 
 				// updated logged in user.
-				const userUpdateResponse = await userService.updateOne({ email: user.email, is_active: 0 }, { $set: { is_active: 1 } });
+				const userUpdateResponse = await this.service.updateOne({ email: user.email, is_active: 0 }, { $set: { is_active: 1 } });
 				if (userUpdateResponse.error) return next(userUpdateResponse.errors);
 
 				// Get logged in user data.
-				const userUpdatedResponse = await userService.readOne({ _id: user._id });
+				const userUpdatedResponse = await this.service.readOne({ _id: user._id });
 				if (userUpdatedResponse.error) return next(userUpdatedResponse.errors);
 
 				// Get all conversations belongs to user.
@@ -350,7 +372,7 @@ class UserController extends Controller {
 			});
 		}
 
-		const userForgotPasswordResponse = await userService.forgotPassword(req.body);
+		const userForgotPasswordResponse = await this.service.forgotPassword(req.body);
 		if (userForgotPasswordResponse.error) {
 			if (userForgotPasswordResponse.statusCode === 404) {
 				req.flash("error", userForgotPasswordResponse.errors);
@@ -388,7 +410,7 @@ class UserController extends Controller {
 			});
 		}
 
-		const userResetPasswordResponse = await userService.resetPassword(req.body, req.params);
+		const userResetPasswordResponse = await this.service.resetPassword(req.body, req.params);
 		if (userResetPasswordResponse.error) {
 			if (userResetPasswordResponse.statusCode === 404) {
 				req.flash("error", userResetPasswordResponse.errors);
@@ -415,7 +437,7 @@ class UserController extends Controller {
 
 	async logoutUser(req, res, next) {
 		const { _id } = req.user;
-		const userUpdateResponse = await userService.updateOne({ _id }, { $set: { is_active: 0 } });
+		const userUpdateResponse = await this.service.updateOne({ _id }, { $set: { is_active: 0 } });
 		if (userUpdateResponse.error) return next(userUpdateResponse.errors);
 
 		req.logout();
@@ -444,11 +466,11 @@ class UserController extends Controller {
 	async deleteUser(req, res, next) {
 		// Delete user record from user collection.
 		const id = req.params.id || req.user._id;
-		const userDeleteResponse = await userService.deleteOne({ _id: id });
+		const userDeleteResponse = await this.service.deleteOne({ _id: id });
 		if (userDeleteResponse.error) return next(userDeleteResponse.errors);
 
 		// Remove user from other users bookmark lists.
-		const searchInBookmarksResponse = await userService.updateMany(
+		const searchInBookmarksResponse = await this.service.updateMany(
 			{ _id: { $ne: id }, [`bookmarked.${userDeleteResponse.data.role}`]: userDeleteResponse.data._id },
 			{ $pull: { [`bookmarked.${userDeleteResponse.data.role}`]: userDeleteResponse.data._id } }
 		);
@@ -481,7 +503,7 @@ class UserController extends Controller {
 	}
 
 	async changeAvailabilityStatus(req, res, next) {
-		const userChangeAvailabilityResponse = await userService.updateOne(
+		const userChangeAvailabilityResponse = await this.service.updateOne(
 			{ _id: req.user._id },
 			{ $set: { is_active: !req.user.is_active } }
 		);
@@ -523,7 +545,7 @@ class UserController extends Controller {
 	}
 
 	async passportLocalStrategy(email, password, done) {
-		const { data: user, errors: err } = await userService.readOne({ email: email.toLowerCase() });
+		const { data: user, errors: err } = await this.service.readOne({ email: email.toLowerCase() });
 		if (err) done(err);
 		if (!user) return done(null, false, { msg: `Email ${email} not found.` });
 
@@ -540,14 +562,14 @@ class UserController extends Controller {
 
 	async passportGoogleStrategy(req, accessToken, refreshToken, profile, done) {
 		if (req.user) {
-			const { data: existsUser, errors: existsErr } = await userService.readOne({ google: profile.id });
+			const { data: existsUser, errors: existsErr } = await this.service.readOne({ google: profile.id });
 			if (existsErr) return done(existsErr);
 			if (existsUser) {
 				req.flash("error", "There is already a Google account that belongs to you");
 				req.flash("info", `Redirect to <strong><a href="http://${req.headers.host}/auth/forgot">Forgot Password?</a></strong> to reset your password.`);
 				done(existsErr);
 			} else {
-				const { data: user, errors: err } = await userService.readOne({ _id: req.user.id });
+				const { data: user, errors: err } = await this.service.readOne({ _id: req.user.id });
 				if (err) return done(err);
 
 				user.tokens.push({ kind: "google", accessToken });
@@ -564,10 +586,10 @@ class UserController extends Controller {
 				done(saveError, user);
 			}
 		} else {
-			const { data: existsUser, errors: existsErr } = await userService.readOne({ google: profile.id });
+			const { data: existsUser, errors: existsErr } = await this.service.readOne({ google: profile.id });
 			if (existsErr) return done(existsErr);
 			if (existsUser) {
-				const { data: updatedUser, errors: updatedErr } = await userService.updateOne(
+				const { data: updatedUser, errors: updatedErr } = await this.service.updateOne(
 					{ _id: existsUser._id },
 					{ $set: { is_active: 1, is_verified: 1 } }
 				);
@@ -575,7 +597,7 @@ class UserController extends Controller {
 				return done(updatedErr, updatedUser);
 			}
 
-			const { data: existsEmail, errors: existsEmailErr } = await userService.readOne({ email: profile._json.email });
+			const { data: existsEmail, errors: existsEmailErr } = await this.service.readOne({ email: profile._json.email });
 			if (existsEmailErr) return done(existsEmailErr);
 			if (existsEmail) {
 				req.flash("error", "There is already an account using this email address. Sign in to that account and link it with Google manually from Account Settings.");
@@ -596,7 +618,7 @@ class UserController extends Controller {
 					is_verififed: 1
 				};
 
-				const { data: newUser, errors: newUserErr } = await userService.create(user);
+				const { data: newUser, errors: newUserErr } = await this.service.create(user);
 				done(newUserErr, newUser);
 			}
 		}
@@ -604,14 +626,14 @@ class UserController extends Controller {
 
 	async passportFacebookStrategy(req, accessToken, refreshToken, profile, done) {
 		if (req.user) {
-			const { data: existsUser, errors: existsErr } = await userService.readOne({ facebook: profile.id });
+			const { data: existsUser, errors: existsErr } = await this.service.readOne({ facebook: profile.id });
 			if (existsErr) return done(existsErr);
 			if (existsUser) {
 				req.flash("error", "There is already a Facebook account that belongs to you. Sign in with that account then link it with your current account.");
 				req.flash("info", `Redirect to <strong><a href="http://${req.headers.host}/auth/forgot">Forgot Password?</a></strong> page to reset your password.`);
 				done(existsErr);
 			} else {
-				const { data: user, erorrs: err } = await userService.readOne({ _id: req.user.id });
+				const { data: user, erorrs: err } = await this.service.readOne({ _id: req.user.id });
 				if (err) return done(err);
 
 				user.tokens.push({ kind: "facebook", accessToken });
@@ -628,10 +650,10 @@ class UserController extends Controller {
 				done(null, user);
 			}
 		} else {
-			const { data: existsUser, errors: existsErr } = await userService.readOne({ facebook: profile.id });
+			const { data: existsUser, errors: existsErr } = await this.service.readOne({ facebook: profile.id });
 			if (existsErr) return done(existsErr);
 			if (existsUser) {
-				const { data: updatedUser, errors: updatedErr } = await userService.updateOne(
+				const { data: updatedUser, errors: updatedErr } = await this.service.updateOne(
 					{ _id: existsUser._id },
 					{ $set: { is_active: 1, is_verified: 1 } }
 				);
@@ -639,7 +661,7 @@ class UserController extends Controller {
 				return done(updatedErr, updatedUser);
 			}
 
-			const { data: existsEmail, errors: existsEmailErr } = await userService.readOne({ email: profile._json.email });
+			const { data: existsEmail, errors: existsEmailErr } = await this.service.readOne({ email: profile._json.email });
 			if (existsEmailErr) return done(existsEmailErr);
 			if (existsEmail) {
 				req.flash("error", "There is already an account using this email address. Sign in to that account and link it with Facebook manually from Account Settings.");
@@ -659,7 +681,7 @@ class UserController extends Controller {
 					is_active: 1,
 					is_verified: 1
 				};
-				const { data: newUser, errors: newUserErr } = await userService.create(user);
+				const { data: newUser, errors: newUserErr } = await this.service.create(user);
 				done(newUserErr, newUser);
 			}
 		}
@@ -673,7 +695,7 @@ class UserController extends Controller {
 		if (nationsError) return next(nationsErrors);
 
 
-		const { data: user, error: userError, errors: userErrors } = await userService.getSettingsUserData(req.user._id);
+		const { data: user, error: userError, errors: userErrors } = await this.service.getSettingsUserData(req.user._id);
 		if (userError) return next(userErrors);
 
 		res.render("dashboard/settings", {
@@ -693,7 +715,7 @@ class UserController extends Controller {
 		const { id } = req.params;
 		const { io } = req.app.get("io");
 
-		const userUpdatePasswordResponse = await userService.updatePassword(id, req.body);
+		const userUpdatePasswordResponse = await this.service.updatePassword(id, req.body);
 		if (userUpdatePasswordResponse.error) {
 			if (userUpdatePasswordResponse.statusCode === 404) {
 				req.flash("error", userUpdatePasswordResponse.errors);
@@ -800,7 +822,7 @@ class UserController extends Controller {
 		}
 
 
-		const userUpdateAccountInfoResponse = await userService.updateOne({ _id: req.params.id }, { $set: req.body });
+		const userUpdateAccountInfoResponse = await this.service.updateOne({ _id: req.params.id }, { $set: req.body });
 		if (userUpdateAccountInfoResponse.error) return next(userUpdateAccountInfoResponse.errors);
 
 		req.flash("success", "successfully updated your account data.");
@@ -872,7 +894,7 @@ class UserController extends Controller {
 		}
 
 
-		const userUpdateProfileInfoResponse = await userService.updateOne({ _id: req.params.id }, { $set: req.body });
+		const userUpdateProfileInfoResponse = await this.service.updateOne({ _id: req.params.id }, { $set: req.body });
 		if (userUpdateProfileInfoResponse.error) return next(userUpdateProfileInfoResponse.errors);
 
 		const skillsRemoveUserResponse = await skillService.updateMany({ users: req.params.id }, { $pull: { users: req.params.id } });
@@ -898,7 +920,7 @@ class UserController extends Controller {
 		const attachmentDeleteFilesResponse = await attachmentService.handelFilesForDirDeletion([attachmentDeleteRespose.data.path]);
 		if (attachmentDeleteFilesResponse.error) return next(attachmentDeleteFilesResponse.errors);
 
-		const userUpdateProfileAttachment = await userService.updateOne(
+		const userUpdateProfileAttachment = await this.service.updateOne(
 			{ _id: req.params.id, "profile.attachment": attachmentDeleteRespose.data._id },
 			{ $pull: { "profile.attachment": attachmentDeleteRespose.data._id } }
 		);
@@ -923,7 +945,7 @@ class UserController extends Controller {
 		const bookmarked = req.user.bookmarked[type].map((obj) => obj.toString());
 		const operator = bookmarked.includes(id) ? "$pull" : "$addToSet";
 
-		const userBookmarkResponse = await userService.updateOne(
+		const userBookmarkResponse = await this.service.updateOne(
 			{ _id: req.user._id },
 			{ [operator]: { [`bookmarked.${type}`]: id } }
 		);
@@ -933,7 +955,7 @@ class UserController extends Controller {
 	}
 
 	async getBookmarkList(req, res, next) {
-		const userBookmarkedList = await userService.getBookmarked(req.user._id);
+		const userBookmarkedList = await this.service.getBookmarked(req.user._id);
 		if (userBookmarkedList.error) return next(userBookmarkedList.errors);
 
 		// return res.json(userBookmarkedList.data);
@@ -970,7 +992,7 @@ class UserController extends Controller {
 			...req.query,
 			page
 		};
-		const userListResponse = await userService.readMany(query, options);
+		const userListResponse = await this.service.readMany(query, options);
 		if (userListResponse.error) return next(userListResponse.errors);
 
 		if (!userListResponse.data.length && userListResponse.offset === undefined && userListResponse.page !== 1) {
@@ -988,10 +1010,10 @@ class UserController extends Controller {
 
 	async changeVerificationStatus(req, res, next) {
 		const { id } = req.params;
-		const userReadResponse = await userService.readOne({ _id: id });
+		const userReadResponse = await this.service.readOne({ _id: id });
 		if (userReadResponse.error) return next(userReadResponse.errors);
 
-		const userChangeVerificationResponse = await userService.updateOne(
+		const userChangeVerificationResponse = await this.service.updateOne(
 			{ _id: id },
 			{ $set: { is_verified: !userReadResponse.data.is_verified } }
 		);
@@ -1012,7 +1034,7 @@ class UserController extends Controller {
 			...req.query,
 			page
 		};
-		const companiesByFirstLetterResponse = await userService.readMany(query, options);
+		const companiesByFirstLetterResponse = await this.service.readMany(query, options);
 		if (companiesByFirstLetterResponse.error) return next(companiesByFirstLetterResponse.errors);
 
 
@@ -1065,7 +1087,7 @@ class UserController extends Controller {
 			page
 		};
 
-		const freelancersResponse = await userService.readMany(query, options);
+		const freelancersResponse = await this.service.readMany(query, options);
 		if (freelancersResponse.error) return next(freelancersResponse.errors);
 
 		if (!freelancersResponse.data.length && freelancersResponse.offset === undefined && freelancersResponse.page !== 1) {

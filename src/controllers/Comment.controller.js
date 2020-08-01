@@ -1,4 +1,4 @@
-import { body, validationResult, sanitizeBody } from "express-validator";
+import { body, validationResult } from "express-validator";
 
 import Controller from "../utilities/Controller";
 
@@ -17,6 +17,9 @@ const commentService = new CommentService(Comment);
 class CommentController extends Controller {
 	constructor(service) {
 		super(service);
+		this.addComment = this.addComment.bind(this);
+		this.editComment = this.editComment.bind(this);
+		this.deleteComment = this.deleteComment.bind(this);
 	}
 
 	validator(method) {
@@ -24,13 +27,15 @@ class CommentController extends Controller {
 		case "add comment":
 		case "edit comment":
 			return [
-				sanitizeBody("content"),
 				body("content")
 					.notEmpty()
 					.withMessage("Comment's content can't be empty!")
 					.isLength({ max: 500 })
-					.withMessage("Comment's content exceeds the limit of 500 letter!")
+					.withMessage(
+						"Comment's content exceeds the limit of 500 letter!"
+					)
 					.trim()
+					.escape(),
 			];
 		default:
 			return [];
@@ -39,7 +44,7 @@ class CommentController extends Controller {
 
 	async addComment(req, res, next) {
 		const { id: post_id, parent = null } = req.params;
-		const client_ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+		const client_ip =			req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -57,30 +62,39 @@ class CommentController extends Controller {
 		// 5- return back to single post page. [DONE]
 
 		// creating the comment doc.
-		const commentCreateResponse = await commentService.create({
+		const commentCreateResponse = await this.service.create({
 			...req.body,
 			created_by: req.user._id,
 			post: post_id,
-			...(parent && { parent: [parent] })
+			...(parent && { parent: [parent] }),
 		});
-		if (commentCreateResponse.error) return next(commentCreateResponse.errors);
+		if (commentCreateResponse.error) {
+			return next(commentCreateResponse.errors);
+		}
 
 		// creating the device doc where the comment added from.
 		const deviceCreateResponse = await deviceService.create({
 			ip: client_ip,
 			source: req.useragent.source,
-			browser: { name: req.useragent.browser, version: req.useragent.version },
+			browser: {
+				name: req.useragent.browser,
+				version: req.useragent.version,
+			},
 			os: req.useragent.os,
-			platform: req.useragent.platform
+			platform: req.useragent.platform,
 		});
-		if (deviceCreateResponse.error) return next(deviceCreateResponse.errors);
+		if (deviceCreateResponse.error) {
+			return next(deviceCreateResponse.errors);
+		}
 
 		// Adding the device doc _id to the comment doc.
-		const commentUpdateResponse = await commentService.updateOne(
+		const commentUpdateResponse = await this.service.updateOne(
 			{ _id: commentCreateResponse.data._id },
 			{ $set: { created_from: deviceCreateResponse.data._id } }
 		);
-		if (commentUpdateResponse.error) return next(commentUpdateResponse.errors);
+		if (commentUpdateResponse.error) {
+			return next(commentUpdateResponse.errors);
+		}
 
 		// Adding the comment doc _id to the post doc.
 		const postUpdateResponse = await postService.updateOne(

@@ -2,6 +2,11 @@ import slug from "mongoose-slug-updater";
 import mongoosePagination from "mongoose-paginate-v2";
 import mongoose from "mongoose";
 
+import User from "./User.model";
+
+import SkillService from "../services/Skill";
+import UserService from "../services/User";
+
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
 //
@@ -45,10 +50,29 @@ const SkillSchema = new mongoose.Schema(
 );
 
 //
-// ─── SCHEMA PLUGIN ──────────────────────────────────────────────────────────────
+// ─── SCHEMA PLUGIN AND HOOKS ────────────────────────────────────────────────────
 //
+async function preDeleteOneMethod(next) {
+	const skillService = new SkillService(this.model);
+	const userService = new UserService(User);
+
+	const skillReadResponse = await skillService.readOne(this.getQuery());
+	if (skillReadResponse.error) return next(skillReadResponse.errors);
+
+	if (skillReadResponse?.data?.users?.length) {
+		const updateUserResponse = await userService.updateMany(
+			{ "profile.skills": skillReadResponse.data._id },
+			{ $pull: { "profile.skills": skillReadResponse.data._id } }
+		);
+		if (updateUserResponse.error) return next(updateUserResponse.errors);
+	}
+
+	next();
+}
+
 SkillSchema.plugin(mongoosePagination);
 SkillSchema.plugin(slug);
+SkillSchema.pre("deleteOne", preDeleteOneMethod);
 
 //
 // ─── SCHEMA MODEL ───────────────────────────────────────────────────────────────

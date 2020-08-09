@@ -694,7 +694,6 @@ class UserController extends Controller {
 		const { data: nations, error: nationsError, errors: nationsErrors } = await nationalityService.readMany({}, { pagination: false, select: "_id name" });
 		if (nationsError) return next(nationsErrors);
 
-
 		const { data: user, error: userError, errors: userErrors } = await this.service.getSettingsUserData(req.user._id);
 		if (userError) return next(userErrors);
 
@@ -821,7 +820,6 @@ class UserController extends Controller {
 			};
 		}
 
-
 		const userUpdateAccountInfoResponse = await this.service.updateOne({ _id: req.params.id }, { $set: req.body });
 		if (userUpdateAccountInfoResponse.error) return next(userUpdateAccountInfoResponse.errors);
 
@@ -892,7 +890,6 @@ class UserController extends Controller {
 				"profile.attachments": [...req.user.profile.attachments, ...savedAttachments.map((attach) => attach._id)]
 			};
 		}
-
 
 		const userUpdateProfileInfoResponse = await this.service.updateOne({ _id: req.params.id }, { $set: req.body });
 		if (userUpdateProfileInfoResponse.error) return next(userUpdateProfileInfoResponse.errors);
@@ -984,11 +981,6 @@ class UserController extends Controller {
 		};
 
 		const options = {
-			populate: [
-				{ path: "profile.nationality" },
-				{ path: "profile.skills" },
-				{ path: "account.picture account.picture_sm account.picture_md account.picture_lg" }
-			],
 			...req.query,
 			page
 		};
@@ -1028,18 +1020,14 @@ class UserController extends Controller {
 		const query = { role: "employer", "account.name": { $regex: letter, $options: "i" } };
 		const options = {
 			select: "email account.name account.picture account.picture_sm account.picture_md account.picture_lg slug",
-			populate: [
-				{ path: "account.picture account.picture_sm account.picture_md account.picture_lg" }
-			],
 			...req.query,
 			page
 		};
 		const companiesByFirstLetterResponse = await this.service.readMany(query, options);
 		if (companiesByFirstLetterResponse.error) return next(companiesByFirstLetterResponse.errors);
 
-
 		if (!companiesByFirstLetterResponse.data.length && companiesByFirstLetterResponse.offset === undefined && companiesByFirstLetterResponse.page !== 1) {
-			req.flash("info", `Hey! you asked for page ${page}. But that dosen't exist. So i put you on page ${companiesByFirstLetterResponse.pages}.`);
+			req.flash("info", `Hey! you asked for page ${page}. But that doesn't exist. So i put you on page ${companiesByFirstLetterResponse.pages}.`);
 			return res.status(companiesByFirstLetterResponse.statusCode).redirect(`/browse/companies?${qs.stringify(assignIn(req.query, qs.parse({ letter, page: companiesByFirstLetterResponse.pages })))}`);
 		}
 
@@ -1078,10 +1066,6 @@ class UserController extends Controller {
 		};
 
 		const options = {
-			populate: [
-				{ path: "profile.skills" },
-				{ path: "profile.nationalities" }
-			],
 			limit: 6,
 			...req.query,
 			page

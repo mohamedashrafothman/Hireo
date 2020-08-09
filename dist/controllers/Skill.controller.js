@@ -25,19 +25,13 @@ var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime
 
 var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
-var _lodash = require("lodash");
-
 var _expressValidator = require("express-validator");
 
 var _Controller2 = _interopRequireDefault(require("../utilities/Controller"));
 
 var _Skill = _interopRequireDefault(require("../services/Skill"));
 
-var _User = _interopRequireDefault(require("../services/User"));
-
 var _Skill2 = _interopRequireDefault(require("../models/Skill.model"));
-
-var _User2 = _interopRequireDefault(require("../models/User.model"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -48,7 +42,6 @@ function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflec
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
 var skillService = new _Skill["default"](_Skill2["default"]);
-var userService = new _User["default"](_User2["default"]);
 
 var SkillController = /*#__PURE__*/function (_Controller) {
   (0, _inherits2["default"])(SkillController, _Controller);
@@ -237,7 +230,7 @@ var SkillController = /*#__PURE__*/function (_Controller) {
     key: "addSkill",
     value: function () {
       var _addSkill = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee4(req, res, next) {
-        var errors, err, skillExistResponse, skillAddedResponse;
+        var errors, err, skillAddedResponse;
         return _regenerator["default"].wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
@@ -261,48 +254,23 @@ var SkillController = /*#__PURE__*/function (_Controller) {
 
               case 5:
                 _context4.next = 7;
-                return this.service.readOne({
-                  "name.en": req.body["name.en"]
-                });
-
-              case 7:
-                skillExistResponse = _context4.sent;
-
-                if (!skillExistResponse.error) {
-                  _context4.next = 10;
-                  break;
-                }
-
-                return _context4.abrupt("return", next(skillExistResponse.errors));
-
-              case 10:
-                if ((0, _lodash.isEmpty)(skillExistResponse.data)) {
-                  _context4.next = 13;
-                  break;
-                }
-
-                req.flash("error", "There is a skill stored before with this name.");
-                return _context4.abrupt("return", res.status(404).redirect("/dashboard/skills/list"));
-
-              case 13:
-                _context4.next = 15;
                 return this.service.create(req.body);
 
-              case 15:
+              case 7:
                 skillAddedResponse = _context4.sent;
 
                 if (!skillAddedResponse.error) {
-                  _context4.next = 18;
+                  _context4.next = 10;
                   break;
                 }
 
                 return _context4.abrupt("return", next(skillAddedResponse.errors));
 
-              case 18:
+              case 10:
                 req.flash("success", "New Skill added successfully");
                 res.status(skillAddedResponse.statusCode).redirect("/dashboard/skills/list");
 
-              case 20:
+              case 12:
               case "end":
                 return _context4.stop();
             }
@@ -376,7 +344,7 @@ var SkillController = /*#__PURE__*/function (_Controller) {
     key: "deleteSkills",
     value: function () {
       var _deleteSkills = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee6(req, res, next) {
-        var skillDeletionResponse, userSkillDeletionResponse;
+        var skillDeletionResponse;
         return _regenerator["default"].wrap(function _callee6$(_context6) {
           while (1) {
             switch (_context6.prev = _context6.next) {
@@ -397,30 +365,10 @@ var SkillController = /*#__PURE__*/function (_Controller) {
                 return _context6.abrupt("return", next(skillDeletionResponse.errors));
 
               case 5:
-                _context6.next = 7;
-                return userService.updateMany({
-                  "profile.skills": skillDeletionResponse.data._id
-                }, {
-                  $pull: {
-                    "profile.skills": skillDeletionResponse.data._id
-                  }
-                });
-
-              case 7:
-                userSkillDeletionResponse = _context6.sent;
-
-                if (!userSkillDeletionResponse.error) {
-                  _context6.next = 10;
-                  break;
-                }
-
-                return _context6.abrupt("return", next(userSkillDeletionResponse.errors));
-
-              case 10:
                 req.flash("success", "Successfully deleted ".concat(skillDeletionResponse.data.name.en));
                 res.status(skillDeletionResponse.statusCode).redirect("/dashboard/skills/list");
 
-              case 12:
+              case 7:
               case "end":
                 return _context6.stop();
             }

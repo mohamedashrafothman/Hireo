@@ -1,15 +1,11 @@
-import { isEmpty } from "lodash";
 import { body, validationResult } from "express-validator";
 import Controller from "../utilities/Controller";
 
 import SkillService from "../services/Skill";
-import UserService from "../services/User";
 
 import Skill from "../models/Skill.model";
-import User from "../models/User.model";
 
 const skillService = new SkillService(Skill);
-const userService = new UserService(User);
 
 class SkillController extends Controller {
 	constructor(service) {
@@ -26,21 +22,13 @@ class SkillController extends Controller {
 		case "add skill":
 		case "edit skill":
 			return [
-				body("name.en")
-					.notEmpty()
-					.withMessage("Skill english name can't be empty!")
-					.trim()
+				body("name.en").notEmpty().withMessage("Skill english name can't be empty!").trim()
 					.escape(),
-				body("name.ar")
-					.notEmpty()
-					.withMessage("Skill arabic name can't be empty!")
-					.trim()
+				body("name.ar").notEmpty().withMessage("Skill arabic name can't be empty!").trim()
 					.escape(),
 				body("description.en")
 					.notEmpty()
-					.withMessage(
-						"Skill english description can't be empty!"
-					)
+					.withMessage("Skill english description can't be empty!")
 					.trim()
 					.escape(),
 				body("description.ar")
@@ -60,41 +48,25 @@ class SkillController extends Controller {
 				$or: [
 					{
 						"name.en": {
-							$regex:
-								req.query.q
-									.split(" ")
-									.filter(Boolean)
-									.join("|") || "",
+							$regex: req.query.q.split(" ").filter(Boolean).join("|") || "",
 							$options: "i",
 						},
 					},
 					{
 						"name.ar": {
-							$regex:
-								req.query.q
-									.split(" ")
-									.filter(Boolean)
-									.join("|") || "",
+							$regex: req.query.q.split(" ").filter(Boolean).join("|") || "",
 							$options: "i",
 						},
 					},
 					{
 						"description.en": {
-							$regex:
-								req.query.q
-									.split(" ")
-									.filter(Boolean)
-									.join("|") || "",
+							$regex: req.query.q.split(" ").filter(Boolean).join("|") || "",
 							$options: "i",
 						},
 					},
 					{
 						"description.ar": {
-							$regex:
-								req.query.q
-									.split(" ")
-									.filter(Boolean)
-									.join("|") || "",
+							$regex: req.query.q.split(" ").filter(Boolean).join("|") || "",
 							$options: "i",
 						},
 					},
@@ -115,17 +87,13 @@ class SkillController extends Controller {
 		) {
 			req.flash(
 				"info",
-				`Hey! you asked for page ${
-					req.query.page || 1
-				}. But that doesn't exist. So i put you on page ${
+				`Hey! you asked for page ${req.query.page || 1}. But that doesn't exist. So i put you on page ${
 					skillsListResponse.pages
 				}.`
 			);
 			return res
 				.status(skillsListResponse.statusCode)
-				.redirect(
-					`/dashboard/skills/list?page=${skillsListResponse.pages}`
-				);
+				.redirect(`/dashboard/skills/list?page=${skillsListResponse.pages}`);
 		}
 
 		res.render("dashboard/skills/list", {
@@ -146,13 +114,10 @@ class SkillController extends Controller {
 		});
 		if (skillToEditResponse.error) return next(skillToEditResponse.errors);
 
-		res.status(skillToEditResponse.statusCode).render(
-			"dashboard/skills/edit",
-			{
-				page_title: "Edit a Skill",
-				data: { skill: skillToEditResponse.data },
-			}
-		);
+		res.status(skillToEditResponse.statusCode).render("dashboard/skills/edit", {
+			page_title: "Edit a Skill",
+			data: { skill: skillToEditResponse.data },
+		});
 	}
 
 	async addSkill(req, res, next) {
@@ -169,25 +134,11 @@ class SkillController extends Controller {
 			});
 		}
 
-		const skillExistResponse = await this.service.readOne({
-			"name.en": req.body["name.en"],
-		});
-		if (skillExistResponse.error) return next(skillExistResponse.errors);
-		if (!isEmpty(skillExistResponse.data)) {
-			req.flash(
-				"error",
-				"There is a skill stored before with this name."
-			);
-			return res.status(404).redirect("/dashboard/skills/list");
-		}
-
 		const skillAddedResponse = await this.service.create(req.body);
 		if (skillAddedResponse.error) return next(skillAddedResponse.errors);
 
 		req.flash("success", "New Skill added successfully");
-		res.status(skillAddedResponse.statusCode).redirect(
-			"/dashboard/skills/list"
-		);
+		res.status(skillAddedResponse.statusCode).redirect("/dashboard/skills/list");
 	}
 
 	async editSkill(req, res, next) {
@@ -198,45 +149,23 @@ class SkillController extends Controller {
 			return res.redirect("back");
 		}
 
-		const skillEditingResponse = await this.service.updateOne(
-			{ slug: req.params.slug },
-			{ $set: req.body }
-		);
+		const skillEditingResponse = await this.service.updateOne({ slug: req.params.slug }, { $set: req.body });
 		if (skillEditingResponse.error) {
 			return next(skillEditingResponse.errors);
 		}
 
-		req.flash(
-			"success",
-			`successfully updated ${skillEditingResponse.data.name.en} data.`
-		);
+		req.flash("success", `successfully updated ${skillEditingResponse.data.name.en} data.`);
 		res.status(skillEditingResponse).redirect("/dashboard/skills/list");
 	}
 
 	async deleteSkills(req, res, next) {
-		const skillDeletionResponse = await this.service.deleteOne({
-			_id: req.params.id,
-		});
+		const skillDeletionResponse = await this.service.deleteOne({ _id: req.params.id });
 		if (skillDeletionResponse.error) {
 			return next(skillDeletionResponse.errors);
 		}
 
-		// Remove skill in users list from users collection.
-		const userSkillDeletionResponse = await userService.updateMany(
-			{ "profile.skills": skillDeletionResponse.data._id },
-			{ $pull: { "profile.skills": skillDeletionResponse.data._id } }
-		);
-		if (userSkillDeletionResponse.error) {
-			return next(userSkillDeletionResponse.errors);
-		}
-
-		req.flash(
-			"success",
-			`Successfully deleted ${skillDeletionResponse.data.name.en}`
-		);
-		res.status(skillDeletionResponse.statusCode).redirect(
-			"/dashboard/skills/list"
-		);
+		req.flash("success", `Successfully deleted ${skillDeletionResponse.data.name.en}`);
+		res.status(skillDeletionResponse.statusCode).redirect("/dashboard/skills/list");
 	}
 }
 

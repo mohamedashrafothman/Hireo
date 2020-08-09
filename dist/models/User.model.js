@@ -23,6 +23,7 @@ var _mongoosePaginateV = _interopRequireDefault(require("mongoose-paginate-v2"))
 
 var _mongoose = _interopRequireDefault(require("mongoose"));
 
+/* eslint-disable func-names */
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
 //
@@ -187,12 +188,32 @@ var UserSchema = new _mongoose["default"].Schema({
     updatedAt: "updated_at"
   }
 }); //
-// ─── SCHEMA HOOKS ───────────────────────────────────────────────────────────────
+// ─── SCHEMA METHODS ─────────────────────────────────────────────────────────────
 //
 
-UserSchema.pre("save", function (next) {
-  var user = this; // skip it stop this function from running
+UserSchema.methods.comparePassword = function (candidatePassword, cb) {
+  _bcryptjs["default"].compare(candidatePassword, this.password, function (err, isMatch) {
+    if (err) return cb(err);
+    cb(null, isMatch);
+  });
+};
 
+UserSchema.methods.gravatar = function () {
+  var size = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 200;
+  var user = arguments.length > 1 ? arguments[1] : undefined;
+  // eslint-disable-next-line no-param-reassign
+  if (!user) user = this.email; // default email is this schema email.
+
+  var md5 = _crypto["default"].createHash("md5").update(user).digest("hex");
+
+  return "https://gravatar.com/avatar/".concat(md5, "?s=").concat(size, "&d=retro");
+}; //
+// ─── SCHEMA PLUGINS AND HOOKS ───────────────────────────────────────────────────
+//
+
+
+var preSaveMethod = function preSaveMethod(next) {
+  var user = this;
   if (!user.isModified("password")) return next();
 
   _bcryptjs["default"].genSalt(Number(process.env.PASSWORD_HASH_ROUNDS), function (err, salt) {
@@ -235,32 +256,105 @@ UserSchema.pre("save", function (next) {
       };
     }());
   });
-}); //
-// ─── SCHEMA METHODS ─────────────────────────────────────────────────────────────
-//
-
-UserSchema.methods.comparePassword = function (candidatePassword, cb) {
-  _bcryptjs["default"].compare(candidatePassword, this.password, function (err, isMatch) {
-    if (err) return cb(err);
-    cb(null, isMatch);
-  });
 };
 
-UserSchema.methods.gravatar = function (size, user) {
-  if (!size) size = 200; // default size.
+function preFindMethod(_x3) {
+  return _preFindMethod.apply(this, arguments);
+}
 
-  if (!user) user = this.email; // default email is this schema email.
+function _preFindMethod() {
+  _preFindMethod = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(next) {
+    return _regenerator["default"].wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            this.populate([{
+              path: "profile.skills"
+            }, {
+              path: "profile.nationality",
+              select: "-_id code name"
+            }, {
+              path: "profile.attachments",
+              select: "_id path name"
+            }, {
+              path: "account.picture",
+              select: "_id path name"
+            }, {
+              path: "account.picture_sm",
+              select: "_id path name"
+            }, {
+              path: "account.picture_md",
+              select: "_id path name"
+            }, {
+              path: "account.picture_lg",
+              select: "_id path name"
+            }]);
+            next();
 
-  var md5 = _crypto["default"].createHash("md5").update(user).digest("hex");
+          case 2:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2, this);
+  }));
+  return _preFindMethod.apply(this, arguments);
+}
 
-  return "https://gravatar.com/avatar/".concat(md5, "?s=").concat(size, "&d=retro");
-}; //
-// ─── SCHEMA PLUGINS ─────────────────────────────────────────────────────────────
-//
+function preFindOneMethod(_x4) {
+  return _preFindOneMethod.apply(this, arguments);
+}
 
+function _preFindOneMethod() {
+  _preFindOneMethod = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(next) {
+    return _regenerator["default"].wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            this.populate([{
+              path: "profile.skills"
+            }, {
+              path: "profile.nationality",
+              select: "-_id code name"
+            }, {
+              path: "profile.attachments",
+              select: "_id path name"
+            }, {
+              path: "account.picture",
+              select: "_id path name"
+            }, {
+              path: "account.picture_sm",
+              select: "_id path name"
+            }, {
+              path: "account.picture_md",
+              select: "_id path name"
+            }, {
+              path: "account.picture_lg",
+              select: "_id path name"
+            }, {
+              path: "bookmarked.job"
+            }, {
+              path: "bookmarked.freelancer"
+            }, {
+              path: "bookmarked.employer"
+            }]);
+            next();
+
+          case 2:
+          case "end":
+            return _context3.stop();
+        }
+      }
+    }, _callee3, this);
+  }));
+  return _preFindOneMethod.apply(this, arguments);
+}
 
 UserSchema.plugin(_mongoosePaginateV["default"]);
-UserSchema.plugin(_mongooseSlugUpdater["default"]); //
+UserSchema.plugin(_mongooseSlugUpdater["default"]);
+UserSchema.pre("save", preSaveMethod);
+UserSchema.pre("find", preFindMethod);
+UserSchema.pre("findOne", preFindOneMethod); //
 // ─── SCHEMA model ───────────────────────────────────────────────────────────────
 //
 

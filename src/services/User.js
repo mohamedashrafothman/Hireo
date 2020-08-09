@@ -17,26 +17,16 @@ export default class UserService extends Service {
 	async register(body) {
 		const existedUser = await this.readOne({ email: body.email });
 		if (existedUser.error) return existedUser;
-		if (!isEmpty(existedUser.data)) return { error: true, statusCode: 202, errors: ["Account with that email address already exists."] };
+		if (!isEmpty(existedUser.data)) {
+			return { error: true, statusCode: 202, errors: ["Account with that email address already exists."] };
+		}
 
 		const createdUser = await this.create(body);
 		return createdUser;
 	}
 
 	async deserialize(_id) {
-		const [userError, user] = await to(this.model
-			.findOne({ _id })
-			.populate("account.picture account.picture_sm account.picture_md account.picture_lg")
-			.populate("profile.bookmarked.freelancer profile.bookmarked.employer")
-			.populate({
-				path: "profile.nationality"
-			})
-			.populate({
-				path: "profile.skills"
-			})
-			.populate({
-				path: "profile.attachments"
-			}));
+		const [userError, user] = await to(this.model.findOne({ _id }));
 		if (userError) return { error: true, statusCode: 500, errors: userError };
 		return { error: false, statusCode: 200, data: user };
 	}
@@ -44,30 +34,49 @@ export default class UserService extends Service {
 	async verify(params) {
 		const existedUser = await this.readOne({ email: params.email, hash: params.hash, is_verified: { $lt: 1 } });
 		if (existedUser.error) return existedUser;
-		if (isEmpty(existedUser.data)) return { error: true, statusCode: 404, errors: ["Invalid approach, please use the link that has been send to your email."] };
+		if (isEmpty(existedUser.data)) {
+			return {
+				error: true,
+				statusCode: 404,
+				errors: ["Invalid approach, please use the link that has been send to your email."],
+			};
+		}
 
-		const updatedUser = await this.updateOne({ _id: existedUser.data._id }, { $set: { is_verified: 1, hash: null } });
+		const updatedUser = await this.updateOne(
+			{ _id: existedUser.data._id },
+			{ $set: { is_verified: 1, hash: null } }
+		);
 		return updatedUser;
 	}
 
 	async forgotPassword(body) {
 		const existedUser = await this.readOne({ email: body.email });
 		if (existedUser.error) return existedUser;
-		if (isEmpty(existedUser.data)) return { error: true, statusCode: 404, errors: ["No account found with this email."] };
+		if (isEmpty(existedUser.data)) {
+			return { error: true, statusCode: 404, errors: ["No account found with this email."] };
+		}
 
-		const updatedUser = await this.updateOne({ email: body.email }, {
-			$set: {
-				resetPasswordToken: crypto.randomBytes(16).toString("hex"),
-				resetPasswordExpires: Date.now() + 1000 * 60 * 60 * process.env.PASSWORD_RESET_TIME_LIMIT_IN_HOURS
+		const updatedUser = await this.updateOne(
+			{ email: body.email },
+			{
+				$set: {
+					resetPasswordToken: crypto.randomBytes(16).toString("hex"),
+					resetPasswordExpires: Date.now() + 1000 * 60 * 60 * process.env.PASSWORD_RESET_TIME_LIMIT_IN_HOURS,
+				},
 			}
-		});
+		);
 		return updatedUser;
 	}
 
 	async resetPassword(body, params) {
-		const existedUser = await this.readOne({ resetPasswordToken: params.token, resetPasswordExpires: { $gt: Date.now() } });
+		const existedUser = await this.readOne({
+			resetPasswordToken: params.token,
+			resetPasswordExpires: { $gt: Date.now() },
+		});
 		if (existedUser.error) return existedUser;
-		if (isEmpty(existedUser.data)) return { error: true, statusCode: 404, errors: ["Password reset token is invalid or has expired."] };
+		if (isEmpty(existedUser.data)) {
+			return { error: true, statusCode: 404, errors: ["Password reset token is invalid or has expired."] };
+		}
 
 		existedUser.data.password = body.password;
 		existedUser.data.resetPasswordToken = undefined;
@@ -84,19 +93,9 @@ export default class UserService extends Service {
 	}
 
 	async getSettingsUserData(_id) {
-		const [userError, user] = await to(this.model
-			.findOne({ _id })
-			.populate("account.picture account.picture_sm account.picture_md account.picture_lg")
-			.populate({
-				path: "profile.nationality"
-			})
-			.populate({
-				path: "profile.skills"
-			})
-			.populate({
-				path: "profile.attachments"
-			})
-			.select("account location email slug role profile"));
+		const [userError, user] = await to(
+			this.model.findOne({ _id }).select("account location email slug role profile")
+		);
 		if (userError) return { error: true, statusCode: 500, errors: userError };
 		return { error: false, statusCode: 200, data: user };
 	}
@@ -115,16 +114,11 @@ export default class UserService extends Service {
 
 	async getUserBySlug(slug) {
 		const [userErrors, user] = await to(
-			this.model
-				.findOne({ slug, role: { $ne: "admin" } })
-				.populate({ path: "profile.skills" })
-				.populate({ path: " profile.nationality" })
-				.populate({ path: "profile.attachments" })
-				.populate({
-					path: "jobs",
-					match: { status: { $nin: [2, 4] } },
-					populate: { path: "type", select: "name" }
-				})
+			this.model.findOne({ slug, role: { $ne: "admin" } }).populate({
+				path: "jobs",
+				match: { status: { $nin: [2, 4] } },
+				populate: { path: "type", select: "name" },
+			})
 		);
 		if (userErrors) return { error: true, statusCode: 500, errors: userErrors };
 		if (isEmpty(user)) return { error: true, statusCode: 404, errors: ["Not Found!"] };
@@ -133,56 +127,7 @@ export default class UserService extends Service {
 	}
 
 	async getBookmarked(_id) {
-		const [userError, user] = await to(
-			this.model
-				.findOne({ _id })
-				.select("_id bookmarked")
-				.populate([
-					{
-						path: "bookmarked.job",
-						model: "Job",
-						select: "slug title location.address created_at",
-						populate: [
-							{
-								path: "created_by",
-								model: "User",
-								select: "slug rating email account.name account.picture account.picture_sm account.picture_md account.picture_lg",
-								populate: [
-									{ path: "account.picture", select: "_id path name", model: "Attachment" },
-									{ path: "account.picture_sm", select: "_id path name", model: "Attachment" },
-									{ path: "account.picture_md", select: "_id path name", model: "Attachment" },
-									{ path: "account.picture_lg", select: "_id path name", model: "Attachment" },
-								]
-							},
-							{ path: "type", model: "job_type", select: "name -_id" }
-						]
-					},
-					{
-						path: "bookmarked.freelancer",
-						model: "User",
-						select: "is_verified rating slug email account.picture account.picture_sm account.picture_md account.picture_lg account.name profile.tagline",
-						populate: [
-							{ path: "account.picture", select: "_id path name", model: "Attachment" },
-							{ path: "account.picture_sm", select: "_id path name", model: "Attachment" },
-							{ path: "account.picture_md", select: "_id path name", model: "Attachment" },
-							{ path: "account.picture_lg", select: "_id path name", model: "Attachment" },
-							{ path: "profile.nationality", model: "Nationality", select: "-_id code name" }
-						]
-					},
-					{
-						path: "bookmarked.employer",
-						model: "User",
-						select: "is_verified rating slug email account.picture account.picture_sm account.picture_md account.picture_lg account.name profile.tagline",
-						populate: [
-							{ path: "account.picture", select: "_id path name", model: "Attachment" },
-							{ path: "account.picture_sm", select: "_id path name", model: "Attachment" },
-							{ path: "account.picture_md", select: "_id path name", model: "Attachment" },
-							{ path: "account.picture_lg", select: "_id path name", model: "Attachment" },
-							{ path: "profile.nationality", model: "Nationality", select: "-_id code name" }
-						]
-					}
-				])
-		);
+		const [userError, user] = await to(this.model.findOne({ _id }).select("_id bookmarked"));
 
 		if (userError) return { error: true, statusCode: 500, errors: userError };
 		return { error: false, statusCode: 200, data: user };

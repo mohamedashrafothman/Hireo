@@ -2,7 +2,6 @@ extends ../../layouts/_dashboard_layout.pug
 include ../../mixins/_breadcrumb.pug
 include ../../mixins/_pagination.pug
 
-
 block content
 	// Dashboard Headline
 	.dashboard-headline
@@ -108,7 +107,7 @@ block append modals
 					#tab.popup-tab-content
 						// Welcome Text
 						.welcome-text
-							h3 Are You make sure you want to delete this skill entierly?
+							h3 Are You make sure you want to delete this skill entirely?
 						// Form
 						form(id=`delete-skill-form-${i+1}` method="GET" action=`/dashboard/skills/delete/${skill._id}`)
 							include ../../partials/_csrf.pug

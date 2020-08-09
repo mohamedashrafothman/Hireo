@@ -2701,15 +2701,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
                     $nin: ["admin"]
                   }
                 });
-                options = _objectSpread(_objectSpread({
-                  populate: [{
-                    path: "profile.nationality"
-                  }, {
-                    path: "profile.skills"
-                  }, {
-                    path: "account.picture account.picture_sm account.picture_md account.picture_lg"
-                  }]
-                }, req.query), {}, {
+                options = _objectSpread(_objectSpread({}, req.query), {}, {
                   page: page
                 });
                 _context37.next = 5;
@@ -2840,10 +2832,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
                   }
                 };
                 options = _objectSpread(_objectSpread({
-                  select: "email account.name account.picture account.picture_sm account.picture_md account.picture_lg slug",
-                  populate: [{
-                    path: "account.picture account.picture_sm account.picture_md account.picture_lg"
-                  }]
+                  select: "email account.name account.picture account.picture_sm account.picture_md account.picture_lg slug"
                 }, req.query), {}, {
                   page: page
                 });
@@ -2866,7 +2855,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
                   break;
                 }
 
-                req.flash("info", "Hey! you asked for page ".concat(page, ". But that dosen't exist. So i put you on page ").concat(companiesByFirstLetterResponse.pages, "."));
+                req.flash("info", "Hey! you asked for page ".concat(page, ". But that doesn't exist. So i put you on page ").concat(companiesByFirstLetterResponse.pages, "."));
                 return _context39.abrupt("return", res.status(companiesByFirstLetterResponse.statusCode).redirect("/browse/companies?".concat(_qs["default"].stringify((0, _lodash.assignIn)(req.query, _qs["default"].parse({
                   letter: letter,
                   page: companiesByFirstLetterResponse.pages
@@ -2941,11 +2930,6 @@ var UserController = /*#__PURE__*/function (_Controller) {
                   }
                 });
                 options = _objectSpread(_objectSpread({
-                  populate: [{
-                    path: "profile.skills"
-                  }, {
-                    path: "profile.nationalities"
-                  }],
                   limit: 6
                 }, req.query), {}, {
                   page: page

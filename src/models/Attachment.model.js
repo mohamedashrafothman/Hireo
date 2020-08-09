@@ -6,35 +6,35 @@ import AttachmentService from "../services/Attachment";
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
 //
-const AttachmentSchema = new mongoose.Schema({
-	path: { type: String },
-	dir: { type: String },
-	name: { type: String },
-	extname: { type: String },
-	base: { type: String }
-}, {
-	timestamps: {
-		createdAt: "created_at",
-		updatedAt: "updated_at"
+const AttachmentSchema = new mongoose.Schema(
+	{
+		path: { type: String },
+		dir: { type: String },
+		name: { type: String },
+		extname: { type: String },
+		base: { type: String },
+	},
+	{
+		timestamps: {
+			createdAt: "created_at",
+			updatedAt: "updated_at",
+		},
 	}
-});
+);
 
 //
-// ─── SCHEMA PLUGINS ─────────────────────────────────────────────────────────────
+// ─── SCHEMA PLUGINS AND HOOKS ───────────────────────────────────────────────────
 //
 AttachmentSchema.plugin(mongoosePagination);
 
 async function preDeleteOneMethod(next) {
-	// Initializing needed services.
 	const attachmentService = new AttachmentService(this.model);
 
-	// Get deleted store document.
 	const attachmentReadResponse = await attachmentService.readMany(this.getQuery());
 	if (attachmentReadResponse.error) {
 		return next(attachmentReadResponse.errors);
 	}
 
-	// Calling attachment service deleteOne method on store attachment.
 	const attachmentFilesDeleteResponse = await attachmentService.handelFilesForDirDeletion(
 		attachmentReadResponse.data.map((attachment) => attachment.path)
 	);

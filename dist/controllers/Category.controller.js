@@ -362,11 +362,7 @@ var CategoryController = /*#__PURE__*/function (_Controller) {
                             }
 
                             _context4.next = 3;
-                            return _this2.service.readMany({
-                              parent: {
-                                $exists: false
-                              }
-                            }, {
+                            return _this2.service.readMany({}, {
                               pagination: false,
                               sort: {
                                 created_at: "asc"

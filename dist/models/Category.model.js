@@ -104,15 +104,15 @@ var CategorySchema = new _mongoose["default"].Schema({
     updatedAt: "updated_at"
   }
 }); //
-// ─── SCHEMA PLUGIN ──────────────────────────────────────────────────────────────
+// ─── SCHEMA PLUGIN AND HOOKS ────────────────────────────────────────────────────
 //
 
-function findAutoPopulate(_x) {
-  return _findAutoPopulate.apply(this, arguments);
+function preFindMethod(_x) {
+  return _preFindMethod.apply(this, arguments);
 }
 
-function _findAutoPopulate() {
-  _findAutoPopulate = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(next) {
+function _preFindMethod() {
+  _preFindMethod = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(next) {
     return _regenerator["default"].wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -133,15 +133,15 @@ function _findAutoPopulate() {
       }
     }, _callee, this);
   }));
-  return _findAutoPopulate.apply(this, arguments);
+  return _preFindMethod.apply(this, arguments);
 }
 
-function findOneAutoPopulate(_x2) {
-  return _findOneAutoPopulate.apply(this, arguments);
+function preFindOneMethod(_x2) {
+  return _preFindOneMethod.apply(this, arguments);
 }
 
-function _findOneAutoPopulate() {
-  _findOneAutoPopulate = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(next) {
+function _preFindOneMethod() {
+  _preFindOneMethod = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(next) {
     return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
@@ -164,7 +164,7 @@ function _findOneAutoPopulate() {
       }
     }, _callee2, this);
   }));
-  return _findOneAutoPopulate.apply(this, arguments);
+  return _preFindOneMethod.apply(this, arguments);
 }
 
 function preDeleteOneMethod(_x3) {
@@ -280,8 +280,8 @@ function _preDeleteOneMethod() {
 
 CategorySchema.plugin(_mongoosePaginateV["default"]);
 CategorySchema.plugin(_mongooseSlugUpdater["default"]);
-CategorySchema.pre("find", findAutoPopulate);
-CategorySchema.pre("findOne", findOneAutoPopulate);
+CategorySchema.pre("find", preFindMethod);
+CategorySchema.pre("findOne", preFindOneMethod);
 CategorySchema.pre("deleteOne", preDeleteOneMethod); //
 // ─── SCHEMA MODEL ───────────────────────────────────────────────────────────────
 //

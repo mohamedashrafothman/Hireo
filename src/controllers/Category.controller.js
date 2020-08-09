@@ -34,14 +34,8 @@ class CategoryController extends Controller {
 			return [
 				body("name.en").notEmpty().withMessage("Skill english name can't be empty!").trim(),
 				body("name.ar").notEmpty().withMessage("Skill arabic name can't be empty!").trim(),
-				body("description.en")
-					.notEmpty()
-					.withMessage("Skill english description can't be empty!")
-					.trim(),
-				body("description.ar")
-					.notEmpty()
-					.withMessage("Skill arabic description can't be empty!")
-					.trim(),
+				body("description.en").notEmpty().withMessage("Skill english description can't be empty!").trim(),
+				body("description.ar").notEmpty().withMessage("Skill arabic description can't be empty!").trim(),
 				body("icon")
 					.if((value, { req }) => !req.body.parent)
 					.notEmpty()
@@ -53,7 +47,10 @@ class CategoryController extends Controller {
 	}
 
 	async getAddCategory(req, res, next) {
-		const categoryReadResponse = await this.service.readMany({ is_deleted: false }, { pagination: false, sort: { created_at: "asc" } });
+		const categoryReadResponse = await this.service.readMany(
+			{ is_deleted: false },
+			{ pagination: false, sort: { created_at: "asc" } }
+		);
 		if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
 		const iconReadResponse = await iconService.readMany({}, { pagination: false });
@@ -139,7 +136,7 @@ class CategoryController extends Controller {
 		imageUpload.single("picture")(req, res, async (err) => {
 			if (err) {
 				const categoryReadResponse = await this.service.readMany(
-					{ parent: { $exists: false } },
+					{},
 					{ pagination: false, sort: { created_at: "asc" } }
 				);
 				if (categoryReadResponse.error) return next(categoryReadResponse.errors);
@@ -169,7 +166,10 @@ class CategoryController extends Controller {
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			const categoryReadResponse = await this.service.readMany({}, { pagination: false, sort: { created_at: "asc" } });
+			const categoryReadResponse = await this.service.readMany(
+				{},
+				{ pagination: false, sort: { created_at: "asc" } }
+			);
 			if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
 			const iconReadResponse = await iconService.readMany({}, { pagination: false });
@@ -222,7 +222,10 @@ class CategoryController extends Controller {
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			const categoryReadResponse = await this.service.readMany({}, { pagination: false, sort: { created_at: "asc" } });
+			const categoryReadResponse = await this.service.readMany(
+				{},
+				{ pagination: false, sort: { created_at: "asc" } }
+			);
 			if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
 			const iconReadResponse = await iconService.readMany({}, { pagination: false });

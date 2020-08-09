@@ -42,7 +42,7 @@ var AttachmentSchema = new _mongoose["default"].Schema({
     updatedAt: "updated_at"
   }
 }); //
-// ─── SCHEMA PLUGINS ─────────────────────────────────────────────────────────────
+// ─── SCHEMA PLUGINS AND HOOKS ───────────────────────────────────────────────────
 //
 
 AttachmentSchema.plugin(_mongoosePaginateV["default"]);
@@ -58,9 +58,7 @@ function _preDeleteOneMethod() {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            // Initializing needed services.
-            attachmentService = new _Attachment["default"](this.model); // Get deleted store document.
-
+            attachmentService = new _Attachment["default"](this.model);
             _context.next = 3;
             return attachmentService.readMany(this.getQuery());
 

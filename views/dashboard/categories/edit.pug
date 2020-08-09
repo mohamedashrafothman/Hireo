@@ -18,7 +18,7 @@ block content
 					h3
 						i.icon-feather-folder-plus.margin-right-10
 						| Categories Submitting form
-				form#categories-add-form.content.with-padding.padding-bottom-0(action=`/dashboard/categories/edit/${data.category.slug}?_csrf=${csrfToken}`, method="POST", enctype="multipart/form-data")
+				form#categories-edit-form.content.with-padding.padding-bottom-0(action=`/dashboard/categories/edit/${data.category.slug}?_csrf=${csrfToken}`, method="POST", enctype="multipart/form-data")
 					.row
 						.col-md-4
 							.submit-field
@@ -70,7 +70,7 @@ block content
 									label.uploadButton-button.ripple-effect(for='upload') Upload Photo
 									span.uploadButton-file-name=`1 Attachment with maximum size: ${process.env.ATTACHMENT_MAX_SIZE_IN_MB} MB`
 		.col-xl-12
-			button.button.ripple-effect.big.margin-top-30(type="submit" form="categories-add-form")
+			button.button.ripple-effect.big.margin-top-30(type="submit" form="categories-edit-form")
 				i.icon-feather-plus
 				|Edit a Category
 

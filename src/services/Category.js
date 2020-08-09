@@ -4,27 +4,24 @@ import Service from "../utilities/Service";
 export default class CategoryService extends Service {
 	constructor(model) {
 		super(model);
+		this.addCategory = this.addCategory.bind(this);
+		this.editCategory = this.editCategory.bind(this);
+		this.deleteCategory = this.deleteCategory.bind(this);
 	}
 
 	async addCategory(body) {
-		const existedCategory = await this.readOne({ "name.en": body["name.en"] });
-		if (existedCategory.error) return existedCategory;
-		if (!isEmpty(existedCategory.data)) {
-			return { error: true, statusCode: 202, errors: ["This category already exist."] };
-		}
-
-		const createdUser = await this.create(body);
-		if (createdUser.error) return createdUser;
+		const createdCategory = await this.create(body);
+		if (createdCategory.error) return createdCategory;
 
 		if (body.parent) {
 			const updatedParent = await this.updateOne(
 				{ _id: body.parent },
-				{ $addToSet: { children: createdUser.data._id } }
+				{ $addToSet: { children: createdCategory.data._id } }
 			);
 			if (updatedParent.error) return updatedParent;
 		}
 
-		return createdUser;
+		return createdCategory;
 	}
 
 	async deleteCategory(query) {
@@ -36,22 +33,19 @@ export default class CategoryService extends Service {
 
 		if (!readCategoryResponse.data.children.length) {
 			const deleteCategoryResponse = await this.deleteOne(query);
-			if (deleteCategoryResponse.data?.parent?.children.length <= 1) {
-				await this.deleteCategory(deleteCategoryResponse.data?.parent);
+			if (deleteCategoryResponse.data?.parent?.children?.length <= 1) {
+				await this.deleteCategory({ _id: deleteCategoryResponse.data?.parent });
 			}
 			return deleteCategoryResponse;
 		}
 
-		const updateCategoryResponse = await this.updateOne(
-			query,
-			{
-				$set: {
-					"description.en": ".xX This category has been deleted Xx.",
-					"description.ar": ".xX This category has been deleted Xx.",
-					is_deleted: true,
-				},
-			}
-		);
+		const updateCategoryResponse = await this.updateOne(query, {
+			$set: {
+				"description.en": ".xX This category has been deleted Xx.",
+				"description.ar": ".xX This category has been deleted Xx.",
+				is_deleted: true,
+			},
+		});
 		return updateCategoryResponse;
 	}
 

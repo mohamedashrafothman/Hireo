@@ -60,14 +60,14 @@ const CategorySchema = new mongoose.Schema(
 );
 
 //
-// ─── SCHEMA PLUGIN ──────────────────────────────────────────────────────────────
+// ─── SCHEMA PLUGIN AND HOOKS ────────────────────────────────────────────────────
 //
-async function findAutoPopulate(next) {
+async function preFindMethod(next) {
 	this.populate([{ path: "children" }, { path: "icon" }, { path: "picture" }]);
 	next();
 }
 
-async function findOneAutoPopulate(next) {
+async function preFindOneMethod(next) {
 	this.populate([{ path: "parent" }, { path: "children" }, { path: "icon" }, { path: "picture" }]);
 	next();
 }
@@ -103,8 +103,8 @@ async function preDeleteOneMethod(next) {
 
 CategorySchema.plugin(mongoosePagination);
 CategorySchema.plugin(slug);
-CategorySchema.pre("find", findAutoPopulate);
-CategorySchema.pre("findOne", findOneAutoPopulate);
+CategorySchema.pre("find", preFindMethod);
+CategorySchema.pre("findOne", preFindOneMethod);
 CategorySchema.pre("deleteOne", preDeleteOneMethod);
 
 //

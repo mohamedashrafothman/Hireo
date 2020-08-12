@@ -109,6 +109,7 @@ block content
 													// Attachments
 													.attachments-container.margin-top-0.margin-bottom-0
 														each attachment, i in data.user.profile.attachments
+															//- pre=h.dump(attachment)
 															+attachment_box({attachment: attachment, user: data.user}, i)
 													.clearfix
 												if (data.user.profile.attachments.length <= 1)

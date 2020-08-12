@@ -4,28 +4,31 @@ import mongoose from "mongoose";
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
 //
-const MessageSchema = new mongoose.Schema({
-	user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-	conversation: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: "Conversation",
-		required: true,
-		index: true
+const MessageSchema = new mongoose.Schema(
+	{
+		user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+		conversation: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Conversation",
+			required: true,
+			index: true,
+		},
+		content: {
+			type: String,
+			max: 255,
+			required: true,
+			trim: true,
+		},
+		was_read: { type: Boolean, default: false },
+		is_deleted: { type: Boolean, default: false },
 	},
-	content: {
-		type: String,
-		max: 255,
-		required: true,
-		trim: true
-	},
-	was_read: { type: Boolean, default: false },
-	is_deleted: { type: Boolean, default: false }
-}, {
-	timestamps: {
-		createdAt: "created_at",
-		updatedAt: "updated_at"
+	{
+		timestamps: {
+			createdAt: "created_at",
+			updatedAt: "updated_at",
+		},
 	}
-});
+);
 
 //
 // ─── SCHEMA PLUGIN ──────────────────────────────────────────────────────────────

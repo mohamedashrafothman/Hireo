@@ -63,12 +63,17 @@ const CategorySchema = new mongoose.Schema(
 // ─── SCHEMA PLUGIN AND HOOKS ────────────────────────────────────────────────────
 //
 async function preFindMethod(next) {
-	this.populate([{ path: "children" }, { path: "icon" }, { path: "picture" }]);
+	this.populate([{ path: "children" }, { path: "icon" }, { path: "picture", select: "path name extname base" }]);
 	next();
 }
 
 async function preFindOneMethod(next) {
-	this.populate([{ path: "parent" }, { path: "children" }, { path: "icon" }, { path: "picture" }]);
+	this.populate([
+		{ path: "parent" },
+		{ path: "children" },
+		{ path: "icon" },
+		{ path: "picture", select: "path name extname base" },
+	]);
 	next();
 }
 

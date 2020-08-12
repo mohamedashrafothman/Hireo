@@ -124,7 +124,6 @@ var AttachmentService = /*#__PURE__*/function (_Service) {
                             upload_path_array = process.env.UPLOAD_STORAGE.split("/").filter(Boolean);
                             upload_path = upload_path_array.slice(0, upload_path_array.length - 1).join("/");
                             filePath = _path["default"].join(__dirname, "../../".concat(upload_path), _url["default"].parse(file).path);
-                            console.log("filePath", filePath);
 
                             _fs["default"].unlink(filePath, function (err) {
                               if (err) {
@@ -142,7 +141,7 @@ var AttachmentService = /*#__PURE__*/function (_Service) {
                               };
                             });
 
-                          case 5:
+                          case 4:
                           case "end":
                             return _context.stop();
                         }

@@ -47,12 +47,12 @@ var AttachmentSchema = new _mongoose["default"].Schema({
 
 AttachmentSchema.plugin(_mongoosePaginateV["default"]);
 
-function preDeleteOneMethod(_x) {
-  return _preDeleteOneMethod.apply(this, arguments);
+function preDeleteMethod(_x) {
+  return _preDeleteMethod.apply(this, arguments);
 }
 
-function _preDeleteOneMethod() {
-  _preDeleteOneMethod = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(next) {
+function _preDeleteMethod() {
+  _preDeleteMethod = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(next) {
     var attachmentService, attachmentReadResponse, attachmentFilesDeleteResponse;
     return _regenerator["default"].wrap(function _callee$(_context) {
       while (1) {
@@ -98,10 +98,11 @@ function _preDeleteOneMethod() {
       }
     }, _callee, this);
   }));
-  return _preDeleteOneMethod.apply(this, arguments);
+  return _preDeleteMethod.apply(this, arguments);
 }
 
-AttachmentSchema.pre("deleteOne", preDeleteOneMethod); //
+AttachmentSchema.pre("deleteOne", preDeleteMethod);
+AttachmentSchema.pre("deleteMany", preDeleteMethod); //
 // ─── SCHEMA MODEL ───────────────────────────────────────────────────────────────
 //
 

@@ -38,14 +38,11 @@ export default class UserService extends Service {
 			return {
 				error: true,
 				statusCode: 404,
-				errors: ["Invalid approach, please use the link that has been send to your email."],
+				errors: ["Invalid approach, please use the link that has been send to your email."]
 			};
 		}
 
-		const updatedUser = await this.updateOne(
-			{ _id: existedUser.data._id },
-			{ $set: { is_verified: 1, hash: null } }
-		);
+		const updatedUser = await this.updateOne({ _id: existedUser.data._id }, { $set: { is_verified: 1, hash: null } });
 		return updatedUser;
 	}
 

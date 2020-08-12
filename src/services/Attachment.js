@@ -58,7 +58,6 @@ export default class AttachmentService extends Service {
 			const upload_path = upload_path_array.slice(0, upload_path_array.length - 1).join("/");
 
 			const filePath = path.join(__dirname, `../../${upload_path}`, url.parse(file).path);
-			console.log("filePath", filePath);
 			fs.unlink(filePath, (err) => {
 				if (err) {
 					return { error: true, statusCode: 500, errors: err };

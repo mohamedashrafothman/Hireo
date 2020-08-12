@@ -159,8 +159,6 @@ class UserController extends Controller {
 				body("profile.skills")
 					.if((value, { req }) => (req.user.role !== "admin" || req.user.role !== "employer"))
 					.notEmpty().withMessage("Skills field can't be blank!")
-					.isArray({ min: 1, max: 10 })
-					.withMessage("Skills count shall be between 1 and 10")
 			];
 		default:
 			return [];
@@ -469,35 +467,6 @@ class UserController extends Controller {
 		const userDeleteResponse = await this.service.deleteOne({ _id: id });
 		if (userDeleteResponse.error) return next(userDeleteResponse.errors);
 
-		// Remove user from other users bookmark lists.
-		const searchInBookmarksResponse = await this.service.updateMany(
-			{ _id: { $ne: id }, [`bookmarked.${userDeleteResponse.data.role}`]: userDeleteResponse.data._id },
-			{ $pull: { [`bookmarked.${userDeleteResponse.data.role}`]: userDeleteResponse.data._id } }
-		);
-		if (searchInBookmarksResponse.error) return next(searchInBookmarksResponse.errors);
-
-		// Remove any attachments belongs to user from attachment collection.
-		const attachmentService = new AttachmentService(Attachment);
-		const userAttachmentDeleteResponse = await attachmentService.deleteMany(
-			{ _id: { $in: [...userDeleteResponse.data.profile.attachments, userDeleteResponse.data.account.picture, userDeleteResponse.data.account.picture_sm, userDeleteResponse.data.account.picture_md, userDeleteResponse.data.account.picture_lg].filter(Boolean) } },
-			{ pagination: false }
-		);
-		if (userAttachmentDeleteResponse.error) return next(userAttachmentDeleteResponse.errors);
-
-		// Remove any attachments belongs to user from project folder directory.
-		const userAttachmentDeleteFilesResponse = await attachmentService.handelFilesForDirDeletion(userAttachmentDeleteResponse.data.map((attachment) => attachment.path));
-		if (userAttachmentDeleteFilesResponse.error) return next(userAttachmentDeleteFilesResponse.errors);
-
-		// Remove user from all skills that he was belongs to it from skills collection.
-		const userDeleteSkillsResponse = await skillService.updateMany(
-			{ _id: { $in: userDeleteResponse.data.profile.skills } },
-			{ $pull: { users: userDeleteResponse.data._id } }
-		);
-		if (userDeleteSkillsResponse.error) return next(userDeleteSkillsResponse.errors);
-
-		// TODO: Delete all job created by deleted user.
-		// TODO: Delete all Applications belongs to deleted job and deleted user.
-
 		req.flash("success", `${userDeleteResponse.data.account.name}'s Account deleted.`);
 		res.status(userDeleteResponse.statusCode).redirect("/");
 	}
@@ -768,7 +737,7 @@ class UserController extends Controller {
 				fileSize: 1024 * 1024 * Number(process.env.ATTACHMENT_MAX_SIZE_IN_MB), // 5 MB (max file size)
 			},
 			fileFilter: (request, file, cb) => {
-				// supported image file mimetypes
+				// supported image file mimeTypes
 				const isFileTypeValid = storageEngine.options.accept.includes(file.mimetype.split("/")[0]);
 				if (isFileTypeValid) {
 					// allow supported image files
@@ -894,9 +863,6 @@ class UserController extends Controller {
 		const userUpdateProfileInfoResponse = await this.service.updateOne({ _id: req.params.id }, { $set: req.body });
 		if (userUpdateProfileInfoResponse.error) return next(userUpdateProfileInfoResponse.errors);
 
-		const skillsRemoveUserResponse = await skillService.updateMany({ users: req.params.id }, { $pull: { users: req.params.id } });
-		if (skillsRemoveUserResponse.error) return next(skillsRemoveUserResponse.errors);
-
 		const skillsAddUserResponse = await skillService.updateMany(
 			{ _id: { $in: userUpdateProfileInfoResponse.data.profile.skills } },
 			{ $addToSet: { users: userUpdateProfileInfoResponse.data._id } }
@@ -909,17 +875,14 @@ class UserController extends Controller {
 
 	async removeProfileAttachment(req, res, next) {
 		const attachmentService = new AttachmentService(Attachment);
-		const attachmentDeleteRespose = await attachmentService.deleteOne(
+		const attachmentDeleteResponse = await attachmentService.deleteOne(
 			{ _id: req.params.attachment }
 		);
-		if (attachmentDeleteRespose.error) return next(attachmentDeleteRespose.errors);
-
-		const attachmentDeleteFilesResponse = await attachmentService.handelFilesForDirDeletion([attachmentDeleteRespose.data.path]);
-		if (attachmentDeleteFilesResponse.error) return next(attachmentDeleteFilesResponse.errors);
+		if (attachmentDeleteResponse.error) return next(attachmentDeleteResponse.errors);
 
 		const userUpdateProfileAttachment = await this.service.updateOne(
-			{ _id: req.params.id, "profile.attachment": attachmentDeleteRespose.data._id },
-			{ $pull: { "profile.attachment": attachmentDeleteRespose.data._id } }
+			{ _id: req.params.id, "profile.attachment": attachmentDeleteResponse.data._id },
+			{ $pull: { "profile.attachment": attachmentDeleteResponse.data._id } }
 		);
 		if (userUpdateProfileAttachment.error) return next(userUpdateProfileAttachment.errors);
 

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import slug from "mongoose-slug-updater";
 import mongoosePagination from "mongoose-paginate-v2";
 import mongoose from "mongoose";
@@ -57,12 +58,12 @@ async function preDeleteOneMethod(next) {
 	const userService = new UserService(User);
 
 	const skillReadResponse = await skillService.readOne(this.getQuery());
-	if (skillReadResponse.error) return next(skillReadResponse.errors);
+	if (skillReadResponse?.error) return next(skillReadResponse?.errors);
 
 	if (skillReadResponse?.data?.users?.length) {
 		const updateUserResponse = await userService.updateMany(
-			{ "profile.skills": skillReadResponse.data._id },
-			{ $pull: { "profile.skills": skillReadResponse.data._id } }
+			{ "profile.skills": skillReadResponse?.data?._id },
+			{ $pull: { "profile.skills": skillReadResponse?.data?._id } }
 		);
 		if (updateUserResponse.error) return next(updateUserResponse.errors);
 	}

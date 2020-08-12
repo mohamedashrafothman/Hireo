@@ -122,7 +122,8 @@ function _preFindMethod() {
             }, {
               path: "icon"
             }, {
-              path: "picture"
+              path: "picture",
+              select: "path name extname base"
             }]);
             next();
 
@@ -153,7 +154,8 @@ function _preFindOneMethod() {
             }, {
               path: "icon"
             }, {
-              path: "picture"
+              path: "picture",
+              select: "path name extname base"
             }]);
             next();
 

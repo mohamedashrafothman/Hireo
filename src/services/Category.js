@@ -10,6 +10,12 @@ export default class CategoryService extends Service {
 	}
 
 	async addCategory(body) {
+		const existedCategory = await this.readOne({ "name.en": body["name.en"] });
+		if (existedCategory.error) return existedCategory;
+		if (!isEmpty(existedCategory.data)) {
+			return { error: true, statusCode: 202, errors: ["This category already exist."] };
+		}
+
 		const createdCategory = await this.create(body);
 		if (createdCategory.error) return createdCategory;
 

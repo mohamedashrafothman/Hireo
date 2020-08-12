@@ -27,7 +27,7 @@ const AttachmentSchema = new mongoose.Schema(
 //
 AttachmentSchema.plugin(mongoosePagination);
 
-async function preDeleteOneMethod(next) {
+async function preDeleteMethod(next) {
 	const attachmentService = new AttachmentService(this.model);
 
 	const attachmentReadResponse = await attachmentService.readMany(this.getQuery());
@@ -45,7 +45,8 @@ async function preDeleteOneMethod(next) {
 	next();
 }
 
-AttachmentSchema.pre("deleteOne", preDeleteOneMethod);
+AttachmentSchema.pre("deleteOne", preDeleteMethod);
+AttachmentSchema.pre("deleteMany", preDeleteMethod);
 
 //
 // ─── SCHEMA MODEL ───────────────────────────────────────────────────────────────

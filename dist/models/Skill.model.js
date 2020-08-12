@@ -23,6 +23,7 @@ var _Skill = _interopRequireDefault(require("../services/Skill"));
 
 var _User2 = _interopRequireDefault(require("../services/User"));
 
+/* eslint-disable import/no-cycle */
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
 //
@@ -83,7 +84,8 @@ function _preDeleteOneMethod() {
   _preDeleteOneMethod = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(next) {
     var _skillReadResponse$da, _skillReadResponse$da2;
 
-    var skillService, userService, skillReadResponse, updateUserResponse;
+    var skillService, userService, skillReadResponse, _skillReadResponse$da3, _skillReadResponse$da4, updateUserResponse;
+
     return _regenerator["default"].wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -96,12 +98,12 @@ function _preDeleteOneMethod() {
           case 4:
             skillReadResponse = _context.sent;
 
-            if (!skillReadResponse.error) {
+            if (!(skillReadResponse === null || skillReadResponse === void 0 ? void 0 : skillReadResponse.error)) {
               _context.next = 7;
               break;
             }
 
-            return _context.abrupt("return", next(skillReadResponse.errors));
+            return _context.abrupt("return", next(skillReadResponse === null || skillReadResponse === void 0 ? void 0 : skillReadResponse.errors));
 
           case 7:
             if (!(skillReadResponse === null || skillReadResponse === void 0 ? void 0 : (_skillReadResponse$da = skillReadResponse.data) === null || _skillReadResponse$da === void 0 ? void 0 : (_skillReadResponse$da2 = _skillReadResponse$da.users) === null || _skillReadResponse$da2 === void 0 ? void 0 : _skillReadResponse$da2.length)) {
@@ -111,10 +113,10 @@ function _preDeleteOneMethod() {
 
             _context.next = 10;
             return userService.updateMany({
-              "profile.skills": skillReadResponse.data._id
+              "profile.skills": skillReadResponse === null || skillReadResponse === void 0 ? void 0 : (_skillReadResponse$da3 = skillReadResponse.data) === null || _skillReadResponse$da3 === void 0 ? void 0 : _skillReadResponse$da3._id
             }, {
               $pull: {
-                "profile.skills": skillReadResponse.data._id
+                "profile.skills": skillReadResponse === null || skillReadResponse === void 0 ? void 0 : (_skillReadResponse$da4 = skillReadResponse.data) === null || _skillReadResponse$da4 === void 0 ? void 0 : _skillReadResponse$da4._id
               }
             });
 

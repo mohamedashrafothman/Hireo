@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable func-names */
 import slug from "mongoose-slug-updater";
 import crypto from "crypto";
@@ -5,6 +6,19 @@ import bcrypt from "bcryptjs";
 import { isEmail } from "validator";
 import mongoosePagination from "mongoose-paginate-v2";
 import mongoose from "mongoose";
+
+import Skill from "./Skill.model";
+import Attachment from "./Attachment.model";
+import Job from "./Job.model";
+import Application from "./Application.model";
+import Post from "./Post.model";
+
+import UserService from "../services/User";
+import AttachmentService from "../services/Attachment";
+import SkillService from "../services/Skill";
+import JobService from "../services/Job";
+import ApplicationService from "../services/Application";
+import PostService from "../services/Post";
 
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
@@ -50,7 +64,10 @@ const UserSchema = new mongoose.Schema(
 			picture_lg: { type: mongoose.Schema.Types.ObjectId, ref: "Attachment" },
 		},
 		profile: {
-			skills: [{ type: mongoose.Schema.Types.ObjectId, ref: "Skill", index: true }],
+			skills: {
+				type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Skill", index: true }],
+				validate: [(val) => val.length <= 10, "{PATH} exceeds the limit of 10"],
+			},
 			nationality: { type: mongoose.Schema.Types.ObjectId, ref: "Nationality" },
 			hourly_rate: {
 				type: Number,
@@ -138,12 +155,12 @@ const preSaveMethod = function (next) {
 async function preFindMethod(next) {
 	this.populate([
 		{ path: "profile.skills" },
-		{ path: "profile.nationality", select: "-_id code name" },
-		{ path: "profile.attachments", select: "_id path name" },
-		{ path: "account.picture", select: "_id path name" },
-		{ path: "account.picture_sm", select: "_id path name" },
-		{ path: "account.picture_md", select: "_id path name" },
-		{ path: "account.picture_lg", select: "_id path name" },
+		{ path: "profile.nationality", select: "code name" },
+		{ path: "profile.attachments", select: "path name extname base" },
+		{ path: "account.picture", select: "path name extname base" },
+		{ path: "account.picture_sm", select: "path name extname base" },
+		{ path: "account.picture_md", select: "path name extname base" },
+		{ path: "account.picture_lg", select: "path name extname base" },
 	]);
 	next();
 }
@@ -151,16 +168,104 @@ async function preFindMethod(next) {
 async function preFindOneMethod(next) {
 	this.populate([
 		{ path: "profile.skills" },
-		{ path: "profile.nationality", select: "-_id code name" },
-		{ path: "profile.attachments", select: "_id path name" },
-		{ path: "account.picture", select: "_id path name" },
-		{ path: "account.picture_sm", select: "_id path name" },
-		{ path: "account.picture_md", select: "_id path name" },
-		{ path: "account.picture_lg", select: "_id path name" },
+		{ path: "profile.nationality", select: "code name" },
+		{ path: "profile.attachments", select: "path name extname base" },
+		{ path: "account.picture", select: "path name extname base" },
+		{ path: "account.picture_sm", select: "path name extname base" },
+		{ path: "account.picture_md", select: "path name extname base" },
+		{ path: "account.picture_lg", select: "path name extname base" },
 		{ path: "bookmarked.job" },
 		{ path: "bookmarked.freelancer" },
 		{ path: "bookmarked.employer" },
 	]);
+	next();
+}
+
+async function preDeleteOneMethod(next) {
+	const userService = new UserService(this.model);
+	const attachmentService = new AttachmentService(Attachment);
+	const skillService = new SkillService(Skill);
+	const jobService = new JobService(Job);
+	const applicationService = new ApplicationService(Application);
+	const postService = new PostService(Post);
+
+	const readUserResponse = await userService.readOne(this.getQuery());
+	if (readUserResponse?.error) return next(readUserResponse?.errors);
+
+	if (
+		readUserResponse?.data?.bookmarked?.freelancer?.length
+		|| readUserResponse?.data?.bookmarked?.employer?.length
+	) {
+		const updateUserResponse = await userService.updateMany(
+			{
+				_id: { $ne: readUserResponse?.data?._id },
+				[`bookmarked.${readUserResponse?.data?.role}`]: readUserResponse?.data?._id,
+			},
+			{ $pull: { [`bookmarked.${readUserResponse?.data?.role}`]: readUserResponse?.data?._id } }
+		);
+		if (updateUserResponse?.error) return next(updateUserResponse?.errors);
+	}
+
+	if (
+		readUserResponse?.data?.account?.picture
+		|| readUserResponse?.data?.account?.picture_sm
+		|| readUserResponse?.data?.account?.picture_md
+		|| readUserResponse?.data?.account?.picture_lg
+		|| readUserResponse?.data?.profile?.attachments?.length
+	) {
+		const attachmentIds = [
+			readUserResponse?.data?.account?.picture._id,
+			readUserResponse?.data?.account?.picture_sm._id,
+			readUserResponse?.data?.account?.picture_md._id,
+			readUserResponse?.data?.account?.picture_lg._id,
+			...readUserResponse?.data?.profile?.attachments?.map((attachment) => attachment._id),
+		];
+
+		const deleteAttachmentResponse = await attachmentService.deleteMany({ _id: { $in: attachmentIds } });
+		if (deleteAttachmentResponse?.error) return next(deleteAttachmentResponse?.errors);
+	}
+
+	if (readUserResponse?.data?.profile?.skills?.length) {
+		const updateSkillResponse = await skillService.updateMany(
+			{ _id: { $in: readUserResponse?.data?.profile?.skills.map((skill) => skill._id) } },
+			{ $pull: { users: readUserResponse?.data?._id } }
+		);
+		if (updateSkillResponse?.error) return next(updateSkillResponse?.errors);
+	}
+
+	if (readUserResponse?.data?.jobs?.length) {
+		const deleteJobsResponse = await jobService.deleteMany({ created_by: readUserResponse?.data?._id });
+		if (deleteJobsResponse?.error) return next(deleteJobsResponse?.errors);
+	}
+
+	if (readUserResponse?.data?.applications?.length) {
+		const deleteApplicationsResponse = await applicationService.deleteMany({
+			created_by: readUserResponse?.data?._id,
+		});
+		if (deleteApplicationsResponse?.error) return next(deleteApplicationsResponse?.errors);
+	}
+
+	if (readUserResponse?.data?.posts?.length) {
+		const deletePostsResponse = await postService.deleteMany({ created_by: readUserResponse?.data?._id });
+		if (deletePostsResponse?.error) return next(deletePostsResponse?.errors);
+	}
+
+	next();
+}
+
+async function preFindOneAndUpdateMethod(next) {
+	const userService = new UserService(this.model);
+	const skillService =  new SkillService(Skill);
+
+	const readUserResponse = await userService.readOne(this.getQuery());
+	if (readUserResponse?.error) return next(readUserResponse?.errors);
+
+	const skillsRemoveUserResponse = await skillService.updateMany(
+		{ users: readUserResponse?.data?._id },
+		{ $pull: { users: readUserResponse?.data?._id } }
+	);
+	if (skillsRemoveUserResponse.error) return next(skillsRemoveUserResponse.errors);
+
 	next();
 }
 
@@ -169,6 +274,8 @@ UserSchema.plugin(slug);
 UserSchema.pre("save", preSaveMethod);
 UserSchema.pre("find", preFindMethod);
 UserSchema.pre("findOne", preFindOneMethod);
+UserSchema.pre("deleteOne", preDeleteOneMethod);
+UserSchema.pre("findOneAndUpdate", preFindOneAndUpdateMethod);
 
 //
 // ─── SCHEMA model ───────────────────────────────────────────────────────────────

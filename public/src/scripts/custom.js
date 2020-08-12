@@ -38,7 +38,6 @@
 	    /*----------------------------------------------------*/
 		$(document).on("keydown", ":input:not(textarea):not(:submit)", function(e) {
 			if (e.keyCode == 13) {
-				console.log("prevent pressing enter function");
 				e.preventDefault();
 				return false;
 			}
@@ -257,7 +256,6 @@
 								}
 								$target.closest("li").remove();
 								if (!res.length) {
-									console.log($container);
 									$container.find(".single-right-button").removeClass("single-right-button");
 									$container.css({ "display": "flex" }).animateCss("fadeIn faster");
 									$more_button.css({ "display": "none" });
@@ -283,7 +281,6 @@
 							textColor: "#fff",
 							backgroundColor: "#383838"
 						});
-						console.log(err);
 					}
 				});
 
@@ -428,7 +425,6 @@
 		// Avatar Switcher
 		function avatarSwitcher() {
 			var readURL = function (input, event) {
-				console.log(event);
 				var maxSize = 1024 * 1024 * $(input).data("file-size");
 				if (input.files[0].size >= maxSize) {
 					Snackbar.show({
@@ -1601,7 +1597,6 @@
 							textColor: "#fff",
 							backgroundColor: "#383838"
 						});
-						console.log(err);
 					}
 				});
 			});
@@ -1616,7 +1611,6 @@
 			var $notifications = $alertsWrapper.find(".notification");
 			if ($notifications.length) {
 				$notifications.each(function(index, ele) {
-					console.log((index + 1) * 1000);
 					setTimeout(() => {
 						$(ele).find(".close").click();
 					}, Boolean($(ele).data("timeout-close")) ? Number($(ele).data("timeout-close")) : (index +1) * 1250);

@@ -51,31 +51,59 @@ var CategoryService = /*#__PURE__*/function (_Service) {
     key: "addCategory",
     value: function () {
       var _addCategory = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(body) {
-        var createdCategory, updatedParent;
+        var existedCategory, createdCategory, updatedParent;
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return this.create(body);
+                return this.readOne({
+                  "name.en": body["name.en"]
+                });
 
               case 2:
+                existedCategory = _context.sent;
+
+                if (!existedCategory.error) {
+                  _context.next = 5;
+                  break;
+                }
+
+                return _context.abrupt("return", existedCategory);
+
+              case 5:
+                if ((0, _lodash.isEmpty)(existedCategory.data)) {
+                  _context.next = 7;
+                  break;
+                }
+
+                return _context.abrupt("return", {
+                  error: true,
+                  statusCode: 202,
+                  errors: ["This category already exist."]
+                });
+
+              case 7:
+                _context.next = 9;
+                return this.create(body);
+
+              case 9:
                 createdCategory = _context.sent;
 
                 if (!createdCategory.error) {
-                  _context.next = 5;
+                  _context.next = 12;
                   break;
                 }
 
                 return _context.abrupt("return", createdCategory);
 
-              case 5:
+              case 12:
                 if (!body.parent) {
-                  _context.next = 11;
+                  _context.next = 18;
                   break;
                 }
 
-                _context.next = 8;
+                _context.next = 15;
                 return this.updateOne({
                   _id: body.parent
                 }, {
@@ -84,20 +112,20 @@ var CategoryService = /*#__PURE__*/function (_Service) {
                   }
                 });
 
-              case 8:
+              case 15:
                 updatedParent = _context.sent;
 
                 if (!updatedParent.error) {
-                  _context.next = 11;
+                  _context.next = 18;
                   break;
                 }
 
                 return _context.abrupt("return", updatedParent);
 
-              case 11:
+              case 18:
                 return _context.abrupt("return", createdCategory);
 
-              case 12:
+              case 19:
               case "end":
                 return _context.stop();
             }

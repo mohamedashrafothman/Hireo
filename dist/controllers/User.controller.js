@@ -7,9 +7,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
-
 var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
+
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
@@ -168,10 +168,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
           }).withMessage("Hourly Rate shall be between 5$ and 200$"), (0, _expressValidator.body)("profile.skills")["if"](function (value, _ref4) {
             var req = _ref4.req;
             return req.user.role !== "admin" || req.user.role !== "employer";
-          }).notEmpty().withMessage("Skills field can't be blank!").isArray({
-            min: 1,
-            max: 10
-          }).withMessage("Skills count shall be between 1 and 10")];
+          }).notEmpty().withMessage("Skills field can't be blank!")];
 
         default:
           return [];
@@ -1049,7 +1046,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
     key: "deleteUser",
     value: function () {
       var _deleteUser = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee18(req, res, next) {
-        var id, userDeleteResponse, searchInBookmarksResponse, attachmentService, userAttachmentDeleteResponse, userAttachmentDeleteFilesResponse, userDeleteSkillsResponse;
+        var id, userDeleteResponse;
         return _regenerator["default"].wrap(function _callee18$(_context18) {
           while (1) {
             switch (_context18.prev = _context18.next) {
@@ -1072,92 +1069,10 @@ var UserController = /*#__PURE__*/function (_Controller) {
                 return _context18.abrupt("return", next(userDeleteResponse.errors));
 
               case 6:
-                _context18.next = 8;
-                return this.service.updateMany((0, _defineProperty2["default"])({
-                  _id: {
-                    $ne: id
-                  }
-                }, "bookmarked.".concat(userDeleteResponse.data.role), userDeleteResponse.data._id), {
-                  $pull: (0, _defineProperty2["default"])({}, "bookmarked.".concat(userDeleteResponse.data.role), userDeleteResponse.data._id)
-                });
-
-              case 8:
-                searchInBookmarksResponse = _context18.sent;
-
-                if (!searchInBookmarksResponse.error) {
-                  _context18.next = 11;
-                  break;
-                }
-
-                return _context18.abrupt("return", next(searchInBookmarksResponse.errors));
-
-              case 11:
-                // Remove any attachments belongs to user from attachment collection.
-                attachmentService = new _Attachment2["default"](_Attachment["default"]);
-                _context18.next = 14;
-                return attachmentService.deleteMany({
-                  _id: {
-                    $in: [].concat((0, _toConsumableArray2["default"])(userDeleteResponse.data.profile.attachments), [userDeleteResponse.data.account.picture, userDeleteResponse.data.account.picture_sm, userDeleteResponse.data.account.picture_md, userDeleteResponse.data.account.picture_lg]).filter(Boolean)
-                  }
-                }, {
-                  pagination: false
-                });
-
-              case 14:
-                userAttachmentDeleteResponse = _context18.sent;
-
-                if (!userAttachmentDeleteResponse.error) {
-                  _context18.next = 17;
-                  break;
-                }
-
-                return _context18.abrupt("return", next(userAttachmentDeleteResponse.errors));
-
-              case 17:
-                _context18.next = 19;
-                return attachmentService.handelFilesForDirDeletion(userAttachmentDeleteResponse.data.map(function (attachment) {
-                  return attachment.path;
-                }));
-
-              case 19:
-                userAttachmentDeleteFilesResponse = _context18.sent;
-
-                if (!userAttachmentDeleteFilesResponse.error) {
-                  _context18.next = 22;
-                  break;
-                }
-
-                return _context18.abrupt("return", next(userAttachmentDeleteFilesResponse.errors));
-
-              case 22:
-                _context18.next = 24;
-                return skillService.updateMany({
-                  _id: {
-                    $in: userDeleteResponse.data.profile.skills
-                  }
-                }, {
-                  $pull: {
-                    users: userDeleteResponse.data._id
-                  }
-                });
-
-              case 24:
-                userDeleteSkillsResponse = _context18.sent;
-
-                if (!userDeleteSkillsResponse.error) {
-                  _context18.next = 27;
-                  break;
-                }
-
-                return _context18.abrupt("return", next(userDeleteSkillsResponse.errors));
-
-              case 27:
-                // TODO: Delete all job created by deleted user.
-                // TODO: Delete all Applications belongs to deleted job and deleted user.
                 req.flash("success", "".concat(userDeleteResponse.data.account.name, "'s Account deleted."));
                 res.status(userDeleteResponse.statusCode).redirect("/");
 
-              case 29:
+              case 8:
               case "end":
                 return _context18.stop();
             }
@@ -2033,7 +1948,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
                   },
                   fileFilter: function fileFilter(request, file, cb) {
-                    // supported image file mimetypes
+                    // supported image file mimeTypes
                     var isFileTypeValid = storageEngine.options.accept.includes(file.mimetype.split("/")[0]);
 
                     if (isFileTypeValid) {
@@ -2288,7 +2203,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
     key: "updateProfileInfo",
     value: function () {
       var _updateProfileInfo = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee32(req, res, next) {
-        var errors, err, savedAttachments, port, base, files, i, fileCreationResponse, userUpdateProfileInfoResponse, skillsRemoveUserResponse, skillsAddUserResponse;
+        var errors, err, savedAttachments, port, base, files, i, fileCreationResponse, userUpdateProfileInfoResponse, skillsAddUserResponse;
         return _regenerator["default"].wrap(function _callee32$(_context32) {
           while (1) {
             switch (_context32.prev = _context32.next) {
@@ -2372,26 +2287,6 @@ var UserController = /*#__PURE__*/function (_Controller) {
               case 27:
                 _context32.next = 29;
                 return skillService.updateMany({
-                  users: req.params.id
-                }, {
-                  $pull: {
-                    users: req.params.id
-                  }
-                });
-
-              case 29:
-                skillsRemoveUserResponse = _context32.sent;
-
-                if (!skillsRemoveUserResponse.error) {
-                  _context32.next = 32;
-                  break;
-                }
-
-                return _context32.abrupt("return", next(skillsRemoveUserResponse.errors));
-
-              case 32:
-                _context32.next = 34;
-                return skillService.updateMany({
                   _id: {
                     $in: userUpdateProfileInfoResponse.data.profile.skills
                   }
@@ -2401,21 +2296,21 @@ var UserController = /*#__PURE__*/function (_Controller) {
                   }
                 });
 
-              case 34:
+              case 29:
                 skillsAddUserResponse = _context32.sent;
 
                 if (!skillsAddUserResponse.error) {
-                  _context32.next = 37;
+                  _context32.next = 32;
                   break;
                 }
 
                 return _context32.abrupt("return", next(skillsAddUserResponse.errors));
 
-              case 37:
+              case 32:
                 req.flash("success", "successfully updated your account data.");
                 res.status(userUpdateProfileInfoResponse.statusCode).redirect("/dashboard/settings");
 
-              case 39:
+              case 34:
               case "end":
                 return _context32.stop();
             }
@@ -2433,7 +2328,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
     key: "removeProfileAttachment",
     value: function () {
       var _removeProfileAttachment = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee33(req, res, next) {
-        var attachmentService, attachmentDeleteRespose, attachmentDeleteFilesResponse, userUpdateProfileAttachment;
+        var attachmentService, attachmentDeleteResponse, userUpdateProfileAttachment;
         return _regenerator["default"].wrap(function _callee33$(_context33) {
           while (1) {
             switch (_context33.prev = _context33.next) {
@@ -2445,55 +2340,41 @@ var UserController = /*#__PURE__*/function (_Controller) {
                 });
 
               case 3:
-                attachmentDeleteRespose = _context33.sent;
+                attachmentDeleteResponse = _context33.sent;
 
-                if (!attachmentDeleteRespose.error) {
+                if (!attachmentDeleteResponse.error) {
                   _context33.next = 6;
                   break;
                 }
 
-                return _context33.abrupt("return", next(attachmentDeleteRespose.errors));
+                return _context33.abrupt("return", next(attachmentDeleteResponse.errors));
 
               case 6:
                 _context33.next = 8;
-                return attachmentService.handelFilesForDirDeletion([attachmentDeleteRespose.data.path]);
-
-              case 8:
-                attachmentDeleteFilesResponse = _context33.sent;
-
-                if (!attachmentDeleteFilesResponse.error) {
-                  _context33.next = 11;
-                  break;
-                }
-
-                return _context33.abrupt("return", next(attachmentDeleteFilesResponse.errors));
-
-              case 11:
-                _context33.next = 13;
                 return this.service.updateOne({
                   _id: req.params.id,
-                  "profile.attachment": attachmentDeleteRespose.data._id
+                  "profile.attachment": attachmentDeleteResponse.data._id
                 }, {
                   $pull: {
-                    "profile.attachment": attachmentDeleteRespose.data._id
+                    "profile.attachment": attachmentDeleteResponse.data._id
                   }
                 });
 
-              case 13:
+              case 8:
                 userUpdateProfileAttachment = _context33.sent;
 
                 if (!userUpdateProfileAttachment.error) {
-                  _context33.next = 16;
+                  _context33.next = 11;
                   break;
                 }
 
                 return _context33.abrupt("return", next(userUpdateProfileAttachment.errors));
 
-              case 16:
+              case 11:
                 req.flash("success", "Attachment removed successfully.");
                 res.status(userUpdateProfileAttachment.statusCode).redirect("back");
 
-              case 18:
+              case 13:
               case "end":
                 return _context33.stop();
             }

@@ -18,10 +18,14 @@ export default class MongoDBConnection {
 			mongoose.set("useUnifiedTopology", true);
 			mongoose.connect(process.env.MONGODB_URI);
 			mongoose.connection
-				.once("open", () => { console.log(blue.bold("✅  Connected to the database")); })
+				.once("open", () => {
+					console.log(blue.bold("✅  Connected to the database"));
+				})
 				.on("error", (error) => {
 					console.error(error);
-					console.log(`⛔️  ${red("MongoDB connection error")}.\n Please make sure MongoDB server is running.`);
+					console.log(
+						`⛔️  ${red("MongoDB connection error")}.\n Please make sure MongoDB server is running.`
+					);
 					process.exit();
 				});
 			[this.db] = mongoose.connections;

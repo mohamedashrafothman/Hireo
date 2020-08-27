@@ -45,33 +45,19 @@ var _passport = _interopRequireDefault(require("passport"));
 
 var _Controller2 = _interopRequireDefault(require("../utilities/Controller"));
 
-var _User = _interopRequireDefault(require("../models/User.model"));
+var _User = _interopRequireDefault(require("../services/User"));
 
-var _Email = _interopRequireDefault(require("../models/Email.model"));
+var _Email = _interopRequireDefault(require("../services/Email"));
 
-var _Skill = _interopRequireDefault(require("../models/Skill.model"));
+var _Skill = _interopRequireDefault(require("../services/Skill"));
 
-var _Session = _interopRequireDefault(require("../models/Session.model"));
+var _Session = _interopRequireDefault(require("../services/Session"));
 
-var _Nationality = _interopRequireDefault(require("../models/Nationality.model"));
+var _Nationality = _interopRequireDefault(require("../services/Nationality"));
 
-var _Attachment = _interopRequireDefault(require("../models/Attachment.model"));
+var _Attachment = _interopRequireDefault(require("../services/Attachment"));
 
-var _Conversation = _interopRequireDefault(require("../models/Conversation.model"));
-
-var _User2 = _interopRequireDefault(require("../services/User"));
-
-var _Email2 = _interopRequireDefault(require("../services/Email"));
-
-var _Skill2 = _interopRequireDefault(require("../services/Skill"));
-
-var _Session2 = _interopRequireDefault(require("../services/Session"));
-
-var _Nationality2 = _interopRequireDefault(require("../services/Nationality"));
-
-var _Attachment2 = _interopRequireDefault(require("../services/Attachment"));
-
-var _Conversation2 = _interopRequireDefault(require("../services/Conversation"));
+var _Conversation = _interopRequireDefault(require("../services/Conversation"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -80,15 +66,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var userService = new _User2["default"](_User["default"]);
-var emailService = new _Email2["default"](_Email["default"]);
-var skillService = new _Skill2["default"](_Skill["default"]);
-var sessionService = new _Session2["default"](_Session["default"]);
-var nationalityService = new _Nationality2["default"](_Nationality["default"]);
-var conversationService = new _Conversation2["default"](_Conversation["default"]);
-var avatarAttachmentService = new _Attachment2["default"](_Attachment["default"]);
-var profileInfoAttachmentService = new _Attachment2["default"](_Attachment["default"]);
 
 var UserController = /*#__PURE__*/function (_Controller) {
   (0, _inherits2["default"])(UserController, _Controller);
@@ -515,7 +492,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
               case 13:
                 _context10.next = 15;
-                return emailService.send({
+                return _Email["default"].send({
                   subject: "[".concat(process.env.SITE_NAME, "] Verify User Account"),
                   validateURL: "http://".concat(req.headers.host, "/auth/verify/").concat(userRegisterResponse.data.email, "/").concat(userRegisterResponse.data.hash),
                   to: userRegisterResponse.data,
@@ -715,7 +692,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
                                       case 13:
                                         _context12.next = 15;
-                                        return conversationService.readMany({
+                                        return _Conversation["default"].readMany({
                                           users: userUpdatedResponse.data._id
                                         }, {
                                           pagination: false,
@@ -836,7 +813,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
               case 11:
                 _context15.next = 13;
-                return emailService.send({
+                return _Email["default"].send({
                   subject: "[".concat(process.env.SITE_NAME, "] Resetting Password."),
                   resetURL: "http://".concat(req.headers.host, "/auth/reset/").concat(userForgotPasswordResponse.data.resetPasswordToken),
                   to: userForgotPasswordResponse.data,
@@ -923,7 +900,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
               case 13:
                 _context16.next = 15;
-                return emailService.send({
+                return _Email["default"].send({
                   filename: "password-updated",
                   subject: "[".concat(process.env.SITE_NAME, "] Resetting Password Confirmation."),
                   to: userResetPasswordResponse.data,
@@ -995,7 +972,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
                 req.user = null; // Get all conversations belongs to user.
 
                 _context17.next = 10;
-                return conversationService.readMany({
+                return _Conversation["default"].readMany({
                   users: userUpdateResponse.data._id
                 }, {
                   pagination: false,
@@ -1117,7 +1094,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
               case 5:
                 _context19.next = 7;
-                return conversationService.readMany({
+                return _Conversation["default"].readMany({
                   users: userChangeAvailabilityResponse.data._id
                 }, {
                   pagination: false,
@@ -1718,23 +1695,23 @@ var UserController = /*#__PURE__*/function (_Controller) {
     key: "getSettings",
     value: function () {
       var _getSettings = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee25(req, res, next) {
-        var _yield$skillService$r, skills, skillsError, skillsErrors, _yield$nationalitySer, nations, nationsError, nationsErrors, _yield$this$service$g, user, userError, userErrors;
+        var _yield$SkillService$r, skills, skillsError, skillsErrors, _yield$NationalitySer, nations, nationsError, nationsErrors, _yield$this$service$g, user, userError, userErrors;
 
         return _regenerator["default"].wrap(function _callee25$(_context25) {
           while (1) {
             switch (_context25.prev = _context25.next) {
               case 0:
                 _context25.next = 2;
-                return skillService.readMany({}, {
+                return _Skill["default"].readMany({}, {
                   pagination: false,
                   select: "_id name"
                 });
 
               case 2:
-                _yield$skillService$r = _context25.sent;
-                skills = _yield$skillService$r.data;
-                skillsError = _yield$skillService$r.error;
-                skillsErrors = _yield$skillService$r.errors;
+                _yield$SkillService$r = _context25.sent;
+                skills = _yield$SkillService$r.data;
+                skillsError = _yield$SkillService$r.error;
+                skillsErrors = _yield$SkillService$r.errors;
 
                 if (!skillsError) {
                   _context25.next = 8;
@@ -1745,16 +1722,16 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
               case 8:
                 _context25.next = 10;
-                return nationalityService.readMany({}, {
+                return _Nationality["default"].readMany({}, {
                   pagination: false,
                   select: "_id name"
                 });
 
               case 10:
-                _yield$nationalitySer = _context25.sent;
-                nations = _yield$nationalitySer.data;
-                nationsError = _yield$nationalitySer.error;
-                nationsErrors = _yield$nationalitySer.errors;
+                _yield$NationalitySer = _context25.sent;
+                nations = _yield$NationalitySer.data;
+                nationsError = _yield$NationalitySer.error;
+                nationsErrors = _yield$NationalitySer.errors;
 
                 if (!nationsError) {
                   _context25.next = 16;
@@ -1848,7 +1825,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
               case 13:
                 _context26.next = 15;
-                return emailService.send({
+                return _Email["default"].send({
                   filename: "password-updated",
                   subject: "[".concat(process.env.SITE_NAME, "] Updating Password Confirmation."),
                   to: userUpdatePasswordResponse.data,
@@ -1874,7 +1851,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
                 }
 
                 _context26.next = 21;
-                return sessionService.deleteMany({
+                return _Session["default"].deleteMany({
                   "session.passport.user": String(id)
                 }, {
                   pagination: false
@@ -1931,7 +1908,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
           while (1) {
             switch (_context28.prev = _context28.next) {
               case 0:
-                storageEngine = avatarAttachmentService.initStorageEngine({
+                storageEngine = _Attachment["default"].initStorageEngine({
                   responsive: true,
                   accept: ["image"],
                   fileHashName: true,
@@ -2035,7 +2012,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
                 port = req.app.get("port");
                 base = "".concat(req.protocol, "://").concat(req.hostname).concat(port ? ":".concat(port) : "");
-                files = avatarAttachmentService.handelFilesForDBCreation(req.body.files, base)[0];
+                files = _Attachment["default"].handelFilesForDBCreation(req.body.files, base)[0];
                 i = 0;
 
               case 11:
@@ -2045,7 +2022,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
                 }
 
                 _context29.next = 14;
-                return avatarAttachmentService.create(files[i]);
+                return _Attachment["default"].create(files[i]);
 
               case 14:
                 fileCreationResponse = _context29.sent;
@@ -2067,16 +2044,16 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
               case 21:
                 req.body = _objectSpread(_objectSpread({}, req.body), {}, {
-                  "account.picture_lg": avatarAttachmentService.options.responsive ? savedAttachments.filter(function (file) {
+                  "account.picture_lg": _Attachment["default"].options.responsive ? savedAttachments.filter(function (file) {
                     return file.path.match(/^(.+?)_lg\.(.+)$/i);
                   })[0]._id : null,
-                  "account.picture_md": avatarAttachmentService.options.responsive ? savedAttachments.filter(function (file) {
+                  "account.picture_md": _Attachment["default"].options.responsive ? savedAttachments.filter(function (file) {
                     return file.path.match(/^(.+?)_md\.(.+)$/i);
                   })[0]._id : null,
-                  "account.picture_sm": avatarAttachmentService.options.responsive ? savedAttachments.filter(function (file) {
+                  "account.picture_sm": _Attachment["default"].options.responsive ? savedAttachments.filter(function (file) {
                     return file.path.match(/^(.+?)_sm\.(.+)$/i);
                   })[0]._id : null,
-                  "account.picture": avatarAttachmentService.options.responsive ? savedAttachments.filter(function (file) {
+                  "account.picture": _Attachment["default"].options.responsive ? savedAttachments.filter(function (file) {
                     return file.path.match(/^(.+?)_lg\.(.+)$/i);
                   })[0]._id : savedAttachments[0]._id
                 });
@@ -2126,7 +2103,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
           while (1) {
             switch (_context31.prev = _context31.next) {
               case 0:
-                storageEngine = profileInfoAttachmentService.initStorageEngine({
+                storageEngine = _Attachment["default"].initStorageEngine({
                   accept: ["application", "image"],
                   square: false,
                   fileHashName: false,
@@ -2229,7 +2206,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
                 port = req.app.get("port");
                 base = "".concat(req.protocol, "://").concat(req.hostname).concat(port ? ":".concat(port) : "");
-                files = profileInfoAttachmentService.handelFilesForDBCreation(req.body.files, base);
+                files = _Attachment["default"].handelFilesForDBCreation(req.body.files, base);
                 i = 0;
 
               case 11:
@@ -2239,7 +2216,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
                 }
 
                 _context32.next = 14;
-                return profileInfoAttachmentService.create(files[i]);
+                return _Attachment["default"].create(files[i]);
 
               case 14:
                 fileCreationResponse = _context32.sent;
@@ -2286,7 +2263,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
               case 27:
                 _context32.next = 29;
-                return skillService.updateMany({
+                return _Skill["default"].updateMany({
                   _id: {
                     $in: userUpdateProfileInfoResponse.data.profile.skills
                   }
@@ -2328,29 +2305,28 @@ var UserController = /*#__PURE__*/function (_Controller) {
     key: "removeProfileAttachment",
     value: function () {
       var _removeProfileAttachment = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee33(req, res, next) {
-        var attachmentService, attachmentDeleteResponse, userUpdateProfileAttachment;
+        var attachmentDeleteResponse, userUpdateProfileAttachment;
         return _regenerator["default"].wrap(function _callee33$(_context33) {
           while (1) {
             switch (_context33.prev = _context33.next) {
               case 0:
-                attachmentService = new _Attachment2["default"](_Attachment["default"]);
-                _context33.next = 3;
-                return attachmentService.deleteOne({
+                _context33.next = 2;
+                return _Attachment["default"].deleteOne({
                   _id: req.params.attachment
                 });
 
-              case 3:
+              case 2:
                 attachmentDeleteResponse = _context33.sent;
 
                 if (!attachmentDeleteResponse.error) {
-                  _context33.next = 6;
+                  _context33.next = 5;
                   break;
                 }
 
                 return _context33.abrupt("return", next(attachmentDeleteResponse.errors));
 
-              case 6:
-                _context33.next = 8;
+              case 5:
+                _context33.next = 7;
                 return this.service.updateOne({
                   _id: req.params.id,
                   "profile.attachment": attachmentDeleteResponse.data._id
@@ -2360,21 +2336,21 @@ var UserController = /*#__PURE__*/function (_Controller) {
                   }
                 });
 
-              case 8:
+              case 7:
                 userUpdateProfileAttachment = _context33.sent;
 
                 if (!userUpdateProfileAttachment.error) {
-                  _context33.next = 11;
+                  _context33.next = 10;
                   break;
                 }
 
                 return _context33.abrupt("return", next(userUpdateProfileAttachment.errors));
 
-              case 11:
+              case 10:
                 req.flash("success", "Attachment removed successfully.");
                 res.status(userUpdateProfileAttachment.statusCode).redirect("back");
 
-              case 13:
+              case 12:
               case "end":
                 return _context33.stop();
             }
@@ -2399,7 +2375,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
               case 0:
                 attachment = req.params.attachment;
                 _context34.next = 3;
-                return profileInfoAttachmentService.readOne({
+                return _Attachment["default"].readOne({
                   _id: attachment
                 });
 
@@ -2841,7 +2817,7 @@ var UserController = /*#__PURE__*/function (_Controller) {
 
               case 11:
                 _context40.next = 13;
-                return skillService.readMany({}, {
+                return _Skill["default"].readMany({}, {
                   sort: {
                     users: -1
                   }
@@ -2888,6 +2864,6 @@ var UserController = /*#__PURE__*/function (_Controller) {
   return UserController;
 }(_Controller2["default"]);
 
-var _default = new UserController(userService);
+var _default = new UserController(_User["default"]);
 
 exports["default"] = _default;

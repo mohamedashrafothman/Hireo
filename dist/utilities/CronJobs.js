@@ -17,21 +17,11 @@ var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/creat
 
 var _cron = require("cron");
 
-var _Job = _interopRequireDefault(require("../models/Job.model"));
+var _Job = _interopRequireDefault(require("../services/Job"));
 
-var _Message = _interopRequireDefault(require("../models/Message.model"));
+var _Message = _interopRequireDefault(require("../services/Message"));
 
-var _Conversation = _interopRequireDefault(require("../models/Conversation.model"));
-
-var _Job2 = _interopRequireDefault(require("../services/Job"));
-
-var _Message2 = _interopRequireDefault(require("../services/Message"));
-
-var _Conversation2 = _interopRequireDefault(require("../services/Conversation"));
-
-var jobService = new _Job2["default"](_Job["default"]);
-var messageService = new _Message2["default"](_Message["default"]);
-var conversationService = new _Conversation2["default"](_Conversation["default"]);
+var _Conversation = _interopRequireDefault(require("../services/Conversation"));
 
 var CronJobs = /*#__PURE__*/function () {
   function CronJobs() {
@@ -50,7 +40,7 @@ var CronJobs = /*#__PURE__*/function () {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return jobService.updateMany({
+                return _Job["default"].updateMany({
                   status: 1,
                   expiring_at: {
                     $gte: new Date(new Date().getTime() + 2 * 60 * 60 * 1000),
@@ -74,7 +64,7 @@ var CronJobs = /*#__PURE__*/function () {
 
               case 5:
                 _context.next = 7;
-                return jobService.updateMany({
+                return _Job["default"].updateMany({
                   status: 3,
                   expiring_at: {
                     $gte: new Date(new Date().getTime() + 2 * 60 * 60 * 1000),
@@ -114,7 +104,7 @@ var CronJobs = /*#__PURE__*/function () {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return conversationService.readMany({
+                return _Conversation["default"].readMany({
                   is_deleted: true,
                   deleted_by: {
                     $size: 2
@@ -143,7 +133,7 @@ var CronJobs = /*#__PURE__*/function () {
                 }
 
                 _context2.next = 8;
-                return conversationService.deleteMany({
+                return _Conversation["default"].deleteMany({
                   is_deleted: true,
                   deleted_by: {
                     $size: 2
@@ -167,7 +157,7 @@ var CronJobs = /*#__PURE__*/function () {
 
               case 11:
                 _context2.next = 13;
-                return messageService.readMany({
+                return _Message["default"].readMany({
                   is_deleted: true,
                   created_at: {
                     $lt: new Date().setMonth(new Date().getMonth() - 1)
@@ -193,7 +183,7 @@ var CronJobs = /*#__PURE__*/function () {
                 }
 
                 _context2.next = 19;
-                return messageService.deleteMany({
+                return _Message["default"].deleteMany({
                   is_deleted: true,
                   created_at: {
                     $lt: new Date().setMonth(new Date().getMonth() - 1)

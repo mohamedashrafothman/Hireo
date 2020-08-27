@@ -35,21 +35,13 @@ var _expressValidator = require("express-validator");
 
 var _Controller2 = _interopRequireDefault(require("../utilities/Controller"));
 
-var _Job = _interopRequireDefault(require("../models/Job.model"));
+var _Job = _interopRequireDefault(require("../services/Job"));
 
-var _User = _interopRequireDefault(require("../models/User.model"));
+var _User = _interopRequireDefault(require("../services/User"));
 
-var _Attachment = _interopRequireDefault(require("../models/Attachment.model"));
+var _Attachment = _interopRequireDefault(require("../services/Attachment"));
 
-var _Application = _interopRequireDefault(require("../models/Application.model"));
-
-var _Job2 = _interopRequireDefault(require("../services/Job"));
-
-var _User2 = _interopRequireDefault(require("../services/User"));
-
-var _Attachment2 = _interopRequireDefault(require("../services/Attachment"));
-
-var _Application2 = _interopRequireDefault(require("../services/Application"));
+var _Application = _interopRequireDefault(require("../services/Application"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -58,11 +50,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var jobService = new _Job2["default"](_Job["default"]);
-var userService = new _User2["default"](_User["default"]);
-var attachmentService = new _Attachment2["default"](_Attachment["default"]);
-var applicationService = new _Application2["default"](_Application["default"]);
 
 var ApplicationController = /*#__PURE__*/function (_Controller) {
   (0, _inherits2["default"])(ApplicationController, _Controller);
@@ -74,12 +61,12 @@ var ApplicationController = /*#__PURE__*/function (_Controller) {
 
     (0, _classCallCheck2["default"])(this, ApplicationController);
     _this = _super.call(this, service);
-    _this.getApplicationsList = _this.getApplicationsList.bind((0, _assertThisInitialized2["default"])(_this));
-    _this.uploadAttachments = _this.uploadAttachments.bind((0, _assertThisInitialized2["default"])(_this));
-    _this.isAppliedBefore = _this.isAppliedBefore.bind((0, _assertThisInitialized2["default"])(_this));
-    _this.addApplication = _this.addApplication.bind((0, _assertThisInitialized2["default"])(_this));
     _this.changeStatus = _this.changeStatus.bind((0, _assertThisInitialized2["default"])(_this));
+    _this.addApplication = _this.addApplication.bind((0, _assertThisInitialized2["default"])(_this));
+    _this.isAppliedBefore = _this.isAppliedBefore.bind((0, _assertThisInitialized2["default"])(_this));
+    _this.uploadAttachments = _this.uploadAttachments.bind((0, _assertThisInitialized2["default"])(_this));
     _this.downloadAttachment = _this.downloadAttachment.bind((0, _assertThisInitialized2["default"])(_this));
+    _this.getApplicationsList = _this.getApplicationsList.bind((0, _assertThisInitialized2["default"])(_this));
     _this.withdrawApplication = _this.withdrawApplication.bind((0, _assertThisInitialized2["default"])(_this));
     return _this;
   }
@@ -197,7 +184,7 @@ var ApplicationController = /*#__PURE__*/function (_Controller) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                storageEngine = attachmentService.initStorageEngine({
+                storageEngine = _Attachment["default"].initStorageEngine({
                   accept: ["application", "image"],
                   square: false,
                   fileHashName: false,
@@ -354,7 +341,7 @@ var ApplicationController = /*#__PURE__*/function (_Controller) {
 
                 port = req.app.get("port");
                 base = "".concat(req.protocol, "://").concat(req.hostname).concat(port ? ":".concat(port) : "");
-                files = attachmentService.handelFilesForDBCreation(req.body.files, base);
+                files = _Attachment["default"].handelFilesForDBCreation(req.body.files, base);
                 i = 0;
 
               case 12:
@@ -364,7 +351,7 @@ var ApplicationController = /*#__PURE__*/function (_Controller) {
                 }
 
                 _context5.next = 15;
-                return attachmentService.create(files[i]);
+                return _Attachment["default"].create(files[i]);
 
               case 15:
                 fileCreationResponse = _context5.sent;
@@ -408,7 +395,7 @@ var ApplicationController = /*#__PURE__*/function (_Controller) {
 
               case 28:
                 _context5.next = 30;
-                return jobService.updateOne({
+                return _Job["default"].updateOne({
                   _id: req.params.id
                 }, {
                   $addToSet: {
@@ -428,7 +415,7 @@ var ApplicationController = /*#__PURE__*/function (_Controller) {
 
               case 33:
                 _context5.next = 35;
-                return userService.updateOne({
+                return _User["default"].updateOne({
                   _id: req.user._id
                 }, {
                   $addToSet: {
@@ -447,7 +434,7 @@ var ApplicationController = /*#__PURE__*/function (_Controller) {
                 return _context5.abrupt("return", next(userUpdateResponse.errors));
 
               case 38:
-                req.flash("success", "Successfuly applied to ".concat(jobUpdateResponse.data.title, " Job"));
+                req.flash("success", "Successfully applied to ".concat(jobUpdateResponse.data.title, " Job"));
                 res.status(applicationCreationResponse.statusCode).redirect("back");
 
               case 40:
@@ -536,7 +523,7 @@ var ApplicationController = /*#__PURE__*/function (_Controller) {
 
               case 14:
                 _context6.next = 16;
-                return jobService.updateOne({
+                return _Job["default"].updateOne({
                   _id: job,
                   status: {
                     $nin: [2]
@@ -612,7 +599,7 @@ var ApplicationController = /*#__PURE__*/function (_Controller) {
               case 0:
                 attachment = req.params.attachment;
                 _context7.next = 3;
-                return attachmentService.readOne({
+                return _Attachment["default"].readOne({
                   _id: attachment
                 });
 
@@ -705,6 +692,6 @@ var ApplicationController = /*#__PURE__*/function (_Controller) {
   return ApplicationController;
 }(_Controller2["default"]);
 
-var _default = new ApplicationController(applicationService);
+var _default = new ApplicationController(_Application["default"]);
 
 exports["default"] = _default;

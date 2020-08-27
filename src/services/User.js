@@ -2,8 +2,9 @@ import { isEmpty } from "lodash";
 import to from "await-to-js";
 import crypto from "crypto";
 import Service from "../utilities/Service";
+import User from "../models/User.model";
 
-export default class UserService extends Service {
+class UserService extends Service {
 	constructor(model) {
 		super(model);
 		this.register = this.register.bind(this);
@@ -38,11 +39,14 @@ export default class UserService extends Service {
 			return {
 				error: true,
 				statusCode: 404,
-				errors: ["Invalid approach, please use the link that has been send to your email."]
+				errors: ["Invalid approach, please use the link that has been send to your email."],
 			};
 		}
 
-		const updatedUser = await this.updateOne({ _id: existedUser.data._id }, { $set: { is_verified: 1, hash: null } });
+		const updatedUser = await this.updateOne(
+			{ _id: existedUser.data._id },
+			{ $set: { is_verified: 1, hash: null } }
+		);
 		return updatedUser;
 	}
 
@@ -130,3 +134,5 @@ export default class UserService extends Service {
 		return { error: false, statusCode: 200, data: user };
 	}
 }
+
+export default new UserService(User);

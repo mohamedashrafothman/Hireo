@@ -1,9 +1,6 @@
-/* eslint-disable import/no-cycle */
 import slug from "mongoose-slug-updater";
 import mongoosePagination from "mongoose-paginate-v2";
 import mongoose from "mongoose";
-
-import User from "./User.model";
 
 import SkillService from "../services/Skill";
 import UserService from "../services/User";
@@ -53,15 +50,12 @@ const SkillSchema = new mongoose.Schema(
 //
 // ─── SCHEMA PLUGIN AND HOOKS ────────────────────────────────────────────────────
 //
-async function preDeleteOneMethod(next) {
-	const skillService = new SkillService(this.model);
-	const userService = new UserService(User);
-
-	const skillReadResponse = await skillService.readOne(this.getQuery());
+const preDeleteOneMethod = async function (next) {
+	const skillReadResponse = await SkillService.readOne(this.getQuery());
 	if (skillReadResponse?.error) return next(skillReadResponse?.errors);
 
 	if (skillReadResponse?.data?.users?.length) {
-		const updateUserResponse = await userService.updateMany(
+		const updateUserResponse = await UserService.updateMany(
 			{ "profile.skills": skillReadResponse?.data?._id },
 			{ $pull: { "profile.skills": skillReadResponse?.data?._id } }
 		);
@@ -69,7 +63,7 @@ async function preDeleteOneMethod(next) {
 	}
 
 	next();
-}
+};
 
 SkillSchema.plugin(mongoosePagination);
 SkillSchema.plugin(slug);

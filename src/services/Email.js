@@ -4,8 +4,9 @@ import nodemailer from "nodemailer";
 import htmlToText from "html-to-text";
 import to from "await-to-js";
 import Service from "../utilities/Service";
+import Email from "../models/Email.model";
 
-export default class EmailService extends Service {
+class EmailService extends Service {
 	constructor(model) {
 		super(model);
 		this._HTMLGenerator = this._HTMLGenerator.bind(this);
@@ -14,12 +15,7 @@ export default class EmailService extends Service {
 	}
 
 	_HTMLGenerator(options = {}) {
-		return juice(
-			pug.renderFile(
-				`${process.cwd()}/views/emails/${options.filename}.pug`,
-				options
-			)
-		);
+		return juice(pug.renderFile(`${process.cwd()}/views/emails/${options.filename}.pug`, options));
 	}
 
 	_transporter(options) {
@@ -50,10 +46,14 @@ export default class EmailService extends Service {
 
 	async send(data) {
 		const [sendEmailError] = await to(this._transporter(data));
-		if (sendEmailError) { return { error: true, statusCode: 500, errors: sendEmailError }; }
+		if (sendEmailError) {
+			return { error: true, statusCode: 500, errors: sendEmailError };
+		}
 
 		const [err, createdEmail] = await to(this.create(this.mailOptions));
 		if (err) return { error: true, statusCode: 500, errors: err };
 		return createdEmail;
 	}
 }
+
+export default new EmailService(Email);

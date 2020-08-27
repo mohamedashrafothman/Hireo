@@ -1,14 +1,8 @@
 import { isEmpty } from "lodash";
 import Controller from "../utilities/Controller";
 
-import Message from "../models/Message.model";
-import Conversation from "../models/Conversation.model";
-
 import MessageService from "../services/Message";
 import ConversationService from "../services/Conversation";
-
-const messageService = new MessageService(Message);
-const conversationService = new ConversationService(Conversation);
 
 class ConversationController extends Controller {
 	constructor(service) {
@@ -24,8 +18,7 @@ class ConversationController extends Controller {
 				{
 					path: "users",
 					select: "is_active email account",
-					populate:
-						"account.picture account.picture_sm account.picture_md account.picture_lg",
+					populate: "account.picture account.picture_sm account.picture_md account.picture_lg",
 				},
 				{
 					path: "messages",
@@ -33,8 +26,7 @@ class ConversationController extends Controller {
 					options: { sort: { created_at: "desc" } },
 					populate: {
 						path: "user",
-						populate:
-							"account.picture account.picture_sm account.picture_md account.picture_lg",
+						populate: "account.picture account.picture_sm account.picture_md account.picture_lg",
 					},
 				},
 			],
@@ -54,18 +46,12 @@ class ConversationController extends Controller {
 			deleted_by: { $ne: req.user._id },
 		};
 
-		const conversationReadResponse = await this.service.readMany(
-			conversationQuery,
-			options
-		);
+		const conversationReadResponse = await this.service.readMany(conversationQuery, options);
 		if (conversationReadResponse.error) {
 			return next(conversationReadResponse.errors);
 		}
 
-		const conversationsReadResponse = await this.service.readMany(
-			conversationsQuery,
-			options
-		);
+		const conversationsReadResponse = await this.service.readMany(conversationsQuery, options);
 		if (conversationsReadResponse.error) {
 			return next(conversationsReadResponse.errors);
 		}
@@ -106,7 +92,7 @@ class ConversationController extends Controller {
 		}
 
 		// Update all messages belongs to the deleted conversation.
-		const messagesUpdateResponse = await messageService.updateMany(
+		const messagesUpdateResponse = await MessageService.updateMany(
 			{
 				conversation: conversationReadResponse.data._id,
 				created_at: { $lt: new Date() },
@@ -121,10 +107,8 @@ class ConversationController extends Controller {
 			return next(messagesUpdateResponse.errors);
 		}
 
-		res.status(conversationUpdateResponse.statusCode).redirect(
-			"/dashboard/conversations"
-		);
+		res.status(conversationUpdateResponse.statusCode).redirect("/dashboard/conversations");
 	}
 }
 
-export default new ConversationController(conversationService);
+export default new ConversationController(ConversationService);

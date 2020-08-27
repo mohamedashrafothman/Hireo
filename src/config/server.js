@@ -27,11 +27,6 @@ import Helper from "../utilities/Helper";
 import CronJobs from "../utilities/CronJobs";
 import Socket from "../utilities/Socket";
 
-import Message from "../models/Message.model";
-import Category from "../models/Category.model";
-import Application from "../models/Application.model";
-import Conversation from "../models/Conversation.model";
-
 import MessageService from "../services/Message";
 import CategoryService from "../services/Category";
 import ApplicationService from "../services/Application";
@@ -43,10 +38,6 @@ import DatabaseConnection from "./database";
 
 const MongoStore = connectMongo(session);
 const helper = new Helper();
-const messageService = new MessageService(Message);
-const categoryService = new CategoryService(Category);
-const applicationService = new ApplicationService(Application);
-const conversationService = new ConversationService(Conversation);
 
 //
 // ─── APP INSTANCE ───────────────────────────────────────────────────────────────
@@ -66,8 +57,8 @@ const sessionMiddleware = session({
 		autoReconnect: true,
 		autoRemove: "native",
 		autoRemoveInterval: 1,
-		stringify: false
-	})
+		stringify: false,
+	}),
 });
 
 //
@@ -83,16 +74,18 @@ app.set("permission", {
 	role: "role",
 	notAuthenticated: {
 		flashType: "error",
-		message: "<strong>Not Authenticated!</strong><br><p>Make sure you're logged in so you can access your requested page.</p>",
+		message:
+			"<strong>Not Authenticated!</strong><br><p>Make sure you're logged in so you can access your requested page.</p>",
 		redirect: "/auth/login",
-		status: 401
+		status: 401,
 	},
 	notAuthorized: {
 		flashType: "error",
-		message: "<strong>Not Authorized!</strong><br><p>Make sure you are logged in with the right credentials so you can access your requested page.</p>",
+		message:
+			"<strong>Not Authorized!</strong><br><p>Make sure you are logged in with the right credentials so you can access your requested page.</p>",
 		redirect: "back",
-		status: 403
-	}
+		status: 403,
+	},
 });
 app.set("trust proxy", true); // to get user IP
 app.use(express.static(path.join(__dirname, "../../public/build")));
@@ -102,7 +95,9 @@ app.use(compression());
 app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-io.use((socket, next) => { sessionMiddleware(socket.request, socket.request.res || {}, next); });
+io.use((socket, next) => {
+	sessionMiddleware(socket.request, socket.request.res || {}, next);
+});
 app.use(cookieParser(process.env.SESSION_SECRET));
 app.use(sessionMiddleware);
 // Passport.js middleware came after session's middleware.
@@ -115,31 +110,46 @@ app.use(back());
 app.use(loggerToMongo(process.env.MONGODB_URI, "logs"));
 app.use(async (req, res, next) => {
 	// pass the Globals to all responses.
-	const [categoriesErr, categories] = await to(categoryService.readMany({ parent: { $exists: false } }, { pagination: false }));
+	const [categoriesErr, categories] = await to(
+		CategoryService.readMany({ parent: { $exists: false } }, { pagination: false })
+	);
 	if (categoriesErr) return next(categoriesErr);
 	if (categories.error) return next(categories.errors);
 
-	const [unSeenApplicationsErr, unSeenApplications] = await to(applicationService.unSeenApplicationsByUser(req.user));
+	const [unSeenApplicationsErr, unSeenApplications] = await to(ApplicationService.unSeenApplicationsByUser(req.user));
 	if (unSeenApplicationsErr) return next(unSeenApplicationsErr);
 	if (unSeenApplications.error) return next(unSeenApplications.errors);
 
 	if (req.user) {
 		const [conversationReadResponseError, conversationReadResponse] = await to(
-			conversationService.readMany({ users: req.user._id, is_deleted: false }, { pagination: false })
+			ConversationService.readMany({ users: req.user._id, is_deleted: false }, { pagination: false })
 		);
 		if (conversationReadResponseError) return next(conversationReadResponseError);
 		if (conversationReadResponse.error) return next(conversationReadResponse.errors);
 
 		const [messageReadResponseError, messageReadResponse] = await to(
-			messageService.readMany(
-				{ _id: { $in: [].concat(...conversationReadResponse.data.map((array) => array.messages)) }, user: { $ne: req.user._id }, is_deleted: false },
+			MessageService.readMany(
+				{
+					_id: { $in: [].concat(...conversationReadResponse.data.map((array) => array.messages)) },
+					user: { $ne: req.user._id },
+					is_deleted: false,
+				},
 				{
 					pagination: false,
 					sort: { was_read: "asc", created_at: "desc" },
 					populate: [
 						{ path: "conversation", select: "-users -messages" },
-						{ path: "user", select: "account email is_active", populate: [{ path: "account.picture", select: "path name" }, { path: "account.picture_sm", select: "path name" }, { path: "account.picture_md", select: "path name" }, { path: "account.picture_lg", select: "path name" }] }
-					]
+						{
+							path: "user",
+							select: "account email is_active",
+							populate: [
+								{ path: "account.picture", select: "path name" },
+								{ path: "account.picture_sm", select: "path name" },
+								{ path: "account.picture_md", select: "path name" },
+								{ path: "account.picture_lg", select: "path name" },
+							],
+						},
+					],
 				}
 			)
 		);
@@ -169,7 +179,13 @@ app.use(async (req, res, next) => {
 });
 // after successful login, redirect back to the intended page.
 app.use((req, res, next) => {
-	if (!req.user && req.path !== "/auth/login" && req.path !== "/auth/register" && !req.path.match(/^\/auth/) && !req.path.match(/\./)) {
+	if (
+		!req.user
+		&& req.path !== "/auth/login"
+		&& req.path !== "/auth/register"
+		&& !req.path.match(/^\/auth/)
+		&& !req.path.match(/\./)
+	) {
 		req.session.returnTo = req.originalUrl;
 	} else if (req.user && (req.path === "/auth/profile" || req.path.match(/^\/api/))) {
 		req.session.returnTo = req.originalUrl;
@@ -227,12 +243,11 @@ app.use((req, res, next) => {
 app.use(
 	_.isEqual(process.env.NODE_ENV.trim(), "development")
 		? errorHandler()
-		// eslint-disable-next-line no-unused-vars
-		: (err, req, res, next) => {
+		: (err, req, res) => {
 			const { status = 500 } = err.status;
 			res.status(status).render("error-handler", {
 				page_title: `${err.status} ${err.message}`,
-				error: { status: err.status, message: err.message }
+				error: { status: err.status, message: err.message },
 			});
 		}
 );

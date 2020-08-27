@@ -6,30 +6,35 @@ import mongoose from "mongoose";
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
 //
-const EmailSchema = new mongoose.Schema({
-	from: {
-		type: String,
-		index: true,
-		lowercase: true,
-		trim: true,
-		validate: [validator.isEmail, "Invalid Email Address"]
+const EmailSchema = new mongoose.Schema(
+	{
+		from: {
+			type: String,
+			index: true,
+			lowercase: true,
+			trim: true,
+			validate: [validator.isEmail, "Invalid Email Address"],
+		},
+		to: [
+			{
+				type: String,
+				index: true,
+				lowercase: true,
+				trim: true,
+				validate: [validator.isEmail, "Invalid Email Address"],
+			},
+		],
+		subject: { type: String, required: true },
+		html: { type: String },
+		text: { type: String },
 	},
-	to: [{
-		type: String,
-		index: true,
-		lowercase: true,
-		trim: true,
-		validate: [validator.isEmail, "Invalid Email Address"]
-	}],
-	subject: { type: String, required: true },
-	html: { type: String },
-	text: { type: String }
-}, {
-	timestamps: {
-		createdAt: "created_at",
-		updatedAt: "updated_at"
+	{
+		timestamps: {
+			createdAt: "created_at",
+			updatedAt: "updated_at",
+		},
 	}
-});
+);
 
 //
 // ─── SCHEMA PLUGINS ─────────────────────────────────────────────────────────────

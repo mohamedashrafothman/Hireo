@@ -1,22 +1,21 @@
+/* eslint-disable import/no-cycle */
 import { isEmpty } from "lodash";
 import to from "await-to-js";
 import Service from "../utilities/Service";
+import Application from "../models/Application.model";
 
-import Job from "../models/Job.model";
 import JobService from "./Job";
 
-const jobService = new JobService(Job);
-
-export default class ApplicationService extends Service {
+class ApplicationService extends Service {
 	constructor(model) {
 		super(model);
 		this.isAppliedBefore = this.isAppliedBefore.bind(this);
+		this.unSeenApplicationsByUser = this.unSeenApplicationsByUser.bind(this);
 	}
 
 	async isAppliedBefore(job_id, created_by_id) {
 		const [applicationErrors, application] = await to(
-			this.model
-				.findOne({ job: job_id, created_by: created_by_id })
+			this.model.findOne({ job: job_id, created_by: created_by_id })
 		);
 		if (applicationErrors) return { error: true, statusCode: 500, errors: applicationErrors };
 		if (!isEmpty(application)) {
@@ -26,9 +25,9 @@ export default class ApplicationService extends Service {
 	}
 
 	async unSeenApplicationsByUser(user) {
-		const jobReadResponse = await jobService.readMany(
+		const jobReadResponse = await JobService.readMany(
 			{
-				...(user && user.role !== "admin" && { created_by: user._id })
+				...(user && user.role !== "admin" && { created_by: user._id }),
 			},
 			{ pagination: false }
 		);
@@ -41,3 +40,5 @@ export default class ApplicationService extends Service {
 		return unSeenApplicationsResponse;
 	}
 }
+
+export default new ApplicationService(Application);

@@ -1,6 +1,13 @@
+/* eslint-disable import/no-cycle */
 import slug from "mongoose-slug-updater";
 import mongoosePagination from "mongoose-paginate-v2";
 import mongoose from "mongoose";
+
+import JobService from "../services/Job";
+import UserService from "../services/User";
+import CategoryService from "../services/Category";
+import ApplicationService from "../services/Application";
+import AttachmentService from "../services/Attachment";
 
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
@@ -66,8 +73,63 @@ const JobSchema = new mongoose.Schema(
 //
 // ─── SCHEMA PLUGIN ──────────────────────────────────────────────────────────────
 //
+const preFindMethod = async function (next) {
+	this.populate([
+		{ path: "type" },
+		{ path: "attachments", select: "_id base extname path name" },
+		{ path: "category", select: "_id name parent children" },
+		{
+			path: "created_by",
+			select:
+				"_id rating email is_verified slug account.name account.picture account.picture_sm account.picture_md account.picture_lg profile.nationality",
+		},
+		{ path: "application", select: "created_by" },
+	]);
+	next();
+};
+
+const preDeleteOneMethod = async function (next) {
+	const readJobResponse = await JobService.readOne(this.getQuery());
+	if (readJobResponse?.error) return next(readJobResponse?.errors);
+
+	if (readJobResponse?.data?.created_by?._id) {
+		const updateUserResponse = await UserService.updateOne(
+			{ _id: readJobResponse?.data?.created_by?._id },
+			{ $pull: { jobs: readJobResponse?.data?.id } }
+		);
+		if (updateUserResponse?.error) return next(updateUserResponse?.errors);
+	}
+
+	if (readJobResponse?.data?.attachments?.length) {
+		const deleteAttachmentResponse = await AttachmentService.deleteMany({
+			_id: { $in: readJobResponse?.data?.attachments?.map((attachment) => attachment._id) },
+		});
+		if (deleteAttachmentResponse?.error) return next(deleteAttachmentResponse?.errors);
+	}
+
+	if (readJobResponse?.data?.category?._id) {
+		const updateCategoryResponse = await CategoryService.updateOne(
+			{ _id: readJobResponse?.data?.id },
+			{ $pull: { jobs: readJobResponse?.data?.category?._id } }
+		);
+		if (updateCategoryResponse?.error) return next(updateCategoryResponse?.errors);
+	}
+
+	if (readJobResponse?.data?.applications?.length) {
+		const deleteApplicationResponse = await ApplicationService.deleteMany({
+			_id: { $in: readJobResponse?.data?.applications?.map((application) => application._id) },
+		});
+		if (deleteApplicationResponse?.error) return next(deleteApplicationResponse?.errors);
+	}
+
+	next();
+};
+
 JobSchema.plugin(mongoosePagination);
 JobSchema.plugin(slug);
+JobSchema.pre("find", preFindMethod);
+JobSchema.pre("findOne", preFindMethod);
+JobSchema.pre("deleteOne", preDeleteOneMethod);
 
 //
 // ─── SCHEMA MODEL ───────────────────────────────────────────────────────────────

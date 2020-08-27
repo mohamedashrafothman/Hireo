@@ -3,8 +3,9 @@ import fs from "fs";
 import url from "url";
 import Service from "../utilities/Service";
 import StorageEngine from "../utilities/StorageEngine";
+import Attachment from "../models/Attachment.model";
 
-export default class AttachmentService extends Service {
+class AttachmentService extends Service {
 	constructor(model) {
 		super(model);
 		this.handelFilesForDBCreation = this.handelFilesForDBCreation.bind(this);
@@ -22,35 +23,62 @@ export default class AttachmentService extends Service {
 		return files.map((file) => {
 			const nameParser = file.filename.split(".");
 			const upload_path = this.options.upload_path.split(this.options.responsive ? path.sep : "/");
-			const url_Path = (size) => path.join(
-				`${upload_path.slice(1, upload_path.length).join(this.options.responsive ? path.sep : "/")}`,
-				(size)
-					? `${file.filename.split("_").slice(0, file.filename.split("_").length - 1)}_${size}.${nameParser.slice(nameParser.length - 1)}`
-					: file.filename
-			).replace(/[\\\/]+/g, this.options.responsive ? path.sep : "/").replace(/^[\/]+/g, "");
-			const dir = path.join(`${upload_path.slice(1, upload_path.length).join(this.options.responsive ? path.sep : "/")}`).replace(/[\\\/]+/g, this.options.responsive ? path.sep : "/").replace(/^[\/]+/g, "");
+			const url_Path = (size) => path
+				.join(
+					`${upload_path.slice(1, upload_path.length).join(this.options.responsive ? path.sep : "/")}`,
+					size
+						? `${file.filename
+							.split("_")
+							.slice(0, file.filename.split("_").length - 1)}_${size}.${nameParser.slice(
+							nameParser.length - 1
+						)}`
+						: file.filename
+				)
+				.replace(/[\\\/]+/g, this.options.responsive ? path.sep : "/")
+				.replace(/^[\/]+/g, "");
+			const dir = path
+				.join(`${upload_path.slice(1, upload_path.length).join(this.options.responsive ? path.sep : "/")}`)
+				.replace(/[\\\/]+/g, this.options.responsive ? path.sep : "/")
+				.replace(/^[\/]+/g, "");
 
-			const file_data = (this.options.responsive && this.options.sizes.length > 0)
+			const file_data =				this.options.responsive && this.options.sizes.length > 0
 				? this.options.sizes.map((size) => ({
-					path: (process.env.NODE_ENV.trim() === "development") ? `${url_Path(size)}` : `${base}/${url_Path()}`,
-					dir: (process.env.NODE_ENV.trim() === "development") ? `${dir}` : `${base}/${dir}`,
-					name: `${file.filename.split("_").slice(0, file.filename.split("_").length - 1)}_${size}.${nameParser.slice(nameParser.length - 1)}`,
+					path:
+								process.env.NODE_ENV.trim() === "development"
+									? `${url_Path(size)}`
+									: `${base}/${url_Path()}`,
+					dir: process.env.NODE_ENV.trim() === "development" ? `${dir}` : `${base}/${dir}`,
+					name: `${file.filename
+						.split("_")
+						.slice(0, file.filename.split("_").length - 1)}_${size}.${nameParser.slice(
+						nameParser.length - 1
+					)}`,
 					extname: `${nameParser.slice(nameParser.length - 1)}`,
-					base: `${file.filename.split("_").slice(0, file.filename.split("_").length - 1)}_${size}`
-				})) : [{
-					path: (process.env.NODE_ENV.trim() === "development") ? `${url_Path()}` : `${base}/${url_Path()}`,
-					dir: (process.env.NODE_ENV.trim() === "development") ? `${dir}` : `${base}/${dir}`,
-					name: file.filename,
-					extname: `${nameParser.slice(nameParser.length - 1)}`,
-					base: `${nameParser.slice(0, nameParser.length - 1)}`
-				}];
+					base: `${file.filename.split("_").slice(0, file.filename.split("_").length - 1)}_${size}`,
+				}))
+				: [
+					{
+						path:
+									process.env.NODE_ENV.trim() === "development"
+										? `${url_Path()}`
+										: `${base}/${url_Path()}`,
+						dir: process.env.NODE_ENV.trim() === "development" ? `${dir}` : `${base}/${dir}`,
+						name: file.filename,
+						extname: `${nameParser.slice(nameParser.length - 1)}`,
+						base: `${nameParser.slice(0, nameParser.length - 1)}`,
+					},
+				];
 			return file_data;
 		});
 	}
 
 	async handelFilesForDirDeletion(filePaths) {
 		if (!Array.isArray(filePaths)) {
-			return { error: true, statusCode: 500, errors: ["handelFilesForDirDeletion() method takes paths in an array format"] };
+			return {
+				error: true,
+				statusCode: 500,
+				errors: ["handelFilesForDirDeletion() method takes paths in an array format"],
+			};
 		}
 
 		filePaths.filter(Boolean).forEach(async (file) => {
@@ -69,3 +97,5 @@ export default class AttachmentService extends Service {
 		return { error: false, statusCode: 200, data: {} };
 	}
 }
+
+export default new AttachmentService(Attachment);

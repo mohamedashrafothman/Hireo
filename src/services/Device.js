@@ -1,7 +1,10 @@
 import Service from "../utilities/Service";
+import Device from "../models/Device.model";
 
-export default class DeviceService extends Service {
+class DeviceService extends Service {
 	constructor(model) {
 		super(model);
 	}
 }
+
+export default new DeviceService(Device);

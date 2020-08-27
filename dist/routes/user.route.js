@@ -30,7 +30,7 @@ router.route("/forgot").get(_User["default"].isLoggedIn, _User["default"].getFor
 router.route("/reset/:token").get(_User["default"].isLoggedIn, _User["default"].getResetPassword).post(_User["default"].isLoggedIn, _User["default"].validator("reset password"), _User["default"].resetPassword);
 router.route("/verify/:email/:hash").get(_User["default"].verifyUser);
 router.route("/logout").get(_User["default"].isAuthenticated, _User["default"].logoutUser);
-router.route("/delete/:id").get(_User["default"].isAuthenticated, (0, _permission["default"])(["freelancer", "employer"]), _User["default"].deleteUser);
+router.route("/delete/:id").get(_User["default"].isAuthenticated, _User["default"].deleteUser);
 router.route("/status").put(_User["default"].isAuthenticated, _User["default"].changeAvailabilityStatus);
 router.route("/verification/:id").get(_User["default"].isAuthenticated, (0, _permission["default"])(["admin"]), _User["default"].changeVerificationStatus); //
 // ─── OAUTH BREAKPOINTS ─────────────────────────────────────────────────────────────

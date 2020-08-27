@@ -29,17 +29,11 @@ var _expressValidator = require("express-validator");
 
 var _Controller2 = _interopRequireDefault(require("../utilities/Controller"));
 
-var _Post = _interopRequireDefault(require("../models/Post.model"));
+var _Post = _interopRequireDefault(require("../services/Post"));
 
-var _Device = _interopRequireDefault(require("../models/Device.model"));
+var _Device = _interopRequireDefault(require("../services/Device"));
 
-var _Comment = _interopRequireDefault(require("../models/Comment.model"));
-
-var _Post2 = _interopRequireDefault(require("../services/Post"));
-
-var _Device2 = _interopRequireDefault(require("../services/Device"));
-
-var _Comment2 = _interopRequireDefault(require("../services/Comment"));
+var _Comment = _interopRequireDefault(require("../services/Comment"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -48,10 +42,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var postService = new _Post2["default"](_Post["default"]);
-var deviceService = new _Device2["default"](_Device["default"]);
-var commentService = new _Comment2["default"](_Comment["default"]);
 
 var CommentController = /*#__PURE__*/function (_Controller) {
   (0, _inherits2["default"])(CommentController, _Controller);
@@ -127,7 +117,7 @@ var CommentController = /*#__PURE__*/function (_Controller) {
 
               case 12:
                 _context.next = 14;
-                return deviceService.create({
+                return _Device["default"].create({
                   ip: client_ip,
                   source: req.useragent.source,
                   browser: {
@@ -170,7 +160,7 @@ var CommentController = /*#__PURE__*/function (_Controller) {
 
               case 22:
                 _context.next = 24;
-                return postService.updateOne({
+                return _Post["default"].updateOne({
                   _id: post_id
                 }, {
                   $push: {
@@ -261,6 +251,6 @@ var CommentController = /*#__PURE__*/function (_Controller) {
   return CommentController;
 }(_Controller2["default"]);
 
-var _default = new CommentController(commentService);
+var _default = new CommentController(_Comment["default"]);
 
 exports["default"] = _default;

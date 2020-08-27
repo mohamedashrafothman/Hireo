@@ -14,16 +14,13 @@ var _passportFacebook = _interopRequireDefault(require("passport-facebook"));
 
 var _passportGoogleOauth = _interopRequireDefault(require("passport-google-oauth20"));
 
-var _User = _interopRequireDefault(require("../models/User.model"));
+var _User = _interopRequireDefault(require("../services/User"));
 
-var _User2 = _interopRequireDefault(require("../services/User"));
+var _User2 = _interopRequireDefault(require("../controllers/User.controller"));
 
-var _User3 = _interopRequireDefault(require("../controllers/User.controller"));
-
-var userService = new _User2["default"](_User["default"]); //
+//
 // ─── SERIALIZE AND DESERIALIZE ──────────────────────────────────────────────────
 //
-
 _passport["default"].serializeUser(function (user, done) {
   done(null, user.id);
 });
@@ -36,7 +33,7 @@ _passport["default"].deserializeUser( /*#__PURE__*/function () {
         switch (_context.prev = _context.next) {
           case 0:
             _context.next = 2;
-            return userService.deserialize(id);
+            return _User["default"].deserialize(id);
 
           case 2:
             userDeserializeResponse = _context.sent;
@@ -61,7 +58,7 @@ _passport["default"].deserializeUser( /*#__PURE__*/function () {
 _passport["default"].use(new _passportLocal["default"]({
   usernameField: "email",
   passwordField: "password"
-}, _User3["default"].passportLocalStrategy)); //
+}, _User2["default"].passportLocalStrategy)); //
 // ─── SIGN IN USING FACEBOOK ─────────────────────────────────────────────────────
 //
 
@@ -72,7 +69,7 @@ _passport["default"].use(new _passportFacebook["default"]({
   callbackURL: process.env.FACEBOOK_CALLBACK_URL,
   profileFields: ["name", "email", "link", "locale", "timezone", "gender"],
   passReqToCallback: true
-}, _User3["default"].passportFacebookStrategy)); //
+}, _User2["default"].passportFacebookStrategy)); //
 // ─── SIGN IN USING GOOGLE ───────────────────────────────────────────────────────
 //
 
@@ -83,4 +80,4 @@ _passport["default"].use(new _passportGoogleOauth["default"]({
   callbackURL: process.env.GOOGLE_CALLBACK_URL,
   scope: ["r_basicprofile", "r_emailaddress"],
   passReqToCallback: true
-}, _User3["default"].passportGoogleStrategy));
+}, _User2["default"].passportGoogleStrategy));

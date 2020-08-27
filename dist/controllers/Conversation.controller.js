@@ -29,13 +29,9 @@ var _lodash = require("lodash");
 
 var _Controller2 = _interopRequireDefault(require("../utilities/Controller"));
 
-var _Message = _interopRequireDefault(require("../models/Message.model"));
+var _Message = _interopRequireDefault(require("../services/Message"));
 
-var _Conversation = _interopRequireDefault(require("../models/Conversation.model"));
-
-var _Message2 = _interopRequireDefault(require("../services/Message"));
-
-var _Conversation2 = _interopRequireDefault(require("../services/Conversation"));
+var _Conversation = _interopRequireDefault(require("../services/Conversation"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -44,9 +40,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var messageService = new _Message2["default"](_Message["default"]);
-var conversationService = new _Conversation2["default"](_Conversation["default"]);
 
 var ConversationController = /*#__PURE__*/function (_Controller) {
   (0, _inherits2["default"])(ConversationController, _Controller);
@@ -227,7 +220,7 @@ var ConversationController = /*#__PURE__*/function (_Controller) {
 
               case 14:
                 _context2.next = 16;
-                return messageService.updateMany({
+                return _Message["default"].updateMany({
                   conversation: conversationReadResponse.data._id,
                   created_at: {
                     $lt: new Date()
@@ -269,6 +262,6 @@ var ConversationController = /*#__PURE__*/function (_Controller) {
   return ConversationController;
 }(_Controller2["default"]);
 
-var _default = new ConversationController(conversationService);
+var _default = new ConversationController(_Conversation["default"]);
 
 exports["default"] = _default;

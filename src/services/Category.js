@@ -1,7 +1,8 @@
 import { isEmpty } from "lodash";
 import Service from "../utilities/Service";
+import Category from "../models/Category.model";
 
-export default class CategoryService extends Service {
+class CategoryService extends Service {
 	constructor(model) {
 		super(model);
 		this.addCategory = this.addCategory.bind(this);
@@ -65,3 +66,5 @@ export default class CategoryService extends Service {
 		return updatedCategory;
 	}
 }
+
+export default new CategoryService(Category);

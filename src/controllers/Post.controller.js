@@ -3,23 +3,11 @@ import { isEmpty } from "lodash";
 import { body, validationResult } from "express-validator";
 import Controller from "../utilities/Controller";
 
-import Post from "../models/Post.model";
-import User from "../models/User.model";
-import Device from "../models/Device.model";
-import Category from "../models/Category.model";
-import Attachment from "../models/Attachment.model";
-
 import PostService from "../services/Post";
 import UserService from "../services/User";
 import DeviceService from "../services/Device";
 import CategoryService from "../services/Category";
 import AttachmentService from "../services/Attachment";
-
-const postService = new PostService(Post);
-const userService = new UserService(User);
-const deviceService = new DeviceService(Device);
-const categoryService = new CategoryService(Category);
-const attachmentService = new AttachmentService(Attachment);
 
 class PostController extends Controller {
 	constructor(service) {
@@ -40,22 +28,12 @@ class PostController extends Controller {
 		case "add post":
 		case "edit post":
 			return [
-				body("title")
-					.notEmpty()
-					.withMessage("Post title can't be empty!")
-					.trim()
+				body("title").notEmpty().withMessage("Post title can't be empty!").trim()
 					.escape(),
-				body("content")
-					.notEmpty()
-					.withMessage("Post content can't be empty!")
-					.trim()
+				body("content").notEmpty().withMessage("Post content can't be empty!").trim()
 					.escape(),
-				body("category")
-					.notEmpty()
-					.withMessage("Job category can't be empty!"),
-				body("tags")
-					.isArray({ min: 1, max: 10 })
-					.withMessage("Tags count shall be 10 tag"),
+				body("category").notEmpty().withMessage("Job category can't be empty!"),
+				body("tags").isArray({ min: 1, max: 10 }).withMessage("Tags count shall be 10 tag"),
 			];
 		default:
 			return [];
@@ -71,32 +49,22 @@ class PostController extends Controller {
 					$or: [
 						{
 							title: {
-								$regex:
-									query.q
-										.split(" ")
-										.filter(Boolean)
-										.join("|") || "",
+								$regex: query.q.split(" ").filter(Boolean).join("|") || "",
 								$options: "i",
 							},
 						},
 						{
 							content: {
-								$regex:
-									query.q
-										.split(" ")
-										.filter(Boolean)
-										.join("|") || "",
+								$regex: query.q.split(" ").filter(Boolean).join("|") || "",
 								$options: "i",
 							},
 						},
 					],
 				}),
-				...(query?.tags
-					&& query.tags.length && { tags: { $in: query.tags } }),
+				...(query?.tags && query.tags.length && { tags: { $in: query.tags } }),
 			},
 			{
-				select:
-					"title tags content thumbnail _id created_by created_at slug",
+				select: "title tags content thumbnail _id created_by created_at slug",
 				populate: [
 					{ path: "category", select: "name" },
 					{ path: "thumbnail.sm", select: "path name _id" },
@@ -110,9 +78,11 @@ class PostController extends Controller {
 			return next(recentPostsReadResponse.errors);
 		}
 
-		const getTrendingPostsByViewsResponse = await this.service.getTrendingPostsByViews(
-			{ limit: 3, days: 30, query }
-		);
+		const getTrendingPostsByViewsResponse = await this.service.getTrendingPostsByViews({
+			limit: 3,
+			days: 30,
+			query,
+		});
 		if (getTrendingPostsByViewsResponse.error) {
 			return next(getTrendingPostsByViewsResponse.errors);
 		}
@@ -143,9 +113,7 @@ class PostController extends Controller {
 
 	async getPostPage(req, res, next) {
 		const { slug } = req.params;
-		const getSinglePostBySlugResponse = await this.service.getSinglePostPageBySlug(
-			slug
-		);
+		const getSinglePostBySlugResponse = await this.service.getSinglePostPageBySlug(slug);
 		if (getSinglePostBySlugResponse.error) {
 			if (getSinglePostBySlugResponse.statusCode === 404) {
 				return next();
@@ -153,9 +121,7 @@ class PostController extends Controller {
 			return next(getSinglePostBySlugResponse.errors);
 		}
 
-		const getTrendingPostsByViewsResponse = await this.service.getTrendingPostsByViews(
-			{ limit: 3, days: 7 }
-		);
+		const getTrendingPostsByViewsResponse = await this.service.getTrendingPostsByViews({ limit: 3, days: 7 });
 		if (getTrendingPostsByViewsResponse.error) {
 			return next(getTrendingPostsByViewsResponse.errors);
 		}
@@ -171,16 +137,14 @@ class PostController extends Controller {
 		}
 
 		// checking for user views in last month.
-		const client_ip =			req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-		const deviceReadResponse = await deviceService.readMany(
+		const client_ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+		const deviceReadResponse = await DeviceService.readMany(
 			{
 				post: getSinglePostBySlugResponse.data.post._id,
 				ip: client_ip,
 				"browser.name": req.useragent.browser,
 				created_at: {
-					$gte: new Date(
-						new Date().getTime() - 1000 * 60 * 60 * 24 * 1
-					), // last day
+					$gte: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 1), // last day
 					$lte: new Date(),
 				},
 			},
@@ -189,7 +153,7 @@ class PostController extends Controller {
 		if (deviceReadResponse.error) return next(deviceReadResponse.errors);
 
 		if (deviceReadResponse.data.length < 1) {
-			const devicesCreateResponse = await deviceService.create({
+			const devicesCreateResponse = await DeviceService.create({
 				post: getSinglePostBySlugResponse.data.post._id,
 				ip: client_ip,
 				source: req.useragent.source,
@@ -235,21 +199,13 @@ class PostController extends Controller {
 				$or: [
 					{
 						title: {
-							$regex:
-								req.query.q
-									.split(" ")
-									.filter(Boolean)
-									.join("|") || "",
+							$regex: req.query.q.split(" ").filter(Boolean).join("|") || "",
 							$options: "i",
 						},
 					},
 					{
 						content: {
-							$regex:
-								req.query.q
-									.split(" ")
-									.filter(Boolean)
-									.join("|") || "",
+							$regex: req.query.q.split(" ").filter(Boolean).join("|") || "",
 							$options: "i",
 						},
 					},
@@ -275,24 +231,16 @@ class PostController extends Controller {
 		const postsReadResponse = await this.service.readMany(query, options);
 		if (postsReadResponse.error) return next(postsReadResponse.errors);
 
-		if (
-			!postsReadResponse.data.length
-			&& postsReadResponse.offset === undefined
-			&& postsReadResponse.page !== 1
-		) {
+		if (!postsReadResponse.data.length && postsReadResponse.offset === undefined && postsReadResponse.page !== 1) {
 			req.flash(
 				"info",
-				`Hey! you asked for page ${
-					req.query.page || 1
-				}. But that doesn't exist. So i put you on page ${
+				`Hey! you asked for page ${req.query.page || 1}. But that doesn't exist. So i put you on page ${
 					postsReadResponse.pages
 				}.`
 			);
 			return res
 				.status(postsReadResponse.statusCode)
-				.redirect(
-					`/dashboard/jobs/list?page=${postsReadResponse.pages}`
-				);
+				.redirect(`/dashboard/jobs/list?page=${postsReadResponse.pages}`);
 		}
 
 		res.render("dashboard/blogs/list", {
@@ -304,7 +252,7 @@ class PostController extends Controller {
 	}
 
 	async getAddPosts(req, res, next) {
-		const categoriesListResponse = await categoryService.readMany(
+		const categoriesListResponse = await CategoryService.readMany(
 			{ parent: { $exists: false } },
 			{
 				select: "id children icon name",
@@ -326,7 +274,7 @@ class PostController extends Controller {
 	async getEditPosts(req, res, next) {
 		const { slug } = req.params;
 
-		const categoriesListResponse = await categoryService.readMany(
+		const categoriesListResponse = await CategoryService.readMany(
 			{ parent: { $exists: false } },
 			{
 				select: "id children icon name",
@@ -354,15 +302,13 @@ class PostController extends Controller {
 	}
 
 	async uploadAttachment(req, res, next) {
-		const storageEngine = attachmentService.initStorageEngine({
+		const storageEngine = AttachmentService.initStorageEngine({
 			accept: ["image"],
 			square: false,
 			responsive: true,
 			fileHashName: true,
 			quality: 2,
-			upload_path: `${
-				process.env.UPLOAD_STORAGE
-			}/posts/${new Date().getFullYear()}/${
+			upload_path: `${process.env.UPLOAD_STORAGE}/posts/${new Date().getFullYear()}/${
 				new Date().getMonth() + 1
 			}/${new Date().getDate()}/${req.user._id}`,
 			upload_base_path: `/${req.user._id}`,
@@ -372,14 +318,11 @@ class PostController extends Controller {
 			storage: storageEngine,
 			limits: {
 				files: 1, // allow only 2 files per request
-				fileSize:
-					1024 * 1024 * Number(process.env.ATTACHMENT_MAX_SIZE_IN_MB), // 5 MB (max file size)
+				fileSize: 1024 * 1024 * Number(process.env.ATTACHMENT_MAX_SIZE_IN_MB), // 5 MB (max file size)
 			},
 			fileFilter: (request, file, cb) => {
 				// supported image file mimeTypes
-				const isFileTypeValid = storageEngine.options.accept.includes(
-					file.mimetype.split("/")[0]
-				);
+				const isFileTypeValid = storageEngine.options.accept.includes(file.mimetype.split("/")[0]);
 				if (isFileTypeValid) {
 					// allow supported image files
 					cb(null, true);
@@ -405,7 +348,7 @@ class PostController extends Controller {
 		if (!errors.isEmpty()) {
 			const err = errors.array();
 			req.flash("error", err);
-			const categoriesListResponse = await categoryService.readMany(
+			const categoriesListResponse = await CategoryService.readMany(
 				{ parent: { $exists: false } },
 				{
 					select: "id children icon name",
@@ -428,19 +371,12 @@ class PostController extends Controller {
 		const savedAttachments = [];
 		if (req.body.files.length) {
 			const port = req.app.get("port");
-			const base = `${req.protocol}://${req.hostname}${
-				port ? `:${port}` : ""
-			}`;
+			const base = `${req.protocol}://${req.hostname}${port ? `:${port}` : ""}`;
 
-			const files = attachmentService.handelFilesForDBCreation(
-				req.body.files,
-				base
-			)[0];
+			const files = AttachmentService.handelFilesForDBCreation(req.body.files, base)[0];
 
 			for (let i = 0; i < files.length; i++) {
-				const fileCreationResponse = await attachmentService.create(
-					files[i]
-				);
+				const fileCreationResponse = await AttachmentService.create(files[i]);
 				if (fileCreationResponse.error) {
 					return next(fileCreationResponse.errors);
 				}
@@ -449,13 +385,13 @@ class PostController extends Controller {
 
 			req.body = {
 				...req.body,
-				"thumbnail.lg": attachmentService.options.responsive
+				"thumbnail.lg": AttachmentService.options.responsive
 					? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id
 					: null,
-				"thumbnail.md": attachmentService.options.responsive
+				"thumbnail.md": AttachmentService.options.responsive
 					? savedAttachments.filter((file) => file.path.match(/^(.+?)_md\.(.+)$/i))[0]._id
 					: null,
-				"thumbnail.sm": attachmentService.options.responsive
+				"thumbnail.sm": AttachmentService.options.responsive
 					? savedAttachments.filter((file) => file.path.match(/^(.+?)_sm\.(.+)$/i))[0]._id
 					: null,
 			};
@@ -470,22 +406,20 @@ class PostController extends Controller {
 		const postCreateResponse = await this.service.create(req.body);
 		if (postCreateResponse.error) return next(postCreateResponse.errors);
 
-		const categoryUpdatedResponse = await categoryService.updateOne(
+		const categoryUpdatedResponse = await CategoryService.updateOne(
 			{ _id: postCreateResponse.data.category },
 			{ $addToSet: { posts: postCreateResponse.data._id } }
 		);
 		if (categoryUpdatedResponse.error) return categoryUpdatedResponse;
 
-		const updatedUserResponse = await userService.updateOne(
+		const updatedUserResponse = await UserService.updateOne(
 			{ _id: postCreateResponse.data.created_by },
 			{ $addToSet: { posts: postCreateResponse.data._id } }
 		);
 		if (updatedUserResponse.error) return updatedUserResponse;
 
 		req.flash("success", "New Post added successfully");
-		res.status(postCreateResponse.statusCode).redirect(
-			"/dashboard/posts/list"
-		);
+		res.status(postCreateResponse.statusCode).redirect("/dashboard/posts/list");
 	}
 
 	async editPost(req, res, next) {
@@ -496,7 +430,7 @@ class PostController extends Controller {
 			const err = errors.array();
 			req.flash("error", err);
 
-			const categoriesListResponse = await categoryService.readMany(
+			const categoriesListResponse = await CategoryService.readMany(
 				{ parent: { $exists: false } },
 				{
 					select: "id children icon name",
@@ -527,19 +461,12 @@ class PostController extends Controller {
 		const savedAttachments = [];
 		if (req.body.files.length) {
 			const port = req.app.get("port");
-			const base = `${req.protocol}://${req.hostname}${
-				port ? `:${port}` : ""
-			}`;
+			const base = `${req.protocol}://${req.hostname}${port ? `:${port}` : ""}`;
 
-			const files = attachmentService.handelFilesForDBCreation(
-				req.body.files,
-				base
-			)[0];
+			const files = AttachmentService.handelFilesForDBCreation(req.body.files, base)[0];
 
 			for (let i = 0; i < files.length; i++) {
-				const fileCreationResponse = await attachmentService.create(
-					files[i]
-				);
+				const fileCreationResponse = await AttachmentService.create(files[i]);
 				if (fileCreationResponse.error) {
 					return next(fileCreationResponse.errors);
 				}
@@ -548,13 +475,13 @@ class PostController extends Controller {
 
 			req.body = {
 				...req.body,
-				"thumbnail.lg": attachmentService.options.responsive
+				"thumbnail.lg": AttachmentService.options.responsive
 					? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id
 					: null,
-				"thumbnail.md": attachmentService.options.responsive
+				"thumbnail.md": AttachmentService.options.responsive
 					? savedAttachments.filter((file) => file.path.match(/^(.+?)_md\.(.+)$/i))[0]._id
 					: null,
-				"thumbnail.sm": attachmentService.options.responsive
+				"thumbnail.sm": AttachmentService.options.responsive
 					? savedAttachments.filter((file) => file.path.match(/^(.+?)_sm\.(.+)$/i))[0]._id
 					: null,
 			};
@@ -583,7 +510,7 @@ class PostController extends Controller {
 			return next(postUpdateResponse.errors);
 		}
 
-		const categoryUpdateResponse = await categoryService.updateOne(
+		const categoryUpdateResponse = await CategoryService.updateOne(
 			{ _id: postUpdateResponse.data.category },
 			{ $addToSet: { posts: postUpdateResponse.data._id } }
 		);
@@ -591,19 +518,14 @@ class PostController extends Controller {
 			return next(categoryUpdateResponse.errors);
 		}
 
-		const userUpdateResponse = await userService.updateOne(
+		const userUpdateResponse = await UserService.updateOne(
 			{ _id: req.user._id },
 			{ $addToSet: { posts: postUpdateResponse.data._id } }
 		);
 		if (userUpdateResponse.error) return next(userUpdateResponse.errors);
 
-		req.flash(
-			"success",
-			`successfully updated ${postUpdateResponse.data.title} data.`
-		);
-		res.status(postUpdateResponse.statusCode).redirect(
-			"/dashboard/posts/list"
-		);
+		req.flash("success", `successfully updated ${postUpdateResponse.data.title} data.`);
+		res.status(postUpdateResponse.statusCode).redirect("/dashboard/posts/list");
 	}
 
 	async deletePost(req, res, next) {
@@ -615,7 +537,7 @@ class PostController extends Controller {
 			return next(postDeleteResponse.errors);
 		}
 
-		const categoryUpdateResponse = await categoryService.updateOne(
+		const categoryUpdateResponse = await CategoryService.updateOne(
 			{ _id: postDeleteResponse.data.category },
 			{ $pull: { posts: postDeleteResponse.data._id } }
 		);
@@ -623,7 +545,7 @@ class PostController extends Controller {
 			return next(categoryUpdateResponse.errors);
 		}
 
-		const userUpdateResponse = await userService.updateOne(
+		const userUpdateResponse = await UserService.updateOne(
 			{ _id: postDeleteResponse.data.created_by },
 			{ $pull: { posts: postDeleteResponse.data._id } }
 		);
@@ -635,14 +557,14 @@ class PostController extends Controller {
 			postDeleteResponse.data.thumbnail.sm,
 		];
 
-		const attachmentDeleteResponse = await attachmentService.deleteMany({
+		const attachmentDeleteResponse = await AttachmentService.deleteMany({
 			_id: { $in: attachments_ids },
 		});
 		if (attachmentDeleteResponse.error) {
 			return next(attachmentDeleteResponse.errors);
 		}
 
-		const attachmentFilesDeleteResponse = await attachmentService.handelFilesForDirDeletion(
+		const attachmentFilesDeleteResponse = await AttachmentService.handelFilesForDirDeletion(
 			attachmentDeleteResponse.data.map((current) => current.path)
 		);
 		if (attachmentFilesDeleteResponse.error) {
@@ -650,19 +572,16 @@ class PostController extends Controller {
 		}
 
 		// Delete all views documents
-		const devicesDeleteResponse = await deviceService.deleteMany({
+		const devicesDeleteResponse = await DeviceService.deleteMany({
 			post: postDeleteResponse.data._id,
 		});
 		if (devicesDeleteResponse.error) {
 			return next(devicesDeleteResponse.errors);
 		}
 
-		req.flash(
-			"success",
-			`${postDeleteResponse.data.title} Blog Post has been deleted!`
-		);
+		req.flash("success", `${postDeleteResponse.data.title} Blog Post has been deleted!`);
 		res.status(postDeleteResponse.statusCode).redirect("back");
 	}
 }
 
-export default new PostController(postService);
+export default new PostController(PostService);

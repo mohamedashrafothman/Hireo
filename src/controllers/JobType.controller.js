@@ -1,8 +1,5 @@
 import Controller from "../utilities/Controller";
-import JobType from "../models/Job_type.model";
 import JobTypeService from "../services/JobTypeService";
-
-const jobTypeService = new JobTypeService(JobType);
 
 class JobTypeController extends Controller {
 	constructor(service) {
@@ -10,4 +7,4 @@ class JobTypeController extends Controller {
 	}
 }
 
-export default new JobTypeController(jobTypeService);
+export default new JobTypeController(JobTypeService);

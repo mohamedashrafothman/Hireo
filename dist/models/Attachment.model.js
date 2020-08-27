@@ -47,59 +47,57 @@ var AttachmentSchema = new _mongoose["default"].Schema({
 
 AttachmentSchema.plugin(_mongoosePaginateV["default"]);
 
-function preDeleteMethod(_x) {
-  return _preDeleteMethod.apply(this, arguments);
-}
-
-function _preDeleteMethod() {
-  _preDeleteMethod = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(next) {
-    var attachmentService, attachmentReadResponse, attachmentFilesDeleteResponse;
+var preDeleteMethod = /*#__PURE__*/function () {
+  var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(next) {
+    var attachmentReadResponse, attachmentFilesDeleteResponse;
     return _regenerator["default"].wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            attachmentService = new _Attachment["default"](this.model);
-            _context.next = 3;
-            return attachmentService.readMany(this.getQuery());
+            _context.next = 2;
+            return _Attachment["default"].readMany(this.getQuery());
 
-          case 3:
+          case 2:
             attachmentReadResponse = _context.sent;
 
             if (!attachmentReadResponse.error) {
-              _context.next = 6;
+              _context.next = 5;
               break;
             }
 
             return _context.abrupt("return", next(attachmentReadResponse.errors));
 
-          case 6:
-            _context.next = 8;
-            return attachmentService.handelFilesForDirDeletion(attachmentReadResponse.data.map(function (attachment) {
+          case 5:
+            _context.next = 7;
+            return _Attachment["default"].handelFilesForDirDeletion(attachmentReadResponse.data.map(function (attachment) {
               return attachment.path;
             }));
 
-          case 8:
+          case 7:
             attachmentFilesDeleteResponse = _context.sent;
 
             if (!attachmentFilesDeleteResponse.error) {
-              _context.next = 11;
+              _context.next = 10;
               break;
             }
 
             return _context.abrupt("return", next(attachmentFilesDeleteResponse.errors));
 
-          case 11:
+          case 10:
             next();
 
-          case 12:
+          case 11:
           case "end":
             return _context.stop();
         }
       }
     }, _callee, this);
   }));
-  return _preDeleteMethod.apply(this, arguments);
-}
+
+  return function preDeleteMethod(_x) {
+    return _ref.apply(this, arguments);
+  };
+}();
 
 AttachmentSchema.pre("deleteOne", preDeleteMethod);
 AttachmentSchema.pre("deleteMany", preDeleteMethod); //

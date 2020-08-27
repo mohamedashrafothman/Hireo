@@ -1,7 +1,10 @@
 import Service from "../utilities/Service";
+import Message from "../models/Message.model";
 
-export default class MessageService extends Service {
+class MessageService extends Service {
 	constructor(model) {
 		super(model);
 	}
 }
+
+export default new MessageService(Message);

@@ -33,6 +33,8 @@ var _awaitToJs = _interopRequireDefault(require("await-to-js"));
 
 var _Service2 = _interopRequireDefault(require("../utilities/Service"));
 
+var _Job = _interopRequireDefault(require("../models/Job.model"));
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -51,8 +53,9 @@ var JobService = /*#__PURE__*/function (_Service) {
 
     (0, _classCallCheck2["default"])(this, JobService);
     _this = _super.call(this, model);
-    _this.getMinMax = _this.getMinMax.bind((0, _assertThisInitialized2["default"])(_this));
     _this.getTags = _this.getTags.bind((0, _assertThisInitialized2["default"])(_this));
+    _this.getMinMax = _this.getMinMax.bind((0, _assertThisInitialized2["default"])(_this));
+    _this.getBySlug = _this.getBySlug.bind((0, _assertThisInitialized2["default"])(_this));
     return _this;
   }
 
@@ -228,37 +231,6 @@ var JobService = /*#__PURE__*/function (_Service) {
                   }, _objectSpread({}, logged_in_user && {
                     created_by: logged_in_user._id
                   })]
-                }).populate({
-                  path: "created_by",
-                  select: "_id rating email is_verified slug account.name account.picture account.picture_sm account.picture_md account.picture_lg profile.nationality",
-                  populate: [{
-                    path: "profile.nationality",
-                    select: "name code -_id"
-                  }, {
-                    path: "account.picture",
-                    select: "path -_id"
-                  }, {
-                    path: "account.picture_sm",
-                    select: "path -_id"
-                  }, {
-                    path: "account.picture_md",
-                    select: "path -_id"
-                  }, {
-                    path: "account.picture_lg",
-                    select: "path -_id"
-                  }]
-                }).populate({
-                  path: "category",
-                  select: "name parent children"
-                }).populate({
-                  path: "type",
-                  select: "name slug"
-                }).populate({
-                  path: "applications",
-                  select: "created_by"
-                }).populate({
-                  path: "attachments",
-                  select: "_id base extname path name"
                 }));
 
               case 2:
@@ -315,4 +287,6 @@ var JobService = /*#__PURE__*/function (_Service) {
   return JobService;
 }(_Service2["default"]);
 
-exports["default"] = JobService;
+var _default = new JobService(_Job["default"]);
+
+exports["default"] = _default;

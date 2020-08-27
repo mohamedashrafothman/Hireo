@@ -75,32 +75,20 @@ var _CronJobs = _interopRequireDefault(require("../utilities/CronJobs"));
 
 var _Socket = _interopRequireDefault(require("../utilities/Socket"));
 
-var _Message = _interopRequireDefault(require("../models/Message.model"));
+var _Message = _interopRequireDefault(require("../services/Message"));
 
-var _Category = _interopRequireDefault(require("../models/Category.model"));
+var _Category = _interopRequireDefault(require("../services/Category"));
 
-var _Application = _interopRequireDefault(require("../models/Application.model"));
+var _Application = _interopRequireDefault(require("../services/Application"));
 
-var _Conversation = _interopRequireDefault(require("../models/Conversation.model"));
-
-var _Message2 = _interopRequireDefault(require("../services/Message"));
-
-var _Category2 = _interopRequireDefault(require("../services/Category"));
-
-var _Application2 = _interopRequireDefault(require("../services/Application"));
-
-var _Conversation2 = _interopRequireDefault(require("../services/Conversation"));
+var _Conversation = _interopRequireDefault(require("../services/Conversation"));
 
 var _index = _interopRequireDefault(require("../routes/index.route"));
 
 var _database = _interopRequireDefault(require("./database"));
 
 var MongoStore = (0, _connectMongo["default"])(_expressSession["default"]);
-var helper = new _Helper["default"]();
-var messageService = new _Message2["default"](_Message["default"]);
-var categoryService = new _Category2["default"](_Category["default"]);
-var applicationService = new _Application2["default"](_Application["default"]);
-var conversationService = new _Conversation2["default"](_Conversation["default"]); //
+var helper = new _Helper["default"](); //
 // ─── APP INSTANCE ───────────────────────────────────────────────────────────────
 //
 
@@ -189,7 +177,7 @@ app.use( /*#__PURE__*/function () {
         switch (_context.prev = _context.next) {
           case 0:
             _context.next = 2;
-            return (0, _awaitToJs["default"])(categoryService.readMany({
+            return (0, _awaitToJs["default"])(_Category["default"].readMany({
               parent: {
                 $exists: false
               }
@@ -220,7 +208,7 @@ app.use( /*#__PURE__*/function () {
 
           case 10:
             _context.next = 12;
-            return (0, _awaitToJs["default"])(applicationService.unSeenApplicationsByUser(req.user));
+            return (0, _awaitToJs["default"])(_Application["default"].unSeenApplicationsByUser(req.user));
 
           case 12:
             _yield$to3 = _context.sent;
@@ -250,7 +238,7 @@ app.use( /*#__PURE__*/function () {
             }
 
             _context.next = 23;
-            return (0, _awaitToJs["default"])(conversationService.readMany({
+            return (0, _awaitToJs["default"])(_Conversation["default"].readMany({
               users: req.user._id,
               is_deleted: false
             }, {
@@ -280,7 +268,7 @@ app.use( /*#__PURE__*/function () {
 
           case 31:
             _context.next = 33;
-            return (0, _awaitToJs["default"])(messageService.readMany({
+            return (0, _awaitToJs["default"])(_Message["default"].readMany({
               _id: {
                 $in: (_ref2 = []).concat.apply(_ref2, (0, _toConsumableArray2["default"])(conversationReadResponse.data.map(function (array) {
                   return array.messages;
@@ -426,8 +414,7 @@ app.use(function (req, res, next) {
   next(err);
 }); // handling errors based on environment [development, production].
 
-app.use(_lodash["default"].isEqual(process.env.NODE_ENV.trim(), "development") ? (0, _errorhandler["default"])() // eslint-disable-next-line no-unused-vars
-: function (err, req, res, next) {
+app.use(_lodash["default"].isEqual(process.env.NODE_ENV.trim(), "development") ? (0, _errorhandler["default"])() : function (err, req, res) {
   var _err$status$status = err.status.status,
       status = _err$status$status === void 0 ? 500 : _err$status$status;
   res.status(status).render("error-handler", {

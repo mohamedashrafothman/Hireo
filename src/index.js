@@ -6,7 +6,6 @@ import "./config/acl";
 import Pagination from "./config/pagination";
 import { server, app, DatabaseConnection } from "./config/server";
 
-
 //
 // ─── LISTEN TO SERVER ───────────────────────────────────────────────────────────
 //

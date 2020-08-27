@@ -33,6 +33,8 @@ var _lodash = require("lodash");
 
 var _Service2 = _interopRequireDefault(require("../utilities/Service"));
 
+var _Post = _interopRequireDefault(require("../models/Post.model"));
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -41,21 +43,21 @@ function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflec
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
-var Post = /*#__PURE__*/function (_Service) {
-  (0, _inherits2["default"])(Post, _Service);
+var PostService = /*#__PURE__*/function (_Service) {
+  (0, _inherits2["default"])(PostService, _Service);
 
-  var _super = _createSuper(Post);
+  var _super = _createSuper(PostService);
 
-  function Post(model) {
+  function PostService(model) {
     var _this;
 
-    (0, _classCallCheck2["default"])(this, Post);
+    (0, _classCallCheck2["default"])(this, PostService);
     _this = _super.call(this, model);
     _this.getTags = _this.getTags.bind((0, _assertThisInitialized2["default"])(_this));
     return _this;
   }
 
-  (0, _createClass2["default"])(Post, [{
+  (0, _createClass2["default"])(PostService, [{
     key: "getTags",
     value: function () {
       var _getTags = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(match_query) {
@@ -624,7 +626,9 @@ var Post = /*#__PURE__*/function (_Service) {
       return getTrendingPostsByViews;
     }()
   }]);
-  return Post;
+  return PostService;
 }(_Service2["default"]);
 
-exports["default"] = Post;
+var _default = new PostService(_Post["default"]);
+
+exports["default"] = _default;

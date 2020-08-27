@@ -3,10 +3,6 @@ import Controller from "../utilities/Controller";
 
 import SkillService from "../services/Skill";
 
-import Skill from "../models/Skill.model";
-
-const skillService = new SkillService(Skill);
-
 class SkillController extends Controller {
 	constructor(service) {
 		super(service);
@@ -169,4 +165,4 @@ class SkillController extends Controller {
 	}
 }
 
-export default new SkillController(skillService);
+export default new SkillController(SkillService);

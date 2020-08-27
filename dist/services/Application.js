@@ -33,9 +33,9 @@ var _awaitToJs = _interopRequireDefault(require("await-to-js"));
 
 var _Service2 = _interopRequireDefault(require("../utilities/Service"));
 
-var _Job = _interopRequireDefault(require("../models/Job.model"));
+var _Application = _interopRequireDefault(require("../models/Application.model"));
 
-var _Job2 = _interopRequireDefault(require("./Job"));
+var _Job = _interopRequireDefault(require("./Job"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -44,8 +44,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var jobService = new _Job2["default"](_Job["default"]);
 
 var ApplicationService = /*#__PURE__*/function (_Service) {
   (0, _inherits2["default"])(ApplicationService, _Service);
@@ -58,6 +56,7 @@ var ApplicationService = /*#__PURE__*/function (_Service) {
     (0, _classCallCheck2["default"])(this, ApplicationService);
     _this = _super.call(this, model);
     _this.isAppliedBefore = _this.isAppliedBefore.bind((0, _assertThisInitialized2["default"])(_this));
+    _this.unSeenApplicationsByUser = _this.unSeenApplicationsByUser.bind((0, _assertThisInitialized2["default"])(_this));
     return _this;
   }
 
@@ -141,7 +140,7 @@ var ApplicationService = /*#__PURE__*/function (_Service) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return jobService.readMany(_objectSpread({}, user && user.role !== "admin" && {
+                return _Job["default"].readMany(_objectSpread({}, user && user.role !== "admin" && {
                   created_by: user._id
                 }), {
                   pagination: false
@@ -193,4 +192,6 @@ var ApplicationService = /*#__PURE__*/function (_Service) {
   return ApplicationService;
 }(_Service2["default"]);
 
-exports["default"] = ApplicationService;
+var _default = new ApplicationService(_Application["default"]);
+
+exports["default"] = _default;

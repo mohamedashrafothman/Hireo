@@ -37,12 +37,6 @@ var _Message = _interopRequireDefault(require("../services/Message"));
 
 var _Conversation = _interopRequireDefault(require("../services/Conversation"));
 
-var _User2 = _interopRequireDefault(require("../models/User.model"));
-
-var _Message2 = _interopRequireDefault(require("../models/Message.model"));
-
-var _Conversation2 = _interopRequireDefault(require("../models/Conversation.model"));
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -50,10 +44,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var userService = new _User["default"](_User2["default"]);
-var messageService = new _Message["default"](_Message2["default"]);
-var conversationService = new _Conversation["default"](_Conversation2["default"]);
 
 var MessageController = /*#__PURE__*/function (_Controller) {
   (0, _inherits2["default"])(MessageController, _Controller);
@@ -106,7 +96,7 @@ var MessageController = /*#__PURE__*/function (_Controller) {
                 to = req.params.to;
                 _req$app$get = req.app.get("io"), io = _req$app$get.io;
                 _context.next = 9;
-                return conversationService.readOne({
+                return _Conversation["default"].readOne({
                   users: {
                     $size: 2,
                     $all: [req.user._id, to]
@@ -148,7 +138,7 @@ var MessageController = /*#__PURE__*/function (_Controller) {
 
               case 19:
                 _context.next = 21;
-                return conversationService.updateOne({
+                return _Conversation["default"].updateOne({
                   _id: conversationReadResponse.data._id
                 }, {
                   $addToSet: {
@@ -174,7 +164,7 @@ var MessageController = /*#__PURE__*/function (_Controller) {
 
               case 24:
                 _context.next = 26;
-                return userService.readMany({
+                return _User["default"].readMany({
                   _id: {
                     $in: conversationReadResponse.data.users
                   }
@@ -228,7 +218,7 @@ var MessageController = /*#__PURE__*/function (_Controller) {
 
               case 32:
                 _context.next = 34;
-                return conversationService.create({
+                return _Conversation["default"].create({
                   users: [req.user._id, to]
                 });
 
@@ -262,7 +252,7 @@ var MessageController = /*#__PURE__*/function (_Controller) {
 
               case 43:
                 _context.next = 45;
-                return conversationService.updateOne({
+                return _Conversation["default"].updateOne({
                   _id: conversationCreateResponse.data._id
                 }, {
                   $addToSet: {
@@ -288,7 +278,7 @@ var MessageController = /*#__PURE__*/function (_Controller) {
 
               case 48:
                 _context.next = 50;
-                return userService.readMany({
+                return _User["default"].readMany({
                   _id: {
                     $in: conversationCreateResponse.data.users
                   }
@@ -427,6 +417,6 @@ var MessageController = /*#__PURE__*/function (_Controller) {
   return MessageController;
 }(_Controller2["default"]);
 
-var _default = new MessageController(messageService);
+var _default = new MessageController(_Message["default"]);
 
 exports["default"] = _default;

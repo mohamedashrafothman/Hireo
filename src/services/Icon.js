@@ -1,7 +1,10 @@
 import Service from "../utilities/Service";
+import Icon from "../models/Icon.model";
 
-export default class IconService extends Service {
+class IconService extends Service {
 	constructor(model) {
 		super(model);
 	}
 }
+
+export default new IconService(Icon);

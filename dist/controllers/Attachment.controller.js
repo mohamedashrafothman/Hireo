@@ -29,15 +29,11 @@ var _path = _interopRequireDefault(require("path"));
 
 var _Controller2 = _interopRequireDefault(require("../utilities/Controller"));
 
-var _Attachment = _interopRequireDefault(require("../models/Attachment.model"));
-
-var _Attachment2 = _interopRequireDefault(require("../services/Attachment"));
+var _Attachment = _interopRequireDefault(require("../services/Attachment"));
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var attachmentService = new _Attachment2["default"](_Attachment["default"]);
 
 var AttachmentController = /*#__PURE__*/function (_Controller) {
   (0, _inherits2["default"])(AttachmentController, _Controller);
@@ -109,6 +105,6 @@ var AttachmentController = /*#__PURE__*/function (_Controller) {
   return AttachmentController;
 }(_Controller2["default"]);
 
-var _default = new AttachmentController(attachmentService);
+var _default = new AttachmentController(_Attachment["default"]);
 
 exports["default"] = _default;

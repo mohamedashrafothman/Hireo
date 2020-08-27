@@ -1,9 +1,6 @@
 import Controller from "../utilities/Controller";
 
-import Session from "../models/Session.model";
 import SessionService from "../services/Session";
-
-const sessionService = new SessionService(Session);
 
 class SessionController extends Controller {
 	constructor(service) {
@@ -11,4 +8,4 @@ class SessionController extends Controller {
 	}
 }
 
-export default new SessionController(sessionService);
+export default new SessionController(SessionService);

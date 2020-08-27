@@ -37,29 +37,17 @@ var _Controller2 = _interopRequireDefault(require("../utilities/Controller"));
 
 var _Helper = _interopRequireDefault(require("../utilities/Helper"));
 
-var _Job = _interopRequireDefault(require("../models/Job.model"));
+var _Job = _interopRequireDefault(require("../services/Job"));
 
-var _User = _interopRequireDefault(require("../models/User.model"));
-
-var _Job_type = _interopRequireDefault(require("../models/Job_type.model"));
-
-var _Category = _interopRequireDefault(require("../models/Category.model"));
-
-var _Attachment = _interopRequireDefault(require("../models/Attachment.model"));
-
-var _Application = _interopRequireDefault(require("../models/Application.model"));
-
-var _Job2 = _interopRequireDefault(require("../services/Job"));
-
-var _User2 = _interopRequireDefault(require("../services/User"));
+var _User = _interopRequireDefault(require("../services/User"));
 
 var _JobTypeService = _interopRequireDefault(require("../services/JobTypeService"));
 
-var _Category2 = _interopRequireDefault(require("../services/Category"));
+var _Category = _interopRequireDefault(require("../services/Category"));
 
-var _Attachment2 = _interopRequireDefault(require("../services/Attachment"));
+var _Attachment = _interopRequireDefault(require("../services/Attachment"));
 
-var _Application2 = _interopRequireDefault(require("../services/Application"));
+var _Application = _interopRequireDefault(require("../services/Application"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -69,12 +57,6 @@ function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflec
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
 
-var jobService = new _Job2["default"](_Job["default"]);
-var userService = new _User2["default"](_User["default"]);
-var jobTypeService = new _JobTypeService["default"](_Job_type["default"]);
-var categoryService = new _Category2["default"](_Category["default"]);
-var attachmentService = new _Attachment2["default"](_Attachment["default"]);
-var applicationService = new _Application2["default"](_Application["default"]);
 var helper = new _Helper["default"]();
 
 var JobController = /*#__PURE__*/function (_Controller) {
@@ -87,17 +69,17 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
     (0, _classCallCheck2["default"])(this, JobController);
     _this = _super.call(this, service);
-    _this.getJobsLists = _this.getJobsLists.bind((0, _assertThisInitialized2["default"])(_this));
-    _this.getAddJob = _this.getAddJob.bind((0, _assertThisInitialized2["default"])(_this));
-    _this.uploadAttachments = _this.uploadAttachments.bind((0, _assertThisInitialized2["default"])(_this));
     _this.addJob = _this.addJob.bind((0, _assertThisInitialized2["default"])(_this));
     _this.getEdit = _this.getEdit.bind((0, _assertThisInitialized2["default"])(_this));
     _this.editJob = _this.editJob.bind((0, _assertThisInitialized2["default"])(_this));
     _this.deleteJob = _this.deleteJob.bind((0, _assertThisInitialized2["default"])(_this));
+    _this.getAddJob = _this.getAddJob.bind((0, _assertThisInitialized2["default"])(_this));
     _this.refreshJob = _this.refreshJob.bind((0, _assertThisInitialized2["default"])(_this));
-    _this.getAllJobApplications = _this.getAllJobApplications.bind((0, _assertThisInitialized2["default"])(_this));
-    _this.browseAllJobs = _this.browseAllJobs.bind((0, _assertThisInitialized2["default"])(_this));
     _this.getJobPage = _this.getJobPage.bind((0, _assertThisInitialized2["default"])(_this));
+    _this.getJobsLists = _this.getJobsLists.bind((0, _assertThisInitialized2["default"])(_this));
+    _this.browseAllJobs = _this.browseAllJobs.bind((0, _assertThisInitialized2["default"])(_this));
+    _this.uploadAttachments = _this.uploadAttachments.bind((0, _assertThisInitialized2["default"])(_this));
+    _this.getAllJobApplications = _this.getAllJobApplications.bind((0, _assertThisInitialized2["default"])(_this));
     return _this;
   }
 
@@ -146,24 +128,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
                 }), req.user.role !== "admin" && {
                   created_by: req.user._id
                 });
-                options = _objectSpread({
-                  populate: [{
-                    path: "created_by",
-                    populate: [{
-                      path: "account.picture",
-                      select: "-_id path"
-                    }, {
-                      path: "account.picture_sm",
-                      select: "-_id path"
-                    }, {
-                      path: "account.picture_md",
-                      select: "-_id path"
-                    }, {
-                      path: "account.picture_lg",
-                      select: "-_id path"
-                    }]
-                  }]
-                }, req.query);
+                options = _objectSpread({}, req.query);
                 _context.next = 4;
                 return this.service.readMany(query, options);
 
@@ -220,7 +185,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return categoryService.readMany({
+                return _Category["default"].readMany({
                   parent: {
                     $exists: false
                   },
@@ -241,7 +206,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 5:
                 _context2.next = 7;
-                return jobTypeService.readMany({}, {
+                return _JobTypeService["default"].readMany({}, {
                   select: "name",
                   pagination: false
                 });
@@ -288,7 +253,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
-                storageEngine = attachmentService.initStorageEngine({
+                storageEngine = _Attachment["default"].initStorageEngine({
                   accept: ["application", "image"],
                   square: false,
                   fileHashName: false,
@@ -380,7 +345,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
                 err = errors.array();
                 req.flash("error", err);
                 _context5.next = 6;
-                return categoryService.readMany({
+                return _Category["default"].readMany({
                   parent: {
                     $exists: false
                   },
@@ -401,7 +366,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 9:
                 _context5.next = 11;
-                return jobTypeService.readMany({}, {
+                return _JobTypeService["default"].readMany({}, {
                   select: "name",
                   pagination: false
                 });
@@ -436,7 +401,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
                 port = req.app.get("port");
                 base = "".concat(req.protocol, "://").concat(req.hostname).concat(port ? ":".concat(port) : "");
-                files = attachmentService.handelFilesForDBCreation(req.body.files, base);
+                files = _Attachment["default"].handelFilesForDBCreation(req.body.files, base);
                 i = 0;
 
               case 21:
@@ -446,7 +411,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
                 }
 
                 _context5.next = 24;
-                return attachmentService.create(files[i]);
+                return _Attachment["default"].create(files[i]);
 
               case 24:
                 fileCreationResponse = _context5.sent;
@@ -489,7 +454,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 37:
                 _context5.next = 39;
-                return categoryService.updateOne({
+                return _Category["default"].updateOne({
                   _id: jobCreationResponse.data.category
                 }, {
                   $addToSet: {
@@ -509,7 +474,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 42:
                 _context5.next = 44;
-                return userService.updateOne({
+                return _User["default"].updateOne({
                   _id: req.user._id
                 }, {
                   $addToSet: {
@@ -555,7 +520,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
             switch (_context6.prev = _context6.next) {
               case 0:
                 _context6.next = 2;
-                return categoryService.readMany({
+                return _Category["default"].readMany({
                   parent: {
                     $exists: false
                   },
@@ -576,7 +541,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 5:
                 _context6.next = 7;
-                return jobTypeService.readMany({}, {
+                return _JobTypeService["default"].readMany({}, {
                   select: "name",
                   pagination: false
                 });
@@ -660,7 +625,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
                 err = errors.array();
                 req.flash("error", err);
                 _context7.next = 6;
-                return categoryService.readMany({
+                return _Category["default"].readMany({
                   parent: {
                     $exists: false
                   },
@@ -681,7 +646,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 9:
                 _context7.next = 11;
-                return jobTypeService.readMany({}, {
+                return _JobTypeService["default"].readMany({}, {
                   select: "name",
                   pagination: false
                 });
@@ -742,7 +707,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
                 port = req.app.get("port");
                 base = "".concat(req.protocol, "://").concat(req.hostname).concat(port ? ":".concat(port) : "");
-                files = attachmentService.handelFilesForDBCreation(req.body.files, base);
+                files = _Attachment["default"].handelFilesForDBCreation(req.body.files, base);
                 i = 0;
 
               case 28:
@@ -752,7 +717,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
                 }
 
                 _context7.next = 31;
-                return attachmentService.create(files[i]);
+                return _Attachment["default"].create(files[i]);
 
               case 31:
                 fileCreationResponse = _context7.sent;
@@ -814,7 +779,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 48:
                 _context7.next = 50;
-                return categoryService.updateOne({
+                return _Category["default"].updateOne({
                   _id: jobUpdateResponse.data.category
                 }, {
                   $addToSet: {
@@ -834,7 +799,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 53:
                 _context7.next = 55;
-                return userService.updateOne({
+                return _User["default"].updateOne({
                   _id: req.user._id
                 }, {
                   $addToSet: {
@@ -904,7 +869,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 7:
                 _context8.next = 9;
-                return categoryService.updateOne({
+                return _Category["default"].updateOne({
                   _id: jobDeleteResponse.data.category
                 }, {
                   $pull: {
@@ -924,7 +889,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 12:
                 _context8.next = 14;
-                return applicationService.deleteMany({
+                return _Application["default"].deleteMany({
                   job: req.params.id
                 });
 
@@ -940,7 +905,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 17:
                 _context8.next = 19;
-                return userService.updateMany({
+                return _User["default"].updateMany({
                   $or: [{
                     _id: jobDeleteResponse.data.created_by
                   }, {
@@ -980,7 +945,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
                   return application.attachment;
                 })));
                 _context8.next = 25;
-                return attachmentService.deleteMany({
+                return _Attachment["default"].deleteMany({
                   _id: {
                     $in: attachments_ids
                   }
@@ -998,7 +963,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 28:
                 _context8.next = 30;
-                return attachmentService.handelFilesForDirDeletion(attachmentDeleteResponse.data.map(function (current) {
+                return _Attachment["default"].handelFilesForDirDeletion(attachmentDeleteResponse.data.map(function (current) {
                   return current.path;
                 }));
 
@@ -1157,7 +1122,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
                   }]
                 }, req.query);
                 _context10.next = 11;
-                return applicationService.readMany(query, options);
+                return _Application["default"].readMany(query, options);
 
               case 11:
                 applicationReadResponse = _context10.sent;
@@ -1185,7 +1150,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
                 }
 
                 _context10.next = 20;
-                return applicationService.updateMany({
+                return _Application["default"].updateMany({
                   _id: {
                     $in: applicationReadResponse.data.map(function (current) {
                       return current._id;
@@ -1247,7 +1212,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
             switch (_context11.prev = _context11.next) {
               case 0:
                 _context11.next = 2;
-                return categoryService.readMany(_objectSpread({}, req.query.categories && req.query.categories.length && {
+                return _Category["default"].readMany(_objectSpread({}, req.query.categories && req.query.categories.length && {
                   $or: [{
                     _id: {
                       $in: req.query.categories
@@ -1315,27 +1280,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
                   }
                 });
                 options = _objectSpread({
-                  select: "slug title status created_at category location type.name created_by.account.name created_by.is_verified created_by.account.picture created_by.account.picture_sm created_by.account.picture_md created_by.account.picture_lg",
-                  populate: [{
-                    path: "created_by",
-                    populate: [{
-                      path: "account.picture",
-                      select: "path -_id"
-                    }, {
-                      path: "account.picture_sm",
-                      select: "path -_id"
-                    }, {
-                      path: "account.picture_md",
-                      select: "path -_id"
-                    }, {
-                      path: "account.picture_lg",
-                      select: "path -_id"
-                    }]
-                  }, {
-                    path: "type"
-                  }, {
-                    path: "category"
-                  }]
+                  select: "slug title status created_at category location type.name created_by.account.name created_by.is_verified created_by.account.picture created_by.account.picture_sm created_by.account.picture_md created_by.account.picture_lg"
                 }, req.query);
                 _context11.next = 9;
                 return this.service.readMany(query, options);
@@ -1361,7 +1306,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 15:
                 _context11.next = 17;
-                return jobTypeService.readMany({}, {
+                return _JobTypeService["default"].readMany({}, {
                   select: "name",
                   pagination: false
                 });
@@ -1469,7 +1414,7 @@ var JobController = /*#__PURE__*/function (_Controller) {
 
               case 9:
                 _context12.next = 11;
-                return categoryService.readMany({
+                return _Category["default"].readMany({
                   $or: [{
                     _id: jobReadBySlugResponse.data.category._id
                   }, {
@@ -1525,29 +1470,6 @@ var JobController = /*#__PURE__*/function (_Controller) {
                     }
                   }]
                 }, {
-                  populate: [{
-                    path: "created_by",
-                    select: "_id rating email is_verified slug account.name account.picture account.picture_sm account.picture_md account.picture_lg profile.nationality",
-                    populate: [{
-                      path: "profile.nationality",
-                      select: "name code -_id"
-                    }, {
-                      path: "account.picture",
-                      select: "path -_id"
-                    }, {
-                      path: "account.picture_sm",
-                      select: "path -_id"
-                    }, {
-                      path: "account.picture_md",
-                      select: "path -_id"
-                    }, {
-                      path: "account.picture_lg",
-                      select: "path -_id"
-                    }]
-                  }, {
-                    path: "attachments",
-                    select: "_id path name extname base"
-                  }],
                   sort: {
                     create_at: 1
                   },
@@ -1592,6 +1514,6 @@ var JobController = /*#__PURE__*/function (_Controller) {
   return JobController;
 }(_Controller2["default"]);
 
-var _default = new JobController(jobService);
+var _default = new JobController(_Job["default"]);
 
 exports["default"] = _default;

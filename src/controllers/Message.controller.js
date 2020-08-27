@@ -6,14 +6,6 @@ import UserService from "../services/User";
 import MessageService from "../services/Message";
 import ConversationService from "../services/Conversation";
 
-import User from "../models/User.model";
-import Message from "../models/Message.model";
-import Conversation from "../models/Conversation.model";
-
-const userService = new UserService(User);
-const messageService = new MessageService(Message);
-const conversationService = new ConversationService(Conversation);
-
 class MessageController extends Controller {
 	constructor(service) {
 		super(service);
@@ -24,13 +16,8 @@ class MessageController extends Controller {
 	validator(method) {
 		switch (method) {
 		case "add message":
-			return [
-				body("content")
-					.notEmpty()
-					.withMessage("Message Can't be Empty!")
-					.trim()
-					.escape(),
-			];
+			return [body("content").notEmpty().withMessage("Message Can't be Empty!").trim()
+				.escape()];
 		default:
 			return [];
 		}
@@ -47,10 +34,12 @@ class MessageController extends Controller {
 		const { to } = req.params;
 		const { io } = req.app.get("io");
 
-		const conversationReadResponse = await conversationService.readOne({
+		const conversationReadResponse = await ConversationService.readOne({
 			users: { $size: 2, $all: [req.user._id, to] },
 		});
-		if (conversationReadResponse.error) { return next(conversationReadResponse.errors); }
+		if (conversationReadResponse.error) {
+			return next(conversationReadResponse.errors);
+		}
 
 		if (!isEmpty(conversationReadResponse.data)) {
 			req.body = {
@@ -60,9 +49,11 @@ class MessageController extends Controller {
 			};
 
 			const messageCreateResponse = await this.service.create(req.body);
-			if (messageCreateResponse.error) { return next(messageCreateResponse.errors); }
+			if (messageCreateResponse.error) {
+				return next(messageCreateResponse.errors);
+			}
 
-			const conversationUpdateResponse = await conversationService.updateOne(
+			const conversationUpdateResponse = await ConversationService.updateOne(
 				{ _id: conversationReadResponse.data._id },
 				{
 					$addToSet: { messages: messageCreateResponse.data._id },
@@ -70,10 +61,12 @@ class MessageController extends Controller {
 					$pull: { deleted_by: to },
 				}
 			);
-			if (conversationUpdateResponse.error) { return next(conversationUpdateResponse.errors); }
+			if (conversationUpdateResponse.error) {
+				return next(conversationUpdateResponse.errors);
+			}
 
 			// Getting all users in the conversation.
-			const userReadResponse = await userService.readMany(
+			const userReadResponse = await UserService.readMany(
 				{ _id: { $in: conversationReadResponse.data.users } },
 				{
 					pagination: false,
@@ -90,33 +83,27 @@ class MessageController extends Controller {
 
 			// sending created message using sockets to all users in the conversation.
 			io.sockets.in(conversationReadResponse.data._id).emit("message", {
-				to: userReadResponse.data.filter(
-					(current) => String(current._id) === String(to)
-				)[0],
+				to: userReadResponse.data.filter((current) => String(current._id) === String(to))[0],
 				to_gravatar: userReadResponse.data
 					.filter((current) => String(current._id) === String(to))[0]
 					.gravatar(50),
-				from: userReadResponse.data.filter(
-					(current) => String(current._id) === String(req.user._id)
-				)[0],
+				from: userReadResponse.data.filter((current) => String(current._id) === String(req.user._id))[0],
 				from_gravatar: userReadResponse.data
-					.filter(
-						(current) => String(current._id) === String(req.user._id)
-					)[0]
+					.filter((current) => String(current._id) === String(req.user._id))[0]
 					.gravatar(50),
 				message: messageCreateResponse.data,
 			});
 
 			req.flash("success", "Direct Message Sent Successfully");
-			return res
-				.status(messageCreateResponse.statusCode)
-				.redirect("back");
+			return res.status(messageCreateResponse.statusCode).redirect("back");
 		}
 
-		const conversationCreateResponse = await conversationService.create({
+		const conversationCreateResponse = await ConversationService.create({
 			users: [req.user._id, to],
 		});
-		if (conversationCreateResponse.error) { return next(conversationCreateResponse.errors); }
+		if (conversationCreateResponse.error) {
+			return next(conversationCreateResponse.errors);
+		}
 
 		req.body = {
 			user: req.user._id,
@@ -125,9 +112,11 @@ class MessageController extends Controller {
 		};
 
 		const messageCreateResponse = await this.service.create(req.body);
-		if (messageCreateResponse.error) { return next(messageCreateResponse.errors); }
+		if (messageCreateResponse.error) {
+			return next(messageCreateResponse.errors);
+		}
 
-		const conversationUpdateResponse = await conversationService.updateOne(
+		const conversationUpdateResponse = await ConversationService.updateOne(
 			{ _id: conversationCreateResponse.data._id },
 			{
 				$addToSet: { messages: messageCreateResponse.data._id },
@@ -135,10 +124,12 @@ class MessageController extends Controller {
 				$pull: { deleted_by: to },
 			}
 		);
-		if (conversationUpdateResponse.error) { return next(conversationUpdateResponse.errors); }
+		if (conversationUpdateResponse.error) {
+			return next(conversationUpdateResponse.errors);
+		}
 
 		// Getting all users in the conversation.
-		const userReadResponse = await userService.readMany(
+		const userReadResponse = await UserService.readMany(
 			{ _id: { $in: conversationCreateResponse.data.users } },
 			{
 				pagination: false,
@@ -155,19 +146,11 @@ class MessageController extends Controller {
 
 		// sending created message using sockets to all users in the conversation.
 		io.sockets.in(conversationCreateResponse.data._id).emit("message", {
-			to: userReadResponse.data.filter(
-				(current) => String(current._id) === String(to)
-			)[0],
-			to_gravatar: userReadResponse.data
-				.filter((current) => String(current._id) === String(to))[0]
-				.gravatar(50),
-			from: userReadResponse.data.filter(
-				(current) => String(current._id) === String(req.user._id)
-			)[0],
+			to: userReadResponse.data.filter((current) => String(current._id) === String(to))[0],
+			to_gravatar: userReadResponse.data.filter((current) => String(current._id) === String(to))[0].gravatar(50),
+			from: userReadResponse.data.filter((current) => String(current._id) === String(req.user._id))[0],
 			from_gravatar: userReadResponse.data
-				.filter(
-					(current) => String(current._id) === String(req.user._id)
-				)[0]
+				.filter((current) => String(current._id) === String(req.user._id))[0]
 				.gravatar(50),
 			message: messageCreateResponse.data,
 		});
@@ -183,16 +166,20 @@ class MessageController extends Controller {
 			{ _id: { $in: messages } },
 			{ $set: { was_read: true } }
 		);
-		if (messagesUpdateResponse.error) { return next(messagesUpdateResponse.errors); }
+		if (messagesUpdateResponse.error) {
+			return next(messagesUpdateResponse.errors);
+		}
 
 		const messagesReadResponse = await this.service.readMany(
 			{ _id: { $in: messages } },
 			{ pagination: false, select: "_id was_read" }
 		);
-		if (messagesReadResponse.error) { return next(messagesReadResponse.errors); }
+		if (messagesReadResponse.error) {
+			return next(messagesReadResponse.errors);
+		}
 
 		return res.json(messagesReadResponse.data);
 	}
 }
 
-export default new MessageController(messageService);
+export default new MessageController(MessageService);

@@ -17,15 +17,11 @@ var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/ge
 
 var _Controller2 = _interopRequireDefault(require("../utilities/Controller"));
 
-var _Nationality = _interopRequireDefault(require("../models/Nationality.model"));
-
-var _Nationality2 = _interopRequireDefault(require("../services/Nationality"));
+var _Nationality = _interopRequireDefault(require("../services/Nationality"));
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var nationalityService = new _Nationality2["default"](_Nationality["default"]);
 
 var NationalityController = /*#__PURE__*/function (_Controller) {
   (0, _inherits2["default"])(NationalityController, _Controller);
@@ -40,6 +36,6 @@ var NationalityController = /*#__PURE__*/function (_Controller) {
   return NationalityController;
 }(_Controller2["default"]);
 
-var _default = new NationalityController(nationalityService);
+var _default = new NationalityController(_Nationality["default"]);
 
 exports["default"] = _default;

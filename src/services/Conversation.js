@@ -1,7 +1,10 @@
 import Service from "../utilities/Service";
+import Conversation from "../models/Conversation.model";
 
-export default class ConversationService extends Service {
+class ConversationService extends Service {
 	constructor(model) {
 		super(model);
 	}
 }
+
+export default new ConversationService(Conversation);

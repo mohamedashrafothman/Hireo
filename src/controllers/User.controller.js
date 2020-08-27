@@ -8,14 +8,6 @@ import passport from "passport";
 
 import Controller from "../utilities/Controller";
 
-import User from "../models/User.model";
-import Email from "../models/Email.model";
-import Skill from "../models/Skill.model";
-import Session from "../models/Session.model";
-import Nationality from "../models/Nationality.model";
-import Attachment from "../models/Attachment.model";
-import Conversation from "../models/Conversation.model";
-
 import UserService from "../services/User";
 import EmailService from "../services/Email";
 import SkillService from "../services/Skill";
@@ -23,15 +15,6 @@ import SessionService from "../services/Session";
 import NationalityService from "../services/Nationality";
 import AttachmentService from "../services/Attachment";
 import ConversationService from "../services/Conversation";
-
-const userService = new UserService(User);
-const emailService = new EmailService(Email);
-const skillService = new SkillService(Skill);
-const sessionService = new SessionService(Session);
-const nationalityService = new NationalityService(Nationality);
-const conversationService = new ConversationService(Conversation);
-const avatarAttachmentService = new AttachmentService(Attachment);
-const profileInfoAttachmentService = new AttachmentService(Attachment);
 
 class UserController extends Controller {
 	constructor(service) {
@@ -67,98 +50,104 @@ class UserController extends Controller {
 		case "register":
 			return [
 				body("email")
-					.notEmpty().withMessage("Email must supply an E-mail.")
+					.notEmpty()
+					.withMessage("Email must supply an E-mail.")
 					.isEmail()
 					.withMessage("Email must be in an E-mail format.")
 					.trim()
 					.normalizeEmail(),
-				body("role")
-					.notEmpty().withMessage("You must choose an account type!"),
-				body("account.name")
-					.notEmpty().withMessage("You must supply a name!")
-					.trim()
+				body("role").notEmpty().withMessage("You must choose an account type!"),
+				body("account.name").notEmpty().withMessage("You must supply a name!").trim()
 					.escape(),
-				body("account.username")
-					.notEmpty().withMessage("You must supply a username!")
-					.trim()
+				body("account.username").notEmpty().withMessage("You must supply a username!").trim()
 					.escape(),
 				body("password")
-					.notEmpty().withMessage("Password can't be blank!")
+					.notEmpty()
+					.withMessage("Password can't be blank!")
 					.isLength({ min: Number(process.env.MINIMUM_PASSWORD_LENGTH) })
-					.withMessage(`Password must be at least ${Number(process.env.MINIMUM_PASSWORD_LENGTH)} chars long`)
+					.withMessage(
+						`Password must be at least ${Number(process.env.MINIMUM_PASSWORD_LENGTH)} chars long`
+					)
 					.matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/, "i")
-					.withMessage("Password must include one lowercase character, one uppercase character, a number, and a special character."),
+					.withMessage(
+						"Password must include one lowercase character, one uppercase character, a number, and a special character."
+					),
 				body("confirmPassword")
-					.notEmpty().withMessage("Confirm password cannot be blank!")
-					.custom((value, { req }) => (value === req.body.password))
-					.withMessage("Your passwords don't match!")
+					.notEmpty()
+					.withMessage("Confirm password cannot be blank!")
+					.custom((value, { req }) => value === req.body.password)
+					.withMessage("Your passwords don't match!"),
 			];
 		case "login":
 			return [
 				body("email")
-					.notEmpty().withMessage("You must be supply an Email!")
+					.notEmpty()
+					.withMessage("You must be supply an Email!")
 					.isEmail()
 					.withMessage("Email must be in an E-mail format.")
 					.trim()
 					.normalizeEmail(),
 				body("password").notEmpty().withMessage("Password cannot be Blank!"),
-				body("remember").optional().toBoolean()
+				body("remember").optional().toBoolean(),
 			];
 		case "forgot password":
 			return [
 				body("email")
-					.notEmpty().withMessage("You must be supply an Email!")
+					.notEmpty()
+					.withMessage("You must be supply an Email!")
 					.isEmail()
 					.withMessage("Email must be in an E-mail format.")
 					.trim()
-					.normalizeEmail()
+					.normalizeEmail(),
 			];
 		case "reset password":
 			return [
 				body("password")
-					.notEmpty().withMessage("Password can't be blank!")
+					.notEmpty()
+					.withMessage("Password can't be blank!")
 					.isLength({ min: Number(process.env.MINIMUM_PASSWORD_LENGTH) })
-					.withMessage(`Password must be at least ${Number(process.env.MINIMUM_PASSWORD_LENGTH)} chars long`)
+					.withMessage(
+						`Password must be at least ${Number(process.env.MINIMUM_PASSWORD_LENGTH)} chars long`
+					)
 					.matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/, "i")
-					.withMessage("Password must include one lowercase character, one uppercase character, a number, and a special character."),
+					.withMessage(
+						"Password must include one lowercase character, one uppercase character, a number, and a special character."
+					),
 				body("confirmPassword")
-					.notEmpty().withMessage("Confirm password cannot be blank!")
-					.custom((value, { req }) => (value === req.body.password))
-					.withMessage("Your passwords don't match!")
+					.notEmpty()
+					.withMessage("Confirm password cannot be blank!")
+					.custom((value, { req }) => value === req.body.password)
+					.withMessage("Your passwords don't match!"),
 			];
 		case "account info":
 			return [
-				body("account.name")
-					.notEmpty().withMessage("Name field can't be blank.")
-					.trim()
+				body("account.name").notEmpty().withMessage("Name field can't be blank.").trim()
 					.escape(),
-				body("account.username")
-					.notEmpty().withMessage("Username field can't be blank.")
-					.trim()
+				body("account.username").notEmpty().withMessage("Username field can't be blank.").trim()
 					.escape(),
 			];
 		case "profile info":
 			return [
 				body("profile.description")
-					.notEmpty().withMessage("Description field can't be blank!")
+					.notEmpty()
+					.withMessage("Description field can't be blank!")
 					.isLength({ max: 500 })
 					.withMessage("Description can't be more that 500 letter.")
 					.trim()
 					.escape(),
-				body("profile.tagline")
-					.notEmpty().withMessage("Tagline field can't be blank!")
-					.trim()
+				body("profile.tagline").notEmpty().withMessage("Tagline field can't be blank!").trim()
 					.escape(),
-				body("profile.nationality")
-					.notEmpty().withMessage("Nationality field can't be blank!"),
+				body("profile.nationality").notEmpty().withMessage("Nationality field can't be blank!"),
 				body("profile.hourly_rate")
-					.if((value, { req }) => (req.user.role !== "admin" || req.user.role !== "employer"))
-					.notEmpty().withMessage("Hourly Rate field can't be blank!")
+					.if((value, { req }) => req.user.role !== "admin" || req.user.role !== "employer")
+					.notEmpty()
+					.withMessage("Hourly Rate field can't be blank!")
 					.isInt({ min: 5, max: 300 })
 					.withMessage("Hourly Rate shall be between 5$ and 200$"),
 				body("profile.skills")
-					.if((value, { req }) => (req.user.role !== "admin" || req.user.role !== "employer"))
-					.notEmpty().withMessage("Skills field can't be blank!")
+					.if((value, { req }) => req.user.role !== "admin" || req.user.role !== "employer")
+					.notEmpty()
+					.withMessage("Skills field can't be blank!"),
 			];
 		default:
 			return [];
@@ -197,13 +186,13 @@ class UserController extends Controller {
 			{ _id: "5e60390a9557170448f39503" },
 			{
 				$set: {
-					[provider]: undefined
+					[provider]: undefined,
 				},
 				$pull: {
 					tokens: {
-						kind: provider
-					}
-				}
+						kind: provider,
+					},
+				},
 			}
 		);
 		if (userUnlinkResponse.error) return next(userUnlinkResponse.errors);
@@ -213,7 +202,7 @@ class UserController extends Controller {
 	}
 
 	async getUserProfilePage(req, res, next) {
-		const old = (req.session.data && req.session.data.old) ? req.session.data.old : null;
+		const old = req.session.data && req.session.data.old ? req.session.data.old : null;
 		req.session.data = null;
 
 		const userBySlugResponse = await this.service.getUserBySlug(req.params.slug);
@@ -226,8 +215,8 @@ class UserController extends Controller {
 			page_title: `${userBySlugResponse.data.account.name} Profile`,
 			data: {
 				user: userBySlugResponse.data,
-				old
-			}
+				old,
+			},
 		});
 	}
 
@@ -259,16 +248,19 @@ class UserController extends Controller {
 			return next(userRegisterResponse.errors);
 		}
 
-		const userValidateEmailResponse = await emailService.send({
+		const userValidateEmailResponse = await EmailService.send({
 			subject: `[${process.env.SITE_NAME}] Verify User Account`,
 			validateURL: `http://${req.headers.host}/auth/verify/${userRegisterResponse.data.email}/${userRegisterResponse.data.hash}`,
 			to: userRegisterResponse.data,
 			filename: "verify-user",
-			from: String(process.env.MAIL_SENDER)
+			from: String(process.env.MAIL_SENDER),
 		});
 		if (userValidateEmailResponse.error) return next(userValidateEmailResponse.errors);
 
-		req.flash("success", "You are registration process, Check your E-mail address to verify your account before you login.");
+		req.flash(
+			"success",
+			"You are registration process, Check your E-mail address to verify your account before you login."
+		);
 		res.status(userValidateEmailResponse.statusCode).redirect("/");
 	}
 
@@ -325,7 +317,10 @@ class UserController extends Controller {
 				}
 
 				// updated logged in user.
-				const userUpdateResponse = await this.service.updateOne({ email: user.email, is_active: 0 }, { $set: { is_active: 1 } });
+				const userUpdateResponse = await this.service.updateOne(
+					{ email: user.email, is_active: 0 },
+					{ $set: { is_active: 1 } }
+				);
 				if (userUpdateResponse.error) return next(userUpdateResponse.errors);
 
 				// Get logged in user data.
@@ -333,7 +328,10 @@ class UserController extends Controller {
 				if (userUpdatedResponse.error) return next(userUpdatedResponse.errors);
 
 				// Get all conversations belongs to user.
-				const conversationsReadResponse = await conversationService.readMany({ users: userUpdatedResponse.data._id }, { pagination: false, select: "_id" });
+				const conversationsReadResponse = await ConversationService.readMany(
+					{ users: userUpdatedResponse.data._id },
+					{ pagination: false, select: "_id" }
+				);
 				if (conversationsReadResponse.error) return next(conversationsReadResponse.errors);
 
 				// Emit to user conversations channels, to notify other users.
@@ -343,7 +341,7 @@ class UserController extends Controller {
 						io.sockets.in(conversation._id).emit("user/change_online_status", {
 							id: userUpdatedResponse.data._id,
 							is_active: userUpdatedResponse.data.is_active,
-							name: userUpdatedResponse.data.account.name
+							name: userUpdatedResponse.data.account.name,
 						});
 					});
 				}
@@ -379,12 +377,12 @@ class UserController extends Controller {
 			return next(userForgotPasswordResponse.errors);
 		}
 
-		const userUpdatePasswordEmailResponse = await emailService.send({
+		const userUpdatePasswordEmailResponse = await EmailService.send({
 			subject: `[${process.env.SITE_NAME}] Resetting Password.`,
 			resetURL: `http://${req.headers.host}/auth/reset/${userForgotPasswordResponse.data.resetPasswordToken}`,
 			to: userForgotPasswordResponse.data,
 			filename: "password-reset",
-			from: String(process.env.MAIL_SENDER)
+			from: String(process.env.MAIL_SENDER),
 		});
 		if (userUpdatePasswordEmailResponse.error) {
 			return next(userUpdatePasswordEmailResponse.errors);
@@ -417,7 +415,7 @@ class UserController extends Controller {
 			return next(userResetPasswordResponse.errors);
 		}
 
-		const userResetPasswordEmailResponse = await emailService.send({
+		const userResetPasswordEmailResponse = await EmailService.send({
 			filename: "password-updated",
 			subject: `[${process.env.SITE_NAME}] Resetting Password Confirmation.`,
 			to: userResetPasswordResponse.data,
@@ -442,7 +440,10 @@ class UserController extends Controller {
 		req.user = null;
 
 		// Get all conversations belongs to user.
-		const conversationsReadResponse = await conversationService.readMany({ users: userUpdateResponse.data._id }, { pagination: false, select: "_id" });
+		const conversationsReadResponse = await ConversationService.readMany(
+			{ users: userUpdateResponse.data._id },
+			{ pagination: false, select: "_id" }
+		);
 		if (conversationsReadResponse.error) return next(conversationsReadResponse.errors);
 
 		// Emit to user conversations channels, to notify other users.
@@ -452,7 +453,7 @@ class UserController extends Controller {
 				io.sockets.in(conversation._id).emit("user/change_online_status", {
 					id: userUpdateResponse.data._id,
 					is_active: userUpdateResponse.data.is_active,
-					name: userUpdateResponse.data.account.name
+					name: userUpdateResponse.data.account.name,
 				});
 			});
 		}
@@ -479,18 +480,28 @@ class UserController extends Controller {
 		if (userChangeAvailabilityResponse.error) return next(userChangeAvailabilityResponse.errors);
 
 		// Get all conversations belongs to user.
-		const conversationsReadResponse = await conversationService.readMany({ users: userChangeAvailabilityResponse.data._id }, { pagination: false, select: "_id" });
+		const conversationsReadResponse = await ConversationService.readMany(
+			{ users: userChangeAvailabilityResponse.data._id },
+			{ pagination: false, select: "_id" }
+		);
 		if (conversationsReadResponse.error) return next(conversationsReadResponse.errors);
 
 		// Emit to user conversations channels, to notify other users.
 		if (!isEmpty(conversationsReadResponse.data)) {
 			const { io } = req.app.get("io");
 			conversationsReadResponse.data.forEach((conversation) => {
-				io.sockets.in(conversation._id).emit(userChangeAvailabilityResponse.data.is_active ? "user/change_online_status" : "user/change_online_status", {
-					id: userChangeAvailabilityResponse.data._id,
-					is_active: userChangeAvailabilityResponse.data.is_active,
-					name: userChangeAvailabilityResponse.data.account.name
-				});
+				io.sockets
+					.in(conversation._id)
+					.emit(
+						userChangeAvailabilityResponse.data.is_active
+							? "user/change_online_status"
+							: "user/change_online_status",
+						{
+							id: userChangeAvailabilityResponse.data._id,
+							is_active: userChangeAvailabilityResponse.data.is_active,
+							name: userChangeAvailabilityResponse.data.account.name,
+						}
+					);
 			});
 		}
 
@@ -524,7 +535,7 @@ class UserController extends Controller {
 			if (isMatch) return done(null, user);
 
 			return done(null, false, {
-				msg: "Invalid email or password."
+				msg: "Invalid email or password.",
 			});
 		});
 	}
@@ -535,7 +546,10 @@ class UserController extends Controller {
 			if (existsErr) return done(existsErr);
 			if (existsUser) {
 				req.flash("error", "There is already a Google account that belongs to you");
-				req.flash("info", `Redirect to <strong><a href="http://${req.headers.host}/auth/forgot">Forgot Password?</a></strong> to reset your password.`);
+				req.flash(
+					"info",
+					`Redirect to <strong><a href="http://${req.headers.host}/auth/forgot">Forgot Password?</a></strong> to reset your password.`
+				);
 				done(existsErr);
 			} else {
 				const { data: user, errors: err } = await this.service.readOne({ _id: req.user.id });
@@ -543,7 +557,9 @@ class UserController extends Controller {
 
 				user.tokens.push({ kind: "google", accessToken });
 				user.google = profile.id;
-				user.account.username = user.account.username || `${profile.name.givenName} ${profile.name.familyName}` || `${profile._json.name.givenName} ${profile._json.name.familyName}`;
+				user.account.username =					user.account.username
+					|| `${profile.name.givenName} ${profile.name.familyName}`
+					|| `${profile._json.name.givenName} ${profile._json.name.familyName}`;
 				user.account.name = user.account.name || profile.displayName;
 				user.account.picture = user.account.picture || profile._json.image.url;
 				user.account.gender = user.account.gender || profile._json.gender;
@@ -566,11 +582,19 @@ class UserController extends Controller {
 				return done(updatedErr, updatedUser);
 			}
 
-			const { data: existsEmail, errors: existsEmailErr } = await this.service.readOne({ email: profile._json.email });
+			const { data: existsEmail, errors: existsEmailErr } = await this.service.readOne({
+				email: profile._json.email,
+			});
 			if (existsEmailErr) return done(existsEmailErr);
 			if (existsEmail) {
-				req.flash("error", "There is already an account using this email address. Sign in to that account and link it with Google manually from Account Settings.");
-				req.flash("info", `Redirect to <a href="http://${req.headers.host}/auth/forgot">Forgot Password?</a> page to reset your password.`);
+				req.flash(
+					"error",
+					"There is already an account using this email address. Sign in to that account and link it with Google manually from Account Settings."
+				);
+				req.flash(
+					"info",
+					`Redirect to <a href="http://${req.headers.host}/auth/forgot">Forgot Password?</a> page to reset your password.`
+				);
 				done(existsEmailErr);
 			} else {
 				const user = {
@@ -578,13 +602,15 @@ class UserController extends Controller {
 					email: profile.emails[0].value,
 					google: profile.id,
 					account: {
-						username: `${profile.name.givenName} ${profile.name.familyName}` || `${profile._json.name.givenName} ${profile._json.name.familyName}`,
+						username:
+							`${profile.name.givenName} ${profile.name.familyName}`
+							|| `${profile._json.name.givenName} ${profile._json.name.familyName}`,
 						name: profile.displayName,
 						picture: profile._json.image ? profile._json.image.url : profile._json.picture,
-						gender: profile._json.gender || profile.gender
+						gender: profile._json.gender || profile.gender,
 					},
 					is_active: 1,
-					is_verififed: 1
+					is_verififed: 1,
 				};
 
 				const { data: newUser, errors: newUserErr } = await this.service.create(user);
@@ -598,8 +624,14 @@ class UserController extends Controller {
 			const { data: existsUser, errors: existsErr } = await this.service.readOne({ facebook: profile.id });
 			if (existsErr) return done(existsErr);
 			if (existsUser) {
-				req.flash("error", "There is already a Facebook account that belongs to you. Sign in with that account then link it with your current account.");
-				req.flash("info", `Redirect to <strong><a href="http://${req.headers.host}/auth/forgot">Forgot Password?</a></strong> page to reset your password.`);
+				req.flash(
+					"error",
+					"There is already a Facebook account that belongs to you. Sign in with that account then link it with your current account."
+				);
+				req.flash(
+					"info",
+					`Redirect to <strong><a href="http://${req.headers.host}/auth/forgot">Forgot Password?</a></strong> page to reset your password.`
+				);
 				done(existsErr);
 			} else {
 				const { data: user, erorrs: err } = await this.service.readOne({ _id: req.user.id });
@@ -609,7 +641,7 @@ class UserController extends Controller {
 				user.facebook = profile.id;
 				user.account.gender = user.account.gender || profile._json.gender;
 				user.account.name = user.account.name || `${profile.name.givenName} ${profile.name.familyName}`;
-				user.account.picture = user.account.picture || `https://graph.facebook.com/${profile.id}/picture?type=large`;
+				user.account.picture =					user.account.picture || `https://graph.facebook.com/${profile.id}/picture?type=large`;
 				user.is_verified = 1;
 				user.is_active = 1;
 
@@ -630,11 +662,19 @@ class UserController extends Controller {
 				return done(updatedErr, updatedUser);
 			}
 
-			const { data: existsEmail, errors: existsEmailErr } = await this.service.readOne({ email: profile._json.email });
+			const { data: existsEmail, errors: existsEmailErr } = await this.service.readOne({
+				email: profile._json.email,
+			});
 			if (existsEmailErr) return done(existsEmailErr);
 			if (existsEmail) {
-				req.flash("error", "There is already an account using this email address. Sign in to that account and link it with Facebook manually from Account Settings.");
-				req.flash("info", `Redirect to <strong><a href="http://${req.headers.host}/auth/forgot">Forgot Password?</a></strong> to reset your password.`);
+				req.flash(
+					"error",
+					"There is already an account using this email address. Sign in to that account and link it with Facebook manually from Account Settings."
+				);
+				req.flash(
+					"info",
+					`Redirect to <strong><a href="http://${req.headers.host}/auth/forgot">Forgot Password?</a></strong> to reset your password.`
+				);
 				done(null);
 			} else {
 				const user = {
@@ -643,12 +683,15 @@ class UserController extends Controller {
 					facebook: profile.id,
 					gender: profile.gender || profile._json.gender,
 					account: {
-						username: profile.username || `${profile.name.givenName} ${profile.name.middleName} ${profile.name.familyName}` || `${profile._json.first_name} ${profile._json.middle_name} ${profile._json.last_name}`,
+						username:
+							profile.username
+							|| `${profile.name.givenName} ${profile.name.middleName} ${profile.name.familyName}`
+							|| `${profile._json.first_name} ${profile._json.middle_name} ${profile._json.last_name}`,
 						name: `${profile.name.givenName} ${profile.name.familyName}`,
-						picture: `https://graph.facebook.com/${profile.id}/picture?type=large`
+						picture: `https://graph.facebook.com/${profile.id}/picture?type=large`,
 					},
 					is_active: 1,
-					is_verified: 1
+					is_verified: 1,
 				};
 				const { data: newUser, errors: newUserErr } = await this.service.create(user);
 				done(newUserErr, newUser);
@@ -657,18 +700,26 @@ class UserController extends Controller {
 	}
 
 	async getSettings(req, res, next) {
-		const { data: skills, error: skillsError, errors: skillsErrors } = await skillService.readMany({}, { pagination: false, select: "_id name" });
+		const { data: skills, error: skillsError, errors: skillsErrors } = await SkillService.readMany(
+			{},
+			{ pagination: false, select: "_id name" }
+		);
 		if (skillsError) return next(skillsErrors);
 
-		const { data: nations, error: nationsError, errors: nationsErrors } = await nationalityService.readMany({}, { pagination: false, select: "_id name" });
+		const { data: nations, error: nationsError, errors: nationsErrors } = await NationalityService.readMany(
+			{},
+			{ pagination: false, select: "_id name" }
+		);
 		if (nationsError) return next(nationsErrors);
 
-		const { data: user, error: userError, errors: userErrors } = await this.service.getSettingsUserData(req.user._id);
+		const { data: user, error: userError, errors: userErrors } = await this.service.getSettingsUserData(
+			req.user._id
+		);
 		if (userError) return next(userErrors);
 
 		res.render("dashboard/settings", {
 			page_title: "Settings",
-			data: { user, skills, nations }
+			data: { user, skills, nations },
 		});
 	}
 
@@ -692,7 +743,7 @@ class UserController extends Controller {
 			return next(userUpdatePasswordResponse.errors);
 		}
 
-		const userUpdatePasswordEmailResponse = await emailService.send({
+		const userUpdatePasswordEmailResponse = await EmailService.send({
 			filename: "password-updated",
 			subject: `[${process.env.SITE_NAME}] Updating Password Confirmation.`,
 			to: userUpdatePasswordResponse.data,
@@ -703,7 +754,10 @@ class UserController extends Controller {
 		if (userUpdatePasswordEmailResponse.error) return next(userUpdatePasswordEmailResponse.errors);
 
 		if (req.body.loggingOutFromOtherDevices) {
-			const sessionsReadResponse = await sessionService.deleteMany({ "session.passport.user": String(id) }, { pagination: false });
+			const sessionsReadResponse = await SessionService.deleteMany(
+				{ "session.passport.user": String(id) },
+				{ pagination: false }
+			);
 			if (sessionsReadResponse.error) return next(sessionsReadResponse.errors);
 			sessionsReadResponse.data = sessionsReadResponse.data.map((data) => JSON.parse(JSON.stringify(data)));
 
@@ -721,13 +775,13 @@ class UserController extends Controller {
 	}
 
 	async uploadAvatar(req, res, next) {
-		const storageEngine = avatarAttachmentService.initStorageEngine({
+		const storageEngine = AttachmentService.initStorageEngine({
 			responsive: true,
 			accept: ["image"],
 			fileHashName: true,
 			quality: 2,
 			upload_path: `${process.env.UPLOAD_STORAGE}/avatars/${req.user._id}`,
-			upload_base_path: `/${req.user._id}`
+			upload_base_path: `/${req.user._id}`,
 		});
 
 		const avatarUpload = multer({
@@ -746,7 +800,7 @@ class UserController extends Controller {
 					// throw error for invalid files
 					cb(new Error("That fileType isn't allowed! "));
 				}
-			}
+			},
 		});
 
 		avatarUpload.array("avatar")(req, res, async (err) => {
@@ -772,20 +826,28 @@ class UserController extends Controller {
 			const port = req.app.get("port");
 			const base = `${req.protocol}://${req.hostname}${port ? `:${port}` : ""}`;
 
-			const files = avatarAttachmentService.handelFilesForDBCreation(req.body.files, base)[0];
+			const files = AttachmentService.handelFilesForDBCreation(req.body.files, base)[0];
 
 			for (let i = 0; i < files.length; i++) {
-				const fileCreationResponse = await avatarAttachmentService.create(files[i]);
+				const fileCreationResponse = await AttachmentService.create(files[i]);
 				if (fileCreationResponse.error) return next(fileCreationResponse.errors);
 				savedAttachments.push(fileCreationResponse.data);
 			}
 
 			req.body = {
 				...req.body,
-				"account.picture_lg": avatarAttachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id : null,
-				"account.picture_md": avatarAttachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_md\.(.+)$/i))[0]._id : null,
-				"account.picture_sm": avatarAttachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_sm\.(.+)$/i))[0]._id : null,
-				"account.picture": avatarAttachmentService.options.responsive ? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id : savedAttachments[0]._id
+				"account.picture_lg": AttachmentService.options.responsive
+					? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id
+					: null,
+				"account.picture_md": AttachmentService.options.responsive
+					? savedAttachments.filter((file) => file.path.match(/^(.+?)_md\.(.+)$/i))[0]._id
+					: null,
+				"account.picture_sm": AttachmentService.options.responsive
+					? savedAttachments.filter((file) => file.path.match(/^(.+?)_sm\.(.+)$/i))[0]._id
+					: null,
+				"account.picture": AttachmentService.options.responsive
+					? savedAttachments.filter((file) => file.path.match(/^(.+?)_lg\.(.+)$/i))[0]._id
+					: savedAttachments[0]._id,
 			};
 		}
 
@@ -797,12 +859,14 @@ class UserController extends Controller {
 	}
 
 	async uploadAttachments(req, res, next) {
-		const storageEngine = profileInfoAttachmentService.initStorageEngine({
+		const storageEngine = AttachmentService.initStorageEngine({
 			accept: ["application", "image"],
 			square: false,
 			fileHashName: false,
-			upload_path: `${process.env.UPLOAD_STORAGE}/freelancers-attachments/${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}/${req.user._id}`,
-			upload_base_path: `/${req.user._id}`
+			upload_path: `${process.env.UPLOAD_STORAGE}/freelancers-attachments/${new Date().getFullYear()}/${
+				new Date().getMonth() + 1
+			}/${new Date().getDate()}/${req.user._id}`,
+			upload_base_path: `/${req.user._id}`,
 		});
 
 		const attachmentUpload = multer({
@@ -821,7 +885,7 @@ class UserController extends Controller {
 					// throw error for invalid files
 					cb(new Error("That fileType isn't allowed! "));
 				}
-			}
+			},
 		});
 
 		attachmentUpload.array("attachments")(req, res, async (err) => {
@@ -847,23 +911,26 @@ class UserController extends Controller {
 			const port = req.app.get("port");
 			const base = `${req.protocol}://${req.hostname}${port ? `:${port}` : ""}`;
 
-			const files = profileInfoAttachmentService.handelFilesForDBCreation(req.body.files, base);
+			const files = AttachmentService.handelFilesForDBCreation(req.body.files, base);
 
 			for (let i = 0; i < files.length; i++) {
-				const fileCreationResponse = await profileInfoAttachmentService.create(files[i]);
+				const fileCreationResponse = await AttachmentService.create(files[i]);
 				if (fileCreationResponse.error) return next(fileCreationResponse.errors);
 				savedAttachments.push(fileCreationResponse.data[0]);
 			}
 			req.body = {
 				...req.body,
-				"profile.attachments": [...req.user.profile.attachments, ...savedAttachments.map((attach) => attach._id)]
+				"profile.attachments": [
+					...req.user.profile.attachments,
+					...savedAttachments.map((attach) => attach._id),
+				],
 			};
 		}
 
 		const userUpdateProfileInfoResponse = await this.service.updateOne({ _id: req.params.id }, { $set: req.body });
 		if (userUpdateProfileInfoResponse.error) return next(userUpdateProfileInfoResponse.errors);
 
-		const skillsAddUserResponse = await skillService.updateMany(
+		const skillsAddUserResponse = await SkillService.updateMany(
 			{ _id: { $in: userUpdateProfileInfoResponse.data.profile.skills } },
 			{ $addToSet: { users: userUpdateProfileInfoResponse.data._id } }
 		);
@@ -874,10 +941,7 @@ class UserController extends Controller {
 	}
 
 	async removeProfileAttachment(req, res, next) {
-		const attachmentService = new AttachmentService(Attachment);
-		const attachmentDeleteResponse = await attachmentService.deleteOne(
-			{ _id: req.params.attachment }
-		);
+		const attachmentDeleteResponse = await AttachmentService.deleteOne({ _id: req.params.attachment });
 		if (attachmentDeleteResponse.error) return next(attachmentDeleteResponse.errors);
 
 		const userUpdateProfileAttachment = await this.service.updateOne(
@@ -892,12 +956,15 @@ class UserController extends Controller {
 
 	async downloadProfileAttachment(req, res, next) {
 		const { attachment } = req.params;
-		const attachmentDownloadResponse = await profileInfoAttachmentService.readOne({ _id: attachment });
+		const attachmentDownloadResponse = await AttachmentService.readOne({ _id: attachment });
 		if (attachmentDownloadResponse.error) return next(attachmentDownloadResponse.errors);
 
 		const storage_path_array = process.env.UPLOAD_STORAGE.split("");
 		const storage_path = storage_path_array.slice(0, storage_path_array.length - 1).join("/");
-		res.download(path.resolve(__dirname, `../../${storage_path}`, attachmentDownloadResponse.data.path), attachmentDownloadResponse.data.name);
+		res.download(
+			path.resolve(__dirname, `../../${storage_path}`, attachmentDownloadResponse.data.path),
+			attachmentDownloadResponse.data.name
+		);
 	}
 
 	async bookmarkUser(req, res, next) {
@@ -921,7 +988,7 @@ class UserController extends Controller {
 		// return res.json(userBookmarkedList.data);
 		res.render("dashboard/bookmarks", {
 			page_title: "My Bookmarks",
-			data: userBookmarkedList.data
+			data: userBookmarkedList.data,
 		});
 	}
 
@@ -932,34 +999,69 @@ class UserController extends Controller {
 				$or: [
 					{ email: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
 					{ role: { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
-					{ "account.name": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
-					{ "account.username": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
-					{ "account.gender": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
-					{ "account.website": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
-					{ "profile.tagline": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
-					{ "profile.description": { $regex: req.query.q.split(" ").filter(Boolean).join("|") || "", $options: "i" } },
-				]
+					{
+						"account.name": {
+							$regex: req.query.q.split(" ").filter(Boolean).join("|") || "",
+							$options: "i",
+						},
+					},
+					{
+						"account.username": {
+							$regex: req.query.q.split(" ").filter(Boolean).join("|") || "",
+							$options: "i",
+						},
+					},
+					{
+						"account.gender": {
+							$regex: req.query.q.split(" ").filter(Boolean).join("|") || "",
+							$options: "i",
+						},
+					},
+					{
+						"account.website": {
+							$regex: req.query.q.split(" ").filter(Boolean).join("|") || "",
+							$options: "i",
+						},
+					},
+					{
+						"profile.tagline": {
+							$regex: req.query.q.split(" ").filter(Boolean).join("|") || "",
+							$options: "i",
+						},
+					},
+					{
+						"profile.description": {
+							$regex: req.query.q.split(" ").filter(Boolean).join("|") || "",
+							$options: "i",
+						},
+					},
+				],
 			}),
-			role: { $nin: ["admin"] }
+			role: { $nin: ["admin"] },
 		};
 
 		const options = {
 			...req.query,
-			page
+			page,
 		};
 		const userListResponse = await this.service.readMany(query, options);
 		if (userListResponse.error) return next(userListResponse.errors);
 
 		if (!userListResponse.data.length && userListResponse.offset === undefined && userListResponse.page !== 1) {
-			req.flash("info", `Hey! you asked for page ${page}. But that dosen't exist. So i put you on page ${userListResponse.pages}.`);
-			return res.status(userListResponse.statusCode).redirect(`/dashboard/users/list?page=${userListResponse.pages}`);
+			req.flash(
+				"info",
+				`Hey! you asked for page ${page}. But that dosen't exist. So i put you on page ${userListResponse.pages}.`
+			);
+			return res
+				.status(userListResponse.statusCode)
+				.redirect(`/dashboard/users/list?page=${userListResponse.pages}`);
 		}
 
 		res.render("dashboard/users/list", {
 			page_title: "Manage All Users",
 			...userListResponse,
 			data: { users: userListResponse.data },
-			query: req.query
+			query: req.query,
 		});
 	}
 
@@ -974,7 +1076,10 @@ class UserController extends Controller {
 		);
 		if (userChangeVerificationResponse.error) return next(userChangeVerificationResponse.errors);
 
-		req.flash("success", `${userChangeVerificationResponse.data.account.name}'s verification status has been changed!`);
+		req.flash(
+			"success",
+			`${userChangeVerificationResponse.data.account.name}'s verification status has been changed!`
+		);
 		res.redirect("back");
 	}
 
@@ -984,14 +1089,27 @@ class UserController extends Controller {
 		const options = {
 			select: "email account.name account.picture account.picture_sm account.picture_md account.picture_lg slug",
 			...req.query,
-			page
+			page,
 		};
 		const companiesByFirstLetterResponse = await this.service.readMany(query, options);
 		if (companiesByFirstLetterResponse.error) return next(companiesByFirstLetterResponse.errors);
 
-		if (!companiesByFirstLetterResponse.data.length && companiesByFirstLetterResponse.offset === undefined && companiesByFirstLetterResponse.page !== 1) {
-			req.flash("info", `Hey! you asked for page ${page}. But that doesn't exist. So i put you on page ${companiesByFirstLetterResponse.pages}.`);
-			return res.status(companiesByFirstLetterResponse.statusCode).redirect(`/browse/companies?${qs.stringify(assignIn(req.query, qs.parse({ letter, page: companiesByFirstLetterResponse.pages })))}`);
+		if (
+			!companiesByFirstLetterResponse.data.length
+			&& companiesByFirstLetterResponse.offset === undefined
+			&& companiesByFirstLetterResponse.page !== 1
+		) {
+			req.flash(
+				"info",
+				`Hey! you asked for page ${page}. But that doesn't exist. So i put you on page ${companiesByFirstLetterResponse.pages}.`
+			);
+			return res
+				.status(companiesByFirstLetterResponse.statusCode)
+				.redirect(
+					`/browse/companies?${qs.stringify(
+						assignIn(req.query, qs.parse({ letter, page: companiesByFirstLetterResponse.pages }))
+					)}`
+				);
 		}
 
 		res.render("companies-list", {
@@ -1001,8 +1119,8 @@ class UserController extends Controller {
 			query: {
 				...req.query,
 				letter,
-				page
-			}
+				page,
+			},
 		});
 	}
 
@@ -1015,34 +1133,51 @@ class UserController extends Controller {
 
 		const query = {
 			role: "freelancer",
-			...(hourly_rate && { "profile.hourly_rate": { $gte: Number(hourly_rate.split(",")[0]), $lte: Number(hourly_rate.split(",")[1]) } }),
+			...(hourly_rate && {
+				"profile.hourly_rate": {
+					$gte: Number(hourly_rate.split(",")[0]),
+					$lte: Number(hourly_rate.split(",")[1]),
+				},
+			}),
 			...(keywords
-				&& keywords.filter(Boolean).length
-				&& {
-					$or: [
-						{ "account.name": { $regex: keywords.filter(Boolean).join("|") || "", $options: "i" } },
-						{ "profile.description": { $regex: keywords.filter(Boolean).join("|") || "", $options: "i" } },
-						{ "profile.tagline": { $regex: keywords.filter(Boolean).join("|") || "", $options: "i" } }
-					]
-				}),
-			...(skills && skills.filter(Boolean).length && { "profile.skills": { $in: skills.filter(Boolean) } })
+				&& keywords.filter(Boolean).length && {
+				$or: [
+					{ "account.name": { $regex: keywords.filter(Boolean).join("|") || "", $options: "i" } },
+					{ "profile.description": { $regex: keywords.filter(Boolean).join("|") || "", $options: "i" } },
+					{ "profile.tagline": { $regex: keywords.filter(Boolean).join("|") || "", $options: "i" } },
+				],
+			}),
+			...(skills && skills.filter(Boolean).length && { "profile.skills": { $in: skills.filter(Boolean) } }),
 		};
 
 		const options = {
 			limit: 6,
 			...req.query,
-			page
+			page,
 		};
 
 		const freelancersResponse = await this.service.readMany(query, options);
 		if (freelancersResponse.error) return next(freelancersResponse.errors);
 
-		if (!freelancersResponse.data.length && freelancersResponse.offset === undefined && freelancersResponse.page !== 1) {
-			req.flash("info", `Hey! you asked for page ${page}. But that dosen't exist. So i put you on page ${freelancersResponse.pages}.`);
-			return res.status(freelancersResponse.statusCode).redirect(`/browse/freelancers?${qs.stringify(assignIn(req.query, qs.parse({ page: freelancersResponse.pages })))}`);
+		if (
+			!freelancersResponse.data.length
+			&& freelancersResponse.offset === undefined
+			&& freelancersResponse.page !== 1
+		) {
+			req.flash(
+				"info",
+				`Hey! you asked for page ${page}. But that dosen't exist. So i put you on page ${freelancersResponse.pages}.`
+			);
+			return res
+				.status(freelancersResponse.statusCode)
+				.redirect(
+					`/browse/freelancers?${qs.stringify(
+						assignIn(req.query, qs.parse({ page: freelancersResponse.pages }))
+					)}`
+				);
 		}
 
-		const skillsResponse = await skillService.readMany({}, { sort: { users: -1 } });
+		const skillsResponse = await SkillService.readMany({}, { sort: { users: -1 } });
 		if (skillsResponse.error) return next(skillsResponse.errors);
 
 		res.render("freelancers-list", {
@@ -1050,14 +1185,14 @@ class UserController extends Controller {
 			...freelancersResponse,
 			data: {
 				freelancers: freelancersResponse.data,
-				skills: skillsResponse.data
+				skills: skillsResponse.data,
 			},
 			query: {
 				...req.query,
-				page
-			}
+				page,
+			},
 		});
 	}
 }
 
-export default new UserController(userService);
+export default new UserController(UserService);

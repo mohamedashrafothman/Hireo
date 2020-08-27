@@ -33,25 +33,15 @@ var _expressValidator = require("express-validator");
 
 var _Controller2 = _interopRequireDefault(require("../utilities/Controller"));
 
-var _Post = _interopRequireDefault(require("../models/Post.model"));
+var _Post = _interopRequireDefault(require("../services/Post"));
 
-var _User = _interopRequireDefault(require("../models/User.model"));
+var _User = _interopRequireDefault(require("../services/User"));
 
-var _Device = _interopRequireDefault(require("../models/Device.model"));
+var _Device = _interopRequireDefault(require("../services/Device"));
 
-var _Category = _interopRequireDefault(require("../models/Category.model"));
+var _Category = _interopRequireDefault(require("../services/Category"));
 
-var _Attachment = _interopRequireDefault(require("../models/Attachment.model"));
-
-var _Post2 = _interopRequireDefault(require("../services/Post"));
-
-var _User2 = _interopRequireDefault(require("../services/User"));
-
-var _Device2 = _interopRequireDefault(require("../services/Device"));
-
-var _Category2 = _interopRequireDefault(require("../services/Category"));
-
-var _Attachment2 = _interopRequireDefault(require("../services/Attachment"));
+var _Attachment = _interopRequireDefault(require("../services/Attachment"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -60,12 +50,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var postService = new _Post2["default"](_Post["default"]);
-var userService = new _User2["default"](_User["default"]);
-var deviceService = new _Device2["default"](_Device["default"]);
-var categoryService = new _Category2["default"](_Category["default"]);
-var attachmentService = new _Attachment2["default"](_Attachment["default"]);
 
 var PostController = /*#__PURE__*/function (_Controller) {
   (0, _inherits2["default"])(PostController, _Controller);
@@ -296,7 +280,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
                 // checking for user views in last month.
                 client_ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
                 _context2.next = 22;
-                return deviceService.readMany({
+                return _Device["default"].readMany({
                   post: getSinglePostBySlugResponse.data.post._id,
                   ip: client_ip,
                   "browser.name": req.useragent.browser,
@@ -326,7 +310,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
                 }
 
                 _context2.next = 28;
-                return deviceService.create({
+                return _Device["default"].create({
                   post: getSinglePostBySlugResponse.data.post._id,
                   ip: client_ip,
                   source: req.useragent.source,
@@ -495,7 +479,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
             switch (_context4.prev = _context4.next) {
               case 0:
                 _context4.next = 2;
-                return categoryService.readMany({
+                return _Category["default"].readMany({
                   parent: {
                     $exists: false
                   }
@@ -547,7 +531,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
               case 0:
                 slug = req.params.slug;
                 _context5.next = 3;
-                return categoryService.readMany({
+                return _Category["default"].readMany({
                   parent: {
                     $exists: false
                   }
@@ -624,7 +608,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
           while (1) {
             switch (_context7.prev = _context7.next) {
               case 0:
-                storageEngine = attachmentService.initStorageEngine({
+                storageEngine = _Attachment["default"].initStorageEngine({
                   accept: ["image"],
                   square: false,
                   responsive: true,
@@ -718,7 +702,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
                 err = errors.array();
                 req.flash("error", err);
                 _context8.next = 6;
-                return categoryService.readMany({
+                return _Category["default"].readMany({
                   parent: {
                     $exists: false
                   }
@@ -756,7 +740,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
 
                 port = req.app.get("port");
                 base = "".concat(req.protocol, "://").concat(req.hostname).concat(port ? ":".concat(port) : "");
-                files = attachmentService.handelFilesForDBCreation(req.body.files, base)[0];
+                files = _Attachment["default"].handelFilesForDBCreation(req.body.files, base)[0];
                 i = 0;
 
               case 16:
@@ -766,7 +750,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
                 }
 
                 _context8.next = 19;
-                return attachmentService.create(files[i]);
+                return _Attachment["default"].create(files[i]);
 
               case 19:
                 fileCreationResponse = _context8.sent;
@@ -788,13 +772,13 @@ var PostController = /*#__PURE__*/function (_Controller) {
 
               case 26:
                 req.body = _objectSpread(_objectSpread({}, req.body), {}, {
-                  "thumbnail.lg": attachmentService.options.responsive ? savedAttachments.filter(function (file) {
+                  "thumbnail.lg": _Attachment["default"].options.responsive ? savedAttachments.filter(function (file) {
                     return file.path.match(/^(.+?)_lg\.(.+)$/i);
                   })[0]._id : null,
-                  "thumbnail.md": attachmentService.options.responsive ? savedAttachments.filter(function (file) {
+                  "thumbnail.md": _Attachment["default"].options.responsive ? savedAttachments.filter(function (file) {
                     return file.path.match(/^(.+?)_md\.(.+)$/i);
                   })[0]._id : null,
-                  "thumbnail.sm": attachmentService.options.responsive ? savedAttachments.filter(function (file) {
+                  "thumbnail.sm": _Attachment["default"].options.responsive ? savedAttachments.filter(function (file) {
                     return file.path.match(/^(.+?)_sm\.(.+)$/i);
                   })[0]._id : null
                 });
@@ -820,7 +804,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
 
               case 33:
                 _context8.next = 35;
-                return categoryService.updateOne({
+                return _Category["default"].updateOne({
                   _id: postCreateResponse.data.category
                 }, {
                   $addToSet: {
@@ -840,7 +824,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
 
               case 38:
                 _context8.next = 40;
-                return userService.updateOne({
+                return _User["default"].updateOne({
                   _id: postCreateResponse.data.created_by
                 }, {
                   $addToSet: {
@@ -896,7 +880,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
                 err = errors.array();
                 req.flash("error", err);
                 _context9.next = 7;
-                return categoryService.readMany({
+                return _Category["default"].readMany({
                   parent: {
                     $exists: false
                   }
@@ -961,7 +945,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
 
                 port = req.app.get("port");
                 base = "".concat(req.protocol, "://").concat(req.hostname).concat(port ? ":".concat(port) : "");
-                files = attachmentService.handelFilesForDBCreation(req.body.files, base)[0];
+                files = _Attachment["default"].handelFilesForDBCreation(req.body.files, base)[0];
                 i = 0;
 
               case 24:
@@ -971,7 +955,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
                 }
 
                 _context9.next = 27;
-                return attachmentService.create(files[i]);
+                return _Attachment["default"].create(files[i]);
 
               case 27:
                 fileCreationResponse = _context9.sent;
@@ -993,13 +977,13 @@ var PostController = /*#__PURE__*/function (_Controller) {
 
               case 34:
                 req.body = _objectSpread(_objectSpread({}, req.body), {}, {
-                  "thumbnail.lg": attachmentService.options.responsive ? savedAttachments.filter(function (file) {
+                  "thumbnail.lg": _Attachment["default"].options.responsive ? savedAttachments.filter(function (file) {
                     return file.path.match(/^(.+?)_lg\.(.+)$/i);
                   })[0]._id : null,
-                  "thumbnail.md": attachmentService.options.responsive ? savedAttachments.filter(function (file) {
+                  "thumbnail.md": _Attachment["default"].options.responsive ? savedAttachments.filter(function (file) {
                     return file.path.match(/^(.+?)_md\.(.+)$/i);
                   })[0]._id : null,
-                  "thumbnail.sm": attachmentService.options.responsive ? savedAttachments.filter(function (file) {
+                  "thumbnail.sm": _Attachment["default"].options.responsive ? savedAttachments.filter(function (file) {
                     return file.path.match(/^(.+?)_sm\.(.+)$/i);
                   })[0]._id : null
                 });
@@ -1042,7 +1026,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
 
               case 45:
                 _context9.next = 47;
-                return categoryService.updateOne({
+                return _Category["default"].updateOne({
                   _id: postUpdateResponse.data.category
                 }, {
                   $addToSet: {
@@ -1062,7 +1046,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
 
               case 50:
                 _context9.next = 52;
-                return userService.updateOne({
+                return _User["default"].updateOne({
                   _id: req.user._id
                 }, {
                   $addToSet: {
@@ -1133,7 +1117,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
 
               case 8:
                 _context10.next = 10;
-                return categoryService.updateOne({
+                return _Category["default"].updateOne({
                   _id: postDeleteResponse.data.category
                 }, {
                   $pull: {
@@ -1153,7 +1137,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
 
               case 13:
                 _context10.next = 15;
-                return userService.updateOne({
+                return _User["default"].updateOne({
                   _id: postDeleteResponse.data.created_by
                 }, {
                   $pull: {
@@ -1174,7 +1158,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
               case 18:
                 attachments_ids = [postDeleteResponse.data.thumbnail.lg, postDeleteResponse.data.thumbnail.md, postDeleteResponse.data.thumbnail.sm];
                 _context10.next = 21;
-                return attachmentService.deleteMany({
+                return _Attachment["default"].deleteMany({
                   _id: {
                     $in: attachments_ids
                   }
@@ -1192,7 +1176,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
 
               case 24:
                 _context10.next = 26;
-                return attachmentService.handelFilesForDirDeletion(attachmentDeleteResponse.data.map(function (current) {
+                return _Attachment["default"].handelFilesForDirDeletion(attachmentDeleteResponse.data.map(function (current) {
                   return current.path;
                 }));
 
@@ -1208,7 +1192,7 @@ var PostController = /*#__PURE__*/function (_Controller) {
 
               case 29:
                 _context10.next = 31;
-                return deviceService.deleteMany({
+                return _Device["default"].deleteMany({
                   post: postDeleteResponse.data._id
                 });
 
@@ -1244,6 +1228,6 @@ var PostController = /*#__PURE__*/function (_Controller) {
   return PostController;
 }(_Controller2["default"]);
 
-var _default = new PostController(postService);
+var _default = new PostController(_Post["default"]);
 
 exports["default"] = _default;

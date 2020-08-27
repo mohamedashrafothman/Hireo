@@ -7,14 +7,6 @@ import IconService from "../services/Icon";
 import CategoryService from "../services/Category";
 import AttachmentService from "../services/Attachment";
 
-import Icon from "../models/Icon.model";
-import Category from "../models/Category.model";
-import Attachment from "../models/Attachment.model";
-
-const iconService = new IconService(Icon);
-const categoryService = new CategoryService(Category);
-const attachmentService = new AttachmentService(Attachment);
-
 class CategoryController extends Controller {
 	constructor(service) {
 		super(service);
@@ -53,7 +45,7 @@ class CategoryController extends Controller {
 		);
 		if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
-		const iconReadResponse = await iconService.readMany({}, { pagination: false });
+		const iconReadResponse = await IconService.readMany({}, { pagination: false });
 		if (iconReadResponse.error) return next(iconReadResponse.errors);
 
 		res.render("dashboard/categories/add", {
@@ -76,7 +68,7 @@ class CategoryController extends Controller {
 		);
 		if (categoriesReadResponse.error) return next(categoriesReadResponse.errors);
 
-		const iconsReadResponse = await iconService.readMany({}, { pagination: false });
+		const iconsReadResponse = await IconService.readMany({}, { pagination: false });
 		if (iconsReadResponse.error) return next(iconsReadResponse.errors);
 
 		res.render("dashboard/categories/edit", {
@@ -105,7 +97,7 @@ class CategoryController extends Controller {
 	}
 
 	async uploadImage(req, res, next) {
-		const storageEngine = attachmentService.initStorageEngine({
+		const storageEngine = AttachmentService.initStorageEngine({
 			accept: ["image"],
 			square: true,
 			quality: 50,
@@ -141,7 +133,7 @@ class CategoryController extends Controller {
 				);
 				if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
-				const iconReadResponse = await iconService.readMany({}, { pagination: false });
+				const iconReadResponse = await IconService.readMany({}, { pagination: false });
 				if (iconReadResponse.error) return next(iconReadResponse.errors);
 
 				req.flash("error", err.message);
@@ -172,7 +164,7 @@ class CategoryController extends Controller {
 			);
 			if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
-			const iconReadResponse = await iconService.readMany({}, { pagination: false });
+			const iconReadResponse = await IconService.readMany({}, { pagination: false });
 			if (iconReadResponse.error) return next(iconReadResponse.errors);
 
 			const err = errors.array();
@@ -193,10 +185,10 @@ class CategoryController extends Controller {
 			const port = req.app.get("port");
 			const base = `${req.protocol}://${req.hostname}${port ? `:${port}` : ""}`;
 
-			const files = attachmentService.handelFilesForDBCreation(req.body.files.filter(Boolean), base)[0];
+			const files = AttachmentService.handelFilesForDBCreation(req.body.files.filter(Boolean), base)[0];
 
 			for (let i = 0; i < files.length; i++) {
-				const fileCreationResponse = await attachmentService.create(files[i]);
+				const fileCreationResponse = await AttachmentService.create(files[i]);
 				if (fileCreationResponse.error) return next(fileCreationResponse.errors);
 				savedAttachments.push(fileCreationResponse.data);
 			}
@@ -228,7 +220,7 @@ class CategoryController extends Controller {
 			);
 			if (categoryReadResponse.error) return next(categoryReadResponse.errors);
 
-			const iconReadResponse = await iconService.readMany({}, { pagination: false });
+			const iconReadResponse = await IconService.readMany({}, { pagination: false });
 			if (iconReadResponse.error) return next(iconReadResponse.errors);
 
 			const err = errors.array();
@@ -249,10 +241,10 @@ class CategoryController extends Controller {
 			const port = req.app.get("port");
 			const base = `${req.protocol}://${req.hostname}${port ? `:${port}` : ""}`;
 
-			const files = attachmentService.handelFilesForDBCreation(req.body.files.filter(Boolean), base)[0];
+			const files = AttachmentService.handelFilesForDBCreation(req.body.files.filter(Boolean), base)[0];
 
 			for (let i = 0; i < files.length; i++) {
-				const fileCreationResponse = await attachmentService.create(files[i]);
+				const fileCreationResponse = await AttachmentService.create(files[i]);
 				if (fileCreationResponse.error) return next(fileCreationResponse.errors);
 				savedAttachments.push(fileCreationResponse.data);
 			}
@@ -275,4 +267,4 @@ class CategoryController extends Controller {
 	}
 }
 
-export default new CategoryController(categoryService);
+export default new CategoryController(CategoryService);

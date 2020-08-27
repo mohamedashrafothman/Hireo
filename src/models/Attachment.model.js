@@ -27,15 +27,13 @@ const AttachmentSchema = new mongoose.Schema(
 //
 AttachmentSchema.plugin(mongoosePagination);
 
-async function preDeleteMethod(next) {
-	const attachmentService = new AttachmentService(this.model);
-
-	const attachmentReadResponse = await attachmentService.readMany(this.getQuery());
+const preDeleteMethod = async function (next) {
+	const attachmentReadResponse = await AttachmentService.readMany(this.getQuery());
 	if (attachmentReadResponse.error) {
 		return next(attachmentReadResponse.errors);
 	}
 
-	const attachmentFilesDeleteResponse = await attachmentService.handelFilesForDirDeletion(
+	const attachmentFilesDeleteResponse = await AttachmentService.handelFilesForDirDeletion(
 		attachmentReadResponse.data.map((attachment) => attachment.path)
 	);
 	if (attachmentFilesDeleteResponse.error) {
@@ -43,7 +41,7 @@ async function preDeleteMethod(next) {
 	}
 
 	next();
-}
+};
 
 AttachmentSchema.pre("deleteOne", preDeleteMethod);
 AttachmentSchema.pre("deleteMany", preDeleteMethod);

@@ -2,10 +2,6 @@ import slug from "mongoose-slug-updater";
 import mongoosePagination from "mongoose-paginate-v2";
 import mongoose from "mongoose";
 
-import Attachment from "./Attachment.model";
-import Post from "./Post.model";
-import Job from "./Job.model";
-
 import CategoryService from "../services/Category";
 import AttachmentService from "../services/Attachment";
 import PostService from "../services/Post";
@@ -62,12 +58,12 @@ const CategorySchema = new mongoose.Schema(
 //
 // ─── SCHEMA PLUGIN AND HOOKS ────────────────────────────────────────────────────
 //
-async function preFindMethod(next) {
+const preFindMethod = async function (next) {
 	this.populate([{ path: "children" }, { path: "icon" }, { path: "picture", select: "path name extname base" }]);
 	next();
-}
+};
 
-async function preFindOneMethod(next) {
+const preFindOneMethod = async function (next) {
 	this.populate([
 		{ path: "parent" },
 		{ path: "children" },
@@ -75,36 +71,33 @@ async function preFindOneMethod(next) {
 		{ path: "picture", select: "path name extname base" },
 	]);
 	next();
-}
+};
 
-async function preDeleteOneMethod(next) {
+const preDeleteOneMethod = async function (next) {
 	const categoryService = new CategoryService(this.model);
-	const attachmentService = new AttachmentService(Attachment);
-	const postService = new PostService(Post);
-	const jobService = new JobService(Job);
 
 	const categoryReadResponse = await categoryService.readOne(this.getQuery());
-	if (categoryReadResponse.error) return next(categoryReadResponse.errors);
+	if (categoryReadResponse?.error) return next(categoryReadResponse?.errors);
 
-	if (categoryReadResponse.data?.picture) {
-		const deleteAttachmentResponse = await attachmentService.deleteOne({
-			_id: categoryReadResponse.data?.picture?._id,
+	if (categoryReadResponse?.data?.picture) {
+		const deleteAttachmentResponse = await AttachmentService.deleteOne({
+			_id: categoryReadResponse?.data?.picture?._id,
 		});
-		if (deleteAttachmentResponse.error) return next(deleteAttachmentResponse.errors);
+		if (deleteAttachmentResponse?.error) return next(deleteAttachmentResponse?.errors);
 	}
 
-	if (categoryReadResponse.data?.posts?.length) {
-		const deletePostsResponse = await postService.deleteMany({ _id: { $in: categoryReadResponse.data.posts } });
-		if (deletePostsResponse.error) return next(deletePostsResponse.errors);
+	if (categoryReadResponse?.data?.posts?.length) {
+		const deletePostsResponse = await PostService.deleteMany({ _id: { $in: categoryReadResponse?.data?.posts } });
+		if (deletePostsResponse?.error) return next(deletePostsResponse?.errors);
 	}
 
-	if (categoryReadResponse.data?.jobs?.length) {
-		const deleteJobsResponse = await jobService.deleteMany({ _id: { $in: categoryReadResponse.data.jobs } });
-		if (deleteJobsResponse.error) return next(deleteJobsResponse.errors);
+	if (categoryReadResponse?.data?.jobs?.length) {
+		const deleteJobsResponse = await JobService.deleteMany({ _id: { $in: categoryReadResponse?.data?.jobs } });
+		if (deleteJobsResponse?.error) return next(deleteJobsResponse?.errors);
 	}
 
 	next();
-}
+};
 
 CategorySchema.plugin(mongoosePagination);
 CategorySchema.plugin(slug);

@@ -2,17 +2,9 @@ import { body, validationResult } from "express-validator";
 
 import Controller from "../utilities/Controller";
 
-import Post from "../models/Post.model";
-import Device from "../models/Device.model";
-import Comment from "../models/Comment.model";
-
 import PostService from "../services/Post";
 import DeviceService from "../services/Device";
 import CommentService from "../services/Comment";
-
-const postService = new PostService(Post);
-const deviceService = new DeviceService(Device);
-const commentService = new CommentService(Comment);
 
 class CommentController extends Controller {
 	constructor(service) {
@@ -31,9 +23,7 @@ class CommentController extends Controller {
 					.notEmpty()
 					.withMessage("Comment's content can't be empty!")
 					.isLength({ max: 500 })
-					.withMessage(
-						"Comment's content exceeds the limit of 500 letter!"
-					)
+					.withMessage("Comment's content exceeds the limit of 500 letter!")
 					.trim()
 					.escape(),
 			];
@@ -44,7 +34,7 @@ class CommentController extends Controller {
 
 	async addComment(req, res, next) {
 		const { id: post_id, parent = null } = req.params;
-		const client_ip =			req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+		const client_ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
@@ -73,7 +63,7 @@ class CommentController extends Controller {
 		}
 
 		// creating the device doc where the comment added from.
-		const deviceCreateResponse = await deviceService.create({
+		const deviceCreateResponse = await DeviceService.create({
 			ip: client_ip,
 			source: req.useragent.source,
 			browser: {
@@ -97,7 +87,7 @@ class CommentController extends Controller {
 		}
 
 		// Adding the comment doc _id to the post doc.
-		const postUpdateResponse = await postService.updateOne(
+		const postUpdateResponse = await PostService.updateOne(
 			{ _id: post_id },
 			{ $push: { comments: commentCreateResponse.data._id } }
 		);
@@ -115,4 +105,4 @@ class CommentController extends Controller {
 	}
 }
 
-export default new CommentController(commentService);
+export default new CommentController(CommentService);

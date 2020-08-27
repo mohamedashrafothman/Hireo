@@ -39,12 +39,6 @@ var _Category = _interopRequireDefault(require("../services/Category"));
 
 var _Attachment = _interopRequireDefault(require("../services/Attachment"));
 
-var _Icon2 = _interopRequireDefault(require("../models/Icon.model"));
-
-var _Category2 = _interopRequireDefault(require("../models/Category.model"));
-
-var _Attachment2 = _interopRequireDefault(require("../models/Attachment.model"));
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -52,10 +46,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var iconService = new _Icon["default"](_Icon2["default"]);
-var categoryService = new _Category["default"](_Category2["default"]);
-var attachmentService = new _Attachment["default"](_Attachment2["default"]);
 
 var CategoryController = /*#__PURE__*/function (_Controller) {
   (0, _inherits2["default"])(CategoryController, _Controller);
@@ -123,7 +113,7 @@ var CategoryController = /*#__PURE__*/function (_Controller) {
 
               case 5:
                 _context.next = 7;
-                return iconService.readMany({}, {
+                return _Icon["default"].readMany({}, {
                   pagination: false
                 });
 
@@ -218,7 +208,7 @@ var CategoryController = /*#__PURE__*/function (_Controller) {
 
               case 12:
                 _context2.next = 14;
-                return iconService.readMany({}, {
+                return _Icon["default"].readMany({}, {
                   pagination: false
                 });
 
@@ -320,7 +310,7 @@ var CategoryController = /*#__PURE__*/function (_Controller) {
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
-                storageEngine = attachmentService.initStorageEngine({
+                storageEngine = _Attachment["default"].initStorageEngine({
                   accept: ["image"],
                   square: true,
                   quality: 50,
@@ -381,7 +371,7 @@ var CategoryController = /*#__PURE__*/function (_Controller) {
 
                           case 6:
                             _context4.next = 8;
-                            return iconService.readMany({}, {
+                            return _Icon["default"].readMany({}, {
                               pagination: false
                             });
 
@@ -476,7 +466,7 @@ var CategoryController = /*#__PURE__*/function (_Controller) {
 
               case 9:
                 _context6.next = 11;
-                return iconService.readMany({}, {
+                return _Icon["default"].readMany({}, {
                   pagination: false
                 });
 
@@ -513,7 +503,7 @@ var CategoryController = /*#__PURE__*/function (_Controller) {
 
                 port = req.app.get("port");
                 base = "".concat(req.protocol, "://").concat(req.hostname).concat(port ? ":".concat(port) : "");
-                files = attachmentService.handelFilesForDBCreation(req.body.files.filter(Boolean), base)[0];
+                files = _Attachment["default"].handelFilesForDBCreation(req.body.files.filter(Boolean), base)[0];
                 i = 0;
 
               case 23:
@@ -523,7 +513,7 @@ var CategoryController = /*#__PURE__*/function (_Controller) {
                 }
 
                 _context6.next = 26;
-                return attachmentService.create(files[i]);
+                return _Attachment["default"].create(files[i]);
 
               case 26:
                 fileCreationResponse = _context6.sent;
@@ -627,7 +617,7 @@ var CategoryController = /*#__PURE__*/function (_Controller) {
 
               case 9:
                 _context7.next = 11;
-                return iconService.readMany({}, {
+                return _Icon["default"].readMany({}, {
                   pagination: false
                 });
 
@@ -664,7 +654,7 @@ var CategoryController = /*#__PURE__*/function (_Controller) {
 
                 port = req.app.get("port");
                 base = "".concat(req.protocol, "://").concat(req.hostname).concat(port ? ":".concat(port) : "");
-                files = attachmentService.handelFilesForDBCreation(req.body.files.filter(Boolean), base)[0];
+                files = _Attachment["default"].handelFilesForDBCreation(req.body.files.filter(Boolean), base)[0];
                 i = 0;
 
               case 23:
@@ -674,7 +664,7 @@ var CategoryController = /*#__PURE__*/function (_Controller) {
                 }
 
                 _context7.next = 26;
-                return attachmentService.create(files[i]);
+                return _Attachment["default"].create(files[i]);
 
               case 26:
                 fileCreationResponse = _context7.sent;
@@ -779,6 +769,6 @@ var CategoryController = /*#__PURE__*/function (_Controller) {
   return CategoryController;
 }(_Controller2["default"]);
 
-var _default = new CategoryController(categoryService);
+var _default = new CategoryController(_Category["default"]);
 
 exports["default"] = _default;

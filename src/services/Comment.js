@@ -1,7 +1,10 @@
 import Service from "../utilities/Service";
+import Comment from "../models/Comment.model";
 
-export default class CommentService extends Service {
+class CommentService extends Service {
 	constructor(model) {
 		super(model);
 	}
 }
+
+export default new CommentService(Comment);

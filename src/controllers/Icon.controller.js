@@ -1,8 +1,6 @@
 import Controller from "../utilities/Controller";
-import Icon from "../models/Icon.model";
-import IconService from "../services/Icon";
 
-const iconService = new IconService(Icon);
+import IconService from "../services/Icon";
 
 class IconController extends Controller {
 	constructor(service) {
@@ -10,4 +8,4 @@ class IconController extends Controller {
 	}
 }
 
-export default new IconController(iconService);
+export default new IconController(IconService);

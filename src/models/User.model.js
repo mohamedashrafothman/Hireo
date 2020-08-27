@@ -1,5 +1,4 @@
 /* eslint-disable import/no-cycle */
-/* eslint-disable func-names */
 import slug from "mongoose-slug-updater";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
@@ -7,18 +6,13 @@ import { isEmail } from "validator";
 import mongoosePagination from "mongoose-paginate-v2";
 import mongoose from "mongoose";
 
-import Skill from "./Skill.model";
-import Attachment from "./Attachment.model";
-import Job from "./Job.model";
-import Application from "./Application.model";
-import Post from "./Post.model";
-
 import UserService from "../services/User";
 import AttachmentService from "../services/Attachment";
 import SkillService from "../services/Skill";
 import JobService from "../services/Job";
 import ApplicationService from "../services/Application";
 import PostService from "../services/Post";
+import EmailService from "../services/Email";
 
 //
 // ─── DEFINING SCHEMA ────────────────────────────────────────────────────────────
@@ -152,7 +146,7 @@ const preSaveMethod = function (next) {
 	});
 };
 
-async function preFindMethod(next) {
+const preFindMethod = async function (next) {
 	this.populate([
 		{ path: "profile.skills" },
 		{ path: "profile.nationality", select: "code name" },
@@ -163,9 +157,9 @@ async function preFindMethod(next) {
 		{ path: "account.picture_lg", select: "path name extname base" },
 	]);
 	next();
-}
+};
 
-async function preFindOneMethod(next) {
+const preFindOneMethod = async function (next) {
 	this.populate([
 		{ path: "profile.skills" },
 		{ path: "profile.nationality", select: "code name" },
@@ -179,24 +173,17 @@ async function preFindOneMethod(next) {
 		{ path: "bookmarked.employer" },
 	]);
 	next();
-}
+};
 
-async function preDeleteOneMethod(next) {
-	const userService = new UserService(this.model);
-	const attachmentService = new AttachmentService(Attachment);
-	const skillService = new SkillService(Skill);
-	const jobService = new JobService(Job);
-	const applicationService = new ApplicationService(Application);
-	const postService = new PostService(Post);
-
-	const readUserResponse = await userService.readOne(this.getQuery());
+const preDeleteOneMethod = async function (next) {
+	const readUserResponse = await UserService.readOne(this.getQuery());
 	if (readUserResponse?.error) return next(readUserResponse?.errors);
 
 	if (
 		readUserResponse?.data?.bookmarked?.freelancer?.length
 		|| readUserResponse?.data?.bookmarked?.employer?.length
 	) {
-		const updateUserResponse = await userService.updateMany(
+		const updateUserResponse = await UserService.updateMany(
 			{
 				_id: { $ne: readUserResponse?.data?._id },
 				[`bookmarked.${readUserResponse?.data?.role}`]: readUserResponse?.data?._id,
@@ -221,12 +208,12 @@ async function preDeleteOneMethod(next) {
 			...readUserResponse?.data?.profile?.attachments?.map((attachment) => attachment._id),
 		];
 
-		const deleteAttachmentResponse = await attachmentService.deleteMany({ _id: { $in: attachmentIds } });
+		const deleteAttachmentResponse = await AttachmentService.deleteMany({ _id: { $in: attachmentIds } });
 		if (deleteAttachmentResponse?.error) return next(deleteAttachmentResponse?.errors);
 	}
 
 	if (readUserResponse?.data?.profile?.skills?.length) {
-		const updateSkillResponse = await skillService.updateMany(
+		const updateSkillResponse = await SkillService.updateMany(
 			{ _id: { $in: readUserResponse?.data?.profile?.skills.map((skill) => skill._id) } },
 			{ $pull: { users: readUserResponse?.data?._id } }
 		);
@@ -234,40 +221,42 @@ async function preDeleteOneMethod(next) {
 	}
 
 	if (readUserResponse?.data?.jobs?.length) {
-		const deleteJobsResponse = await jobService.deleteMany({ created_by: readUserResponse?.data?._id });
+		const deleteJobsResponse = await JobService.deleteMany({ created_by: readUserResponse?.data?._id });
 		if (deleteJobsResponse?.error) return next(deleteJobsResponse?.errors);
 	}
 
+	if (readUserResponse?.data?.email) {
+		const deleteEmailResponse = await EmailService.deleteMany({ to: readUserResponse?.data?.email });
+		if (deleteEmailResponse?.error) return next(deleteEmailResponse?.errors);
+	}
+
 	if (readUserResponse?.data?.applications?.length) {
-		const deleteApplicationsResponse = await applicationService.deleteMany({
+		const deleteApplicationsResponse = await ApplicationService.deleteMany({
 			created_by: readUserResponse?.data?._id,
 		});
 		if (deleteApplicationsResponse?.error) return next(deleteApplicationsResponse?.errors);
 	}
 
 	if (readUserResponse?.data?.posts?.length) {
-		const deletePostsResponse = await postService.deleteMany({ created_by: readUserResponse?.data?._id });
+		const deletePostsResponse = await PostService.deleteMany({ created_by: readUserResponse?.data?._id });
 		if (deletePostsResponse?.error) return next(deletePostsResponse?.errors);
 	}
 
 	next();
-}
+};
 
-async function preFindOneAndUpdateMethod(next) {
-	const userService = new UserService(this.model);
-	const skillService =  new SkillService(Skill);
-
-	const readUserResponse = await userService.readOne(this.getQuery());
+const preFindOneAndUpdateMethod = async function (next) {
+	const readUserResponse = await UserService.readOne(this.getQuery());
 	if (readUserResponse?.error) return next(readUserResponse?.errors);
 
-	const skillsRemoveUserResponse = await skillService.updateMany(
+	const skillsRemoveUserResponse = await SkillService.updateMany(
 		{ users: readUserResponse?.data?._id },
 		{ $pull: { users: readUserResponse?.data?._id } }
 	);
 	if (skillsRemoveUserResponse.error) return next(skillsRemoveUserResponse.errors);
 
 	next();
-}
+};
 
 UserSchema.plugin(mongoosePagination);
 UserSchema.plugin(slug);

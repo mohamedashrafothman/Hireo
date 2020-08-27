@@ -1,7 +1,10 @@
 import Service from "../utilities/Service";
+import Skill from "../models/Skill.model";
 
-export default class SkillService extends Service {
+class SkillService extends Service {
 	constructor(model) {
 		super(model);
 	}
 }
+
+export default new SkillService(Skill);

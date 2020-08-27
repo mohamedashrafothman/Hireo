@@ -1,7 +1,10 @@
 import Service from "../utilities/Service";
+import JobType from "../models/Job_type.model";
 
-export default class JobTypeService extends Service {
+class JobTypeService extends Service {
 	constructor(model) {
 		super(model);
 	}
 }
+
+export default new JobTypeService(JobType);

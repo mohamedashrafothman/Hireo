@@ -19,25 +19,15 @@ var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/creat
 
 var _chalk = require("chalk");
 
-var _User = _interopRequireDefault(require("../models/User.model"));
+var _User = _interopRequireDefault(require("../services/User"));
 
-var _Message = _interopRequireDefault(require("../models/Message.model"));
+var _Message = _interopRequireDefault(require("../services/Message"));
 
-var _Conversation = _interopRequireDefault(require("../models/Conversation.model"));
-
-var _User2 = _interopRequireDefault(require("../services/User"));
-
-var _Message2 = _interopRequireDefault(require("../services/Message"));
-
-var _Conversation2 = _interopRequireDefault(require("../services/Conversation"));
+var _Conversation = _interopRequireDefault(require("../services/Conversation"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-var userService = new _User2["default"](_User["default"]);
-var messageService = new _Message2["default"](_Message["default"]);
-var conversationService = new _Conversation2["default"](_Conversation["default"]);
 
 var SocketConnection = /*#__PURE__*/function () {
   function SocketConnection(io) {
@@ -166,7 +156,7 @@ var SocketConnection = /*#__PURE__*/function () {
             switch (_context4.prev = _context4.next) {
               case 0:
                 _context4.next = 2;
-                return userService.readMany({
+                return _User["default"].readMany({
                   _id: {
                     $in: [data.to, data.from]
                   }
@@ -200,7 +190,7 @@ var SocketConnection = /*#__PURE__*/function () {
 
               case 5:
                 _context4.next = 7;
-                return messageService.create({
+                return _Message["default"].create({
                   user: data.from,
                   conversation: data.conversation,
                   content: data.message
@@ -218,7 +208,7 @@ var SocketConnection = /*#__PURE__*/function () {
 
               case 10:
                 _context4.next = 12;
-                return conversationService.updateOne({
+                return _Conversation["default"].updateOne({
                   _id: data.conversation
                 }, {
                   $addToSet: {
@@ -285,7 +275,7 @@ var SocketConnection = /*#__PURE__*/function () {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.next = 2;
-                return userService.readMany({
+                return _User["default"].readMany({
                   _id: {
                     $in: [data.to, data.from]
                   }
@@ -352,7 +342,7 @@ var SocketConnection = /*#__PURE__*/function () {
             switch (_context6.prev = _context6.next) {
               case 0:
                 _context6.next = 2;
-                return messageService.readMany({
+                return _Message["default"].readMany({
                   conversation: data.conversation,
                   user: data.receiver,
                   was_read: false
@@ -370,7 +360,7 @@ var SocketConnection = /*#__PURE__*/function () {
 
               case 5:
                 _context6.next = 7;
-                return messageService.updateMany({
+                return _Message["default"].updateMany({
                   conversation: data.conversation,
                   user: data.receiver,
                   was_read: false

@@ -9,12 +9,8 @@ const router = app.Router();
 //
 // ─── ROUTER BREAKPOINTS ─────────────────────────────────────────────────────────
 //
-router
-	.route(["/", "/:id"])
-	.get(ConversationController.getAllConversations);
-router
-	.route(["/:conversation/delete"])
-	.get(ConversationController.deleteConversation);
+router.route(["/", "/:id"]).get(ConversationController.getAllConversations);
+router.route(["/:conversation/delete"]).get(ConversationController.deleteConversation);
 
 //
 // ─── EXPORTING ROUTER ───────────────────────────────────────────────────────────

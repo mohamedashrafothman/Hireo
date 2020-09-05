@@ -9,9 +9,7 @@ const router = app.Router();
 //
 // ─── ROUTER BREAKPOINTS ─────────────────────────────────────────────────────────
 //
-router
-	.route(["/", "/list"])
-	.get(CategoryController.getCategoryList);
+router.route(["/", "/list"]).get(CategoryController.getCategoryList);
 router
 	.route("/add")
 	.get(CategoryController.getAddCategory)
@@ -19,10 +17,12 @@ router
 router
 	.route("/edit/:slug")
 	.get(CategoryController.getEditCategory)
-	.post(CategoryController.uploadImage, CategoryController.validator("edit category"), CategoryController.editCategory);
-router
-	.route("/delete/:id")
-	.get(CategoryController.deleteCategory);
+	.post(
+		CategoryController.uploadImage,
+		CategoryController.validator("edit category"),
+		CategoryController.editCategory
+	);
+router.route("/delete/:id").get(CategoryController.deleteCategory);
 
 //
 // ─── EXPORTING ROUTER ───────────────────────────────────────────────────────────

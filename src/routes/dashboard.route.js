@@ -18,13 +18,11 @@ const router = app.Router();
 //
 // ─── ROUTER BREAKPOINTS ─────────────────────────────────────────────────────────
 //
-router
-	.route("/")
-	.get((req, res) => { res.render("dashboard/dashboard", { page_title: "Dashboard" }); });
+router.route("/").get((req, res) => {
+	res.render("dashboard/dashboard", { page_title: "Dashboard" });
+});
 
-router
-	.route("/settings")
-	.get(UserController.getSettings);
+router.route("/settings").get(UserController.getSettings);
 router
 	.route("/settings/:id/account-info")
 	.post(UserController.uploadAvatar, UserController.validator("account info"), UserController.updateAccountInfo);
@@ -34,23 +32,22 @@ router
 
 router
 	.route("/settings/:id/profile-info")
-	.post(permission(["freelancer"]), UserController.uploadAttachments, UserController.validator("profile info"), UserController.updateProfileInfo);
+	.post(
+		permission(["freelancer"]),
+		UserController.uploadAttachments,
+		UserController.validator("profile info"),
+		UserController.updateProfileInfo
+	);
 router
 	.route("/settings/:id/delete-attachment/:attachment")
 	.get(permission(["freelancer"]), UserController.removeProfileAttachment);
 router
 	.route("/settings/:id/attachment/:attachment/download")
 	.get(permission(["freelancer"]), AttachmentController.downloadAttachment);
-router
-	.route(["/users", "/users/list"])
-	.get(permission(["admin"]), UserController.usersList);
-router
-	.route("/bookmark/:type/:id")
-	.put(UserController.bookmarkUser);
+router.route(["/users", "/users/list"]).get(permission(["admin"]), UserController.usersList);
+router.route("/bookmark/:type/:id").put(UserController.bookmarkUser);
 
-router
-	.route("/bookmarks")
-	.get(UserController.getBookmarkList);
+router.route("/bookmarks").get(UserController.getBookmarkList);
 
 //
 // ─── NESTING ROUTES ─────────────────────────────────────────────────────────────

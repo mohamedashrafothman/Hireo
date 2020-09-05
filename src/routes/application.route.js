@@ -11,16 +11,9 @@ const router = app.Router();
 //
 // ─── ROUTER BREAKPOINTS ─────────────────────────────────────────────────────────
 //
-router
-	.route(["/", "/list"])
-	.get(ApplicationController.getApplicationsList);
-router
-	.route("/:id/withdraw")
-	.get(ApplicationController.withdrawApplication);
-
-router
-	.route("/:id/attachment/:attachment/download")
-	.get(AttachmentController.downloadAttachment);
+router.route(["/", "/list"]).get(ApplicationController.getApplicationsList);
+router.route("/:id/withdraw").get(ApplicationController.withdrawApplication);
+router.route("/:id/attachment/:attachment/download").get(AttachmentController.downloadAttachment);
 
 //
 // ─── EXPORTING ROUTER ───────────────────────────────────────────────────────────

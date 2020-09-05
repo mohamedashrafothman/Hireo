@@ -208,7 +208,7 @@ var preDeleteOneMethod = /*#__PURE__*/function () {
               _id: readJobResponse === null || readJobResponse === void 0 ? void 0 : (_readJobResponse$data3 = readJobResponse.data) === null || _readJobResponse$data3 === void 0 ? void 0 : (_readJobResponse$data4 = _readJobResponse$data3.created_by) === null || _readJobResponse$data4 === void 0 ? void 0 : _readJobResponse$data4._id
             }, {
               $pull: {
-                jobs: readJobResponse === null || readJobResponse === void 0 ? void 0 : (_readJobResponse$data5 = readJobResponse.data) === null || _readJobResponse$data5 === void 0 ? void 0 : _readJobResponse$data5.id
+                jobs: readJobResponse === null || readJobResponse === void 0 ? void 0 : (_readJobResponse$data5 = readJobResponse.data) === null || _readJobResponse$data5 === void 0 ? void 0 : _readJobResponse$data5._id
               }
             });
 
@@ -255,7 +255,7 @@ var preDeleteOneMethod = /*#__PURE__*/function () {
 
             _context2.next = 20;
             return _Category["default"].updateOne({
-              _id: readJobResponse === null || readJobResponse === void 0 ? void 0 : (_readJobResponse$data12 = readJobResponse.data) === null || _readJobResponse$data12 === void 0 ? void 0 : _readJobResponse$data12.id
+              _id: readJobResponse === null || readJobResponse === void 0 ? void 0 : (_readJobResponse$data12 = readJobResponse.data) === null || _readJobResponse$data12 === void 0 ? void 0 : _readJobResponse$data12._id
             }, {
               $pull: {
                 jobs: readJobResponse === null || readJobResponse === void 0 ? void 0 : (_readJobResponse$data13 = readJobResponse.data) === null || _readJobResponse$data13 === void 0 ? void 0 : (_readJobResponse$data14 = _readJobResponse$data13.category) === null || _readJobResponse$data14 === void 0 ? void 0 : _readJobResponse$data14._id

@@ -95,7 +95,7 @@ const preDeleteOneMethod = async function (next) {
 	if (readJobResponse?.data?.created_by?._id) {
 		const updateUserResponse = await UserService.updateOne(
 			{ _id: readJobResponse?.data?.created_by?._id },
-			{ $pull: { jobs: readJobResponse?.data?.id } }
+			{ $pull: { jobs: readJobResponse?.data?._id } }
 		);
 		if (updateUserResponse?.error) return next(updateUserResponse?.errors);
 	}
@@ -109,7 +109,7 @@ const preDeleteOneMethod = async function (next) {
 
 	if (readJobResponse?.data?.category?._id) {
 		const updateCategoryResponse = await CategoryService.updateOne(
-			{ _id: readJobResponse?.data?.id },
+			{ _id: readJobResponse?.data?._id },
 			{ $pull: { jobs: readJobResponse?.data?.category?._id } }
 		);
 		if (updateCategoryResponse?.error) return next(updateCategoryResponse?.errors);

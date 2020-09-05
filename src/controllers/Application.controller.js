@@ -59,19 +59,8 @@ class ApplicationController extends Controller {
 			}),
 			...(req.user && req.user.role !== "admin" && { created_by: req.user._id }),
 		};
-		const options = {
-			populate: [
-				{
-					path: "job",
-					select: "created_by title slug status",
-					populate: {
-						path: "created_by",
-						select: "email account.picture account.picture_sm account.picture_md account.picture_lg",
-					},
-				},
-			],
-			...req.query,
-		};
+
+		const options = { ...req.query };
 
 		const applicationReadResponse = await this.service.readMany(query, options);
 		if (applicationReadResponse.error) return next(applicationReadResponse.errors);

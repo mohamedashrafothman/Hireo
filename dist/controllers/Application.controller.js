@@ -119,16 +119,7 @@ var ApplicationController = /*#__PURE__*/function (_Controller) {
                 }), req.user && req.user.role !== "admin" && {
                   created_by: req.user._id
                 });
-                options = _objectSpread({
-                  populate: [{
-                    path: "job",
-                    select: "created_by title slug status",
-                    populate: {
-                      path: "created_by",
-                      select: "email account.picture account.picture_sm account.picture_md account.picture_lg"
-                    }
-                  }]
-                }, req.query);
+                options = _objectSpread({}, req.query);
                 _context.next = 4;
                 return this.service.readMany(query, options);
 
